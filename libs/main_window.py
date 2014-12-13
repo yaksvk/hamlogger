@@ -12,3 +12,23 @@ class MainWindow(Gtk.Window):
         
         self.set_size_request(config.WINDOW_WIDTH, config.WINDOW_HEIGHT)
         self.set_position(Gtk.WindowPosition.CENTER)
+        
+        # MENU HEADERS
+        
+        
+        
+        
+        
+        # MAIN CONTENT
+        main_vbox = Gtk.VBox(False, 8)
+        
+        
+        
+        
+        
+        # FOOTER
+        self.statusbar = Gtk.Statusbar()
+        main_vbox.pack_start(self.statusbar, False, False, 0)
+            
+        # FINISH OFF
+        self.add(main_vbox)

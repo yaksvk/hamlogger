@@ -2,6 +2,7 @@
 # -*- coding: utf-8 -*-
 
 # global libs
+import argparse
 import os
 import sys
 import signal
@@ -33,6 +34,19 @@ class HamLogger(Gtk.Application):
         window.set_title(self.config.APPLICATION_NAME)
         window.set_position(Gtk.WindowPosition.CENTER)
         window.show_all()
+
+# PROCESS COMMAND LINE ARGUMENTS
+parser = argparse.ArgumentParser(description='%s - a Ham radio logger application' % config.APPLICATION_NAME)
+parser.add_argument("--import_ods", type=str, help="Import log records from an ODS file.", metavar="ODS_FILE")
+args = parser.parse_args()
+
+if args.import_ods:
+    from libs.tools import import_from_ods
+    import_from_ods.execute(args.import_ods)
+    sys.exit()
+
+
+# RUN GTK APPLICATION
 
 app = HamLogger(config)
 # capture sigint to close application
