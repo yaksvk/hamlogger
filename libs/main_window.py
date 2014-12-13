@@ -100,3 +100,15 @@ class MainWindow(Gtk.Window):
             
         # FINISH OFF
         self.add(main_vbox)
+
+    
+    # EVENT HANDLING FUNCTIONS FOR THE WIDGETS
+
+    def something():
+        pass
+
+
+
+    # TREE LOADING / REFRESHING FUNCTIONS
+
+
