@@ -17,9 +17,9 @@ def probe_models_and_create_session(db_file):
 
 # models for tables
 
-class CallsignEntity(Base):                                                                                                                                                                         
-    __tablename__ = 'callsigns'                                                                                                                                                               
-                                                                                                                                                                                              
+class CallsignEntity(Base): 
+    __tablename__ = 'callsigns' 
+    
     id = Column(Integer, primary_key=True)
     callsign = Column(Unicode(64))
     qsos = relationship("Qso", backref="callsigns")
@@ -45,12 +45,15 @@ class Qso(Base):
     variables = relationship("QsoVariable", backref="qsos")
     date = Column(Date)
     utc_time = Column(Time)
+    frequency = Column(Unicode(8))
+    mode = Column(Unicode(8))
     rst_sent = Column(Unicode(64))
     rst_received = Column(Unicode(64))
-    name_received = Column(Unicode(64))                                                                                                                                                         
-    qth_received = Column(Unicode(64))                                                                                                                                                          
-    text_note = Column(Text)                                                                                                                                                                           
-    export = Column(Boolean, default=True)                                                                                                                                                    
+    name_received = Column(Unicode(64))
+    qth_received = Column(Unicode(64))
+    country_received = Column(Unicode(64))
+    text_note = Column(Text)
+    export = Column(Boolean, default=True)
 
 class QsoVariable(Base):
     __tablename__ = 'qso_variables'
