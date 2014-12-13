@@ -1,13 +1,15 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 
-from sqlalchemy.ext.declarative import declarative_base
-from sqlalchemy import *
-from sqlalchemy.orm import relation, sessionmaker
+from models import Base, CallsignEntity, QsoType, Qso, QsoVariable
+from models import probe_models_and_create_session
 
-class MemberSaver():
+class DataConnector():
     
     def __init__(self, db_file):
-        pass
-
+        
+        self.session = probe_models_and_create_session(db_file)
+    
+    def commit(self):
+        self.session.commit()
 

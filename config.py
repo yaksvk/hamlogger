@@ -26,3 +26,5 @@ WINDOW_HEIGHT=800
 # DATABASE
 # ---------------------------------------------------------------
 DB_FILE='db/log.sqlite'
+# this can be a file relative to hamlogger.py or an absolute file
+

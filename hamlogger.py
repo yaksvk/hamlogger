@@ -2,6 +2,7 @@
 # -*- coding: utf-8 -*-
 
 # global libs
+import os
 import sys
 import signal
 from gi.repository import Gtk
@@ -15,6 +16,10 @@ class HamLogger(Gtk.Application):
 
     def __init__(self, config, *args, **kwargs):
         super(HamLogger, self).__init__(*args, **kwargs)
+
+        # config post processing ->
+        # change a potentially relative path to absolute path
+        config.DB_FILE = os.path.abspath(config.DB_FILE)
 
         self.config = config
     
