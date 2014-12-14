@@ -120,6 +120,21 @@ class MainWindow(Gtk.Window):
        
         # PREVIOUS CONVERSATIONS
 
+        label_previous_log = Gtk.Label()
+        label_previous_log.set_markup("<b>PREVIOUS CONVERSATIONS WITH THIS CALLSIGN:</b>")
+        main_vbox.pack_start(label_previous_log, False, True, 0)
+
+        swp = Gtk.ScrolledWindow()
+        swp.set_shadow_type(Gtk.ShadowType.ETCHED_IN)
+        swp.set_policy(Gtk.PolicyType.AUTOMATIC, Gtk.PolicyType.ALWAYS)
+        main_vbox.pack_start(swp, True, True, 0)
+
+        self.dupe_log_store = self.tree_data_create_model()
+
+        treeView_p = Gtk.TreeView(self.dupe_log_store)
+        swp.add(treeView_p)
+
+        self.tree_data_create_columns(treeView_p)
 
 
         # CURRENT LOG
@@ -160,6 +175,11 @@ class MainWindow(Gtk.Window):
         new_text = widget.get_text().upper()
         widget.set_text(new_text)
 
+        if len(new_text) > 1:
+            self.tree_data_refresh_dupe_tree()
+        else:
+            self.dupe_log_store.clear()
+
     def widget_call_entry_keypress(self, widget, event):
         keyname = Gdk.keyval_name(event.keyval)
         if keyname == 'Tab':
@@ -180,21 +200,35 @@ class MainWindow(Gtk.Window):
         #print "testing event, cleaning test store"
         #self.store_previous.clear()
 
+        self.tree_data_refresh_main_tree();
+
     # TREE LOADING / REFRESHING FUNCTIONS
 
 
     def tree_data_create_model(self):
         store = Gtk.ListStore(int, str, str, str, str, str, str, str, str, str, str)
 
-        #for act in actresses:
-        #    store.append([act[0], act[1], act[2]])
+        return store
+
+    def tree_data_refresh_main_tree(self):
+        self.current_log_store.clear()
+
         qsos = self.db.get_qsos()
         for qso in qsos:
-            store.append(
+            self.current_log_store.append(
                 (qso.id, qso.date, qso.utc_time, qso.frequency, qso.mode, qso.callsign, qso.rst_sent, qso.rst_received, qso.name_received, qso.qth_received, qso.text_note )
             )
 
-        return store
+    def tree_data_refresh_dupe_tree(self):
+        self.dupe_log_store.clear()
+        
+        qsos = self.db.get_qsos(callsign_filter=self.widgets['call_entry'].get_text())
+        for qso in qsos:
+            self.dupe_log_store.append(
+                (qso.id, qso.date, qso.utc_time, qso.frequency, qso.mode, qso.callsign, qso.rst_sent, qso.rst_received, qso.name_received, qso.qth_received, qso.text_note )
+            )
+       
+
 
     def tree_data_create_columns(self, treeView):
    

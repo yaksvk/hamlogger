@@ -23,6 +23,8 @@ def execute(ods_file, db_handle):
         print "Processing sheet: %s" % sheet.name
         if j == 0:
             for i, row in enumerate(sheet.rows()):
+                if i == 0:
+                    next
 
                 try:
                     date = row[0].value
