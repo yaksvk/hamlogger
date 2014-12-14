@@ -9,8 +9,14 @@ TWEAKING :)
 
 import ezodf
 from ezodf.timeparser import TimeParser
+import datetime
+import re
 
-def execute(ods_file, db_handle):
+def execute(ods_file, db_handle, pretend=False):
+    
+    if pretend:
+        print "I will only pretend. Nothing will be written. No worries :)"
+        
     print "Processing file: %s" % ods_file
 
     doc = ezodf.opendoc(ods_file)
@@ -23,32 +29,58 @@ def execute(ods_file, db_handle):
         print "Processing sheet: %s" % sheet.name
         if j == 0:
             for i, row in enumerate(sheet.rows()):
-                if i == 0:
-                    next
-
-                try:
-                    date = row[0].value
-                    utc = row[1].value
-                    mode = row[2].value
-                    band = row[3].value
-                    callsign = row[4].value
-                    
-
-                except Exception, e:
-                    print "%04i:  Invalid data. (%s)" % (i, str(e))
-                    next
                 
-                qso = db_handle.create_qso(
-                    callsign=callsign,
-                    mode=mode,
-                    frequency=band,
-                    rst_sent=row[5].value, 
-                    rst_received=row[6].value,
-                    name_received=row[7].value,
-                    qth_received=row[8].value,
-                    country_received=row[9].value,
-                    text_note=row[10].value,
-                )
-                db_handle.commit()
-                print "Added: %04i:  %-10s %-10s %-6s %-6s" % (i, date, utc, mode, band)
+                if i > 0:
+                    
+                    dat=None
+                    utc=None
+                    mode=None
+                    band=None
+                    callsign=None
+
+                    try:
+                        # try other formats before
+                        
+                        if row[0] is not None:
+                            tfields = row[0].value.split('-')
+                            if len(tfields) == 3:
+                                dat = datetime.date(*map(int, tfields))
+                            else:
+                                tfields = map(int, row[0].value.split('.'))
+                                if len(tfields) == 3:
+                                    dat = datetime.date(tfields[2], tfields[1], tfields[0])
+                                else:
+                                    print "Unable to parse date."            
+                        
+                        if row[1].value is not None:
+                            utc = datetime.time(int(row[1].value[2:4]), int(row[1].value[5:7]))
+                        mode = row[2].value
+                        band = row[3].value
+                        callsign = row[4].value
+                        
+                        if not pretend and None not in (callsign, dat, utc):    
+                            qso = db_handle.create_qso(
+                                callsign=callsign,
+                                mode=mode,
+                                date=dat,
+                                utc_time=utc,
+                                frequency=band,
+                                rst_sent=row[5].value, 
+                                rst_received=row[6].value,
+                                name_received=row[7].value,
+                                qth_received=row[8].value,
+                                country_received=row[9].value,
+                                text_note=row[10].value,
+                            )
+                        
+                        db_handle.commit()
+                        
+                        print "Added: %04i:  %-10s %-10s %-6s %-6s" % (i, dat, utc, mode, band)
+                        
+
+                    except Exception, e:
+                        print "%04i:  Invalid data. (%s)" % (i, str(e))
+                        next
+                    
+                   
 

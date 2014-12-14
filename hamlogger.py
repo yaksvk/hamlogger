@@ -43,7 +43,7 @@ app = HamLogger(config)
 
 # PROCESS COMMAND LINE ARGUMENTS
 parser = argparse.ArgumentParser(description='%s - a Ham radio logger application' % config.APPLICATION_NAME)
-parser.add_argument("--import_ods", type=str, help="Import log records from an ODS file.", metavar="ODS_FILE")
+parser.add_argument("-i", "--import_ods", type=str, help="Import log records from an ODS file.", metavar="ODS_FILE")
 args = parser.parse_args()
 
 # 1. import log data from an ods file 
