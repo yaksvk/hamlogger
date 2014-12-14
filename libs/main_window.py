@@ -1,7 +1,8 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 
-from gi.repository import Gtk
+from gi.repository import Gtk, Gdk
+import datetime
 
 class MainWindow(Gtk.Window): 
     def __init__(self, config, db, *args, **kwargs):
@@ -34,14 +35,38 @@ class MainWindow(Gtk.Window):
         for mode in config.MODES:
             self.widgets['mode_combo'].append_text(mode)
         self.widgets['mode_combo'].set_active(0)
+
+        self.widgets['call_entry'] = Gtk.Entry(max_width_chars=10, width_chars=10)
+        self.widgets['call_entry'].connect("changed", self.widget_call_entry_changed) 
+        self.widgets['call_entry'].connect("key-press-event", self.widget_call_entry_keypress)   
+
+        self.widgets['input_date'] = Gtk.Entry(max_width_chars=10, width_chars=10)
+        self.widgets['input_time'] = Gtk.Entry(max_width_chars=5, width_chars=5)
         
-        # TODO - more widgets
+        self.widgets['rst_sent'] = Gtk.Entry(max_width_chars=6, width_chars=6)
+        self.widgets['rst_rcvd'] = Gtk.Entry(max_width_chars=6, width_chars=6)
+
+        self.widgets['rst_sent'].connect("key-press-event", self.widget_rst_keypress)   
+        self.widgets['rst_rcvd'].connect("key-press-event", self.widget_rst_keypress)   
+
+        self.widgets['input_note'] = Gtk.Entry(max_width_chars=40, width_chars=40)
         
+        
+        save_button = Gtk.Button(label="Save")
+        save_button.connect("button-press-event", self.widget_save_qso)   
         
         items = (
             ("FREQ", self.widgets['band_combo'],1),
             ("MODE", self.widgets['mode_combo'],1),
-            # TODO
+            ("CALL", self.widgets['call_entry'],2),  
+            ("DATE", self.widgets['input_date'],1),
+            ("UTC", self.widgets['input_time'],1),
+            ("RST SENT", self.widgets['rst_sent'],1),
+            ("RST RCVD", self.widgets['rst_rcvd'],1),
+            ("NAME", Gtk.Entry(max_width_chars=15, width_chars=15),2),
+            ("QTH", Gtk.Entry(max_width_chars=20, width_chars=20),2),
+            ("NOTE", self.widgets['input_note'],4),
+            ("", save_button, 1),
         )
         
         flex_sum = reduce(lambda x,y: x + y, [ i[2] for i in items ] )
@@ -92,7 +117,31 @@ class MainWindow(Gtk.Window):
         
 
         main_vbox.pack_start(hbox, True, True, 0)
-        
+       
+        # PREVIOUS CONVERSATIONS
+
+
+
+        # CURRENT LOG
+
+
+        label_current_log = Gtk.Label()
+        label_current_log.set_markup("<b>CURRENT LOG:</b>")
+        main_vbox.pack_start(label_current_log, False, True, 0)
+
+        sw = Gtk.ScrolledWindow()
+        sw.set_shadow_type(Gtk.ShadowType.ETCHED_IN)
+        sw.set_policy(Gtk.PolicyType.AUTOMATIC, Gtk.PolicyType.ALWAYS)
+        main_vbox.pack_start(sw, True, True, 0)
+
+        self.current_log_store = self.tree_data_create_model() 
+
+        treeView = Gtk.TreeView(self.current_log_store)
+        treeView.set_rules_hint(True)
+        sw.add(treeView)
+
+        self.tree_data_create_columns(treeView)
+
         
         # FOOTER
         self.statusbar = Gtk.Statusbar()
@@ -107,8 +156,55 @@ class MainWindow(Gtk.Window):
     def something():
         pass
 
+    def widget_call_entry_changed(self, widget):
+        new_text = widget.get_text().upper()
+        widget.set_text(new_text)
 
+    def widget_call_entry_keypress(self, widget, event):
+        keyname = Gdk.keyval_name(event.keyval)
+        if keyname == 'Tab':
+            # get current UTC date and time
+            utc = datetime.datetime.utcnow().timetuple()
+            self.widgets['input_date'].set_text("%04i-%02i-%02i" % (utc.tm_year , utc.tm_mon, utc.tm_mday))
+            self.widgets['input_time'].set_text("%02i:%02i" % (utc.tm_hour, utc.tm_min))
+            
+            self.widgets['input_time'].grab_focus()
+        
+    def widget_rst_keypress(self, widget, event):
+        keyname = Gdk.keyval_name(event.keyval)
+        if keyname == 'Tab':
+            widget.set_text('59')
+
+    def widget_save_qso(self, widget, event):
+        pass
+        #print "testing event, cleaning test store"
+        #self.store_previous.clear()
 
     # TREE LOADING / REFRESHING FUNCTIONS
+
+
+    def tree_data_create_model(self):
+        store = Gtk.ListStore(int, str, str, str, str, str, str, str, str, str, str)
+
+        #for act in actresses:
+        #    store.append([act[0], act[1], act[2]])
+        qsos = self.db.get_qsos()
+        for qso in qsos:
+            store.append(
+                (qso.id, qso.date, qso.utc_time, qso.frequency, qso.mode, qso.callsign, qso.rst_sent, qso.rst_received, qso.name_received, qso.qth_received, qso.text_note )
+            )
+
+        return store
+
+    def tree_data_create_columns(self, treeView):
+   
+        columns = ['ID','DATE', 'UTC', 'FREQ', 'MODE', 'CALL', 'RST_SENT', 'RST_RCVD', 'NAME', 'QTH', 'NOTE']
+
+        for i, column in enumerate(columns):
+            rendererText = Gtk.CellRendererText()
+            col = Gtk.TreeViewColumn(column, rendererText, text=i)
+            col.set_sort_column_id(i)    
+            treeView.append_column(col)
+        
 
 

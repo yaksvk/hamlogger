@@ -16,6 +16,12 @@ class DataConnector():
         self.session.add(qso)
         return qso
 
+    def get_qsos(self, callsign_filter=None):
+        if callsign_filter is not None:
+            return self.session.query(Qso).filter(Qso.callsign.startswith(callsign_filter)).order_by(Qso.id.desc()).all()
+        else:
+            return self.session.query(Qso).order_by(Qso.id.desc()).all()
+
     def commit(self):
         self.session.commit()
 
