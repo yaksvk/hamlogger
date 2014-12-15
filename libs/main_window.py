@@ -115,8 +115,8 @@ class MainWindow(Gtk.Window):
         vbox_h_3.pack_start(label_h3, False, True, 0)
 
         # TODO - connect this to callsign note
-        text_field = Gtk.TextView()
-        vbox_h_3.pack_start(text_field, True, True, 0)
+        self.widgets['callsign_note'] = Gtk.TextView()
+        vbox_h_3.pack_start(self.widgets['callsign_note'], True, True, 0)
 
         hbox.pack_start(vbox_h_1, True, True, 0)
         hbox.pack_start(vbox_h_2, True, True, 0)
@@ -192,6 +192,8 @@ class MainWindow(Gtk.Window):
         else:
             self.dupe_log_store.clear()
 
+        
+
     def widget_call_entry_keypress(self, widget, event):
         keyname = Gdk.keyval_name(event.keyval)
         if keyname == 'Tab':
@@ -237,17 +239,22 @@ class MainWindow(Gtk.Window):
         if found_qso:
             print "Not adding. Dupe."
         else:
+            buf = self.widgets['callsign_note'].get_buffer()
+            cs_text_note = buf.get_text(*buf.get_bounds(),include_hidden_chars=False)
+
             qso = self.db.create_qso(
                 callsign=unicode(callsign),
                 mode=unicode(mode),
                 datetime_utc=datetime_combined,
                 frequency=unicode(freq),
-            #    rst_sent=row[5].value, 
-            #    rst_received=row[6].value,
-            #    name_received=row[7].value,
-            #    qth_received=row[8].value,
+                rst_sent=unicode(self.widgets['rst_sent'].get_text()), 
+                rst_received=unicode(self.widgets['rst_rcvd'].get_text()),
+                name_received=unicode(self.widgets['name'].get_text()),
+                qth_received=unicode(self.widgets['qth'].get_text()),
+                text_note=unicode(self.widgets['input_note'].get_text()),
+                callsign_text_note=unicode(cs_text_note),
             #    country_received=row[9].value,
-            #    text_note=row[10].value,
+            # TODO get country from DXCC entity
             )
 
 
@@ -255,24 +262,16 @@ class MainWindow(Gtk.Window):
         for i in obligatories:
             self.widgets[i].set_text('')
 
+        self.widgets['rst_sent'].set_text('')
+        self.widgets['rst_rcvd'].set_text('')
+        self.widgets['name'].set_text('')
+        self.widgets['qth'].set_text('')
+        self.widgets['input_note'].set_text('')
+        self.widgets['callsign_note'].get_buffer().set_text('')
+
         self.widgets['call_entry'].grab_focus()
         self.tree_data_refresh_main_tree()
         self.dupe_log_store.clear()
-
-        """
-            ("FREQ", self.widgets['band_combo'],1),
-            ("MODE", self.widgets['mode_combo'],1),
-            ("CALL", self.widgets['call_entry'],2),  
-            ("DATE", self.widgets['input_date'],1),
-            ("UTC", self.widgets['input_time'],1),
-            ("RST SENT", self.widgets['rst_sent'],1),
-            ("RST RCVD", self.widgets['rst_rcvd'],1),
-            ("NAME",  self.widgets['name'],2),
-            ("QTH",  self.widgets['qth'],2),
-            ("NOTE", self.widgets['input_note'],4),
-
-
-        """
 
     # TREE LOADING / REFRESHING FUNCTIONS
 
@@ -288,7 +287,19 @@ class MainWindow(Gtk.Window):
         qsos = self.db.get_qsos()
         for qso in qsos:
             self.current_log_store.append(
-                  (qso.id, qso.datetime_utc.date().isoformat(), qso.datetime_utc.time().isoformat()[:5], qso.frequency, qso.mode, qso.callsign, qso.rst_sent, qso.rst_received, qso.name_received, qso.qth_received, qso.text_note )
+                  (
+                      qso.id, 
+                      qso.datetime_utc.date().isoformat(), 
+                      qso.datetime_utc.time().isoformat()[:5], 
+                      qso.frequency,
+                      qso.mode, 
+                      qso.callsign,
+                      qso.rst_sent, 
+                      qso.rst_received,
+                      qso.name_received, 
+                      qso.qth_received, 
+                      qso.text_note
+                  )
             )
 
     def tree_data_refresh_dupe_tree(self):
@@ -297,10 +308,34 @@ class MainWindow(Gtk.Window):
         qsos = self.db.get_qsos(callsign_filter=self.widgets['call_entry'].get_text())
         for qso in qsos:
             self.dupe_log_store.append(
-                (qso.id, qso.datetime_utc.date().isoformat(), qso.datetime_utc.time().isoformat()[:5], qso.frequency, qso.mode, qso.callsign, qso.rst_sent, qso.rst_received, qso.name_received, qso.qth_received, qso.text_note )
+                (
+                    qso.id, 
+                    qso.datetime_utc.date().isoformat(), 
+                    qso.datetime_utc.time().isoformat()[:5], 
+                    qso.frequency, 
+                    qso.mode, 
+                    qso.callsign, 
+                    qso.rst_sent,
+                    qso.rst_received,
+                    qso.name_received,
+                    qso.qth_received,
+                    qso.text_note 
+                )
             )
-       
 
+        # also try to find if all qsos belong to one callsign - in that case, load their details
+        a = set(i.callsign_entity for i in qsos )
+        if len(a) == 1:
+            self.active_callsign_entity = a.pop()
+            if self.active_callsign_entity.text_note is not None:
+                self.widgets['callsign_note'].get_buffer().set_text(self.active_callsign_entity.text_note)
+            else:
+                self.widgets['callsign_note'].get_buffer().set_text('')
+            
+        else:
+            # clear field
+            self.active_callsign_entity = None
+            self.widgets['callsign_note'].get_buffer().set_text('')
 
     def tree_data_create_columns(self, treeView):
    

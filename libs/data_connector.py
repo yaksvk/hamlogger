@@ -11,6 +11,12 @@ class DataConnector():
         self.session = probe_models_and_create_session(db_file)
    
     def create_qso(self, *args, **kwargs):
+        
+        if 'callsign_text_note' in kwargs:
+            callsign_note = kwargs['callsign_text_note']
+            del(kwargs['callsign_text_note'])
+        else:
+            callsign_note = None
 
         qso = Qso(*args, **kwargs)
 
@@ -20,9 +26,13 @@ class DataConnector():
         if  base_callsign_entity is not None:
             # base callsign found, assign
             qso.callsign_entity = base_callsign_entity 
+            if callsign_note is not None:
+                qso.callsign_entity.text_note = unicode(callsign_note)
         else:
             # base callsign not found, create
             base_callsign_entity = CallsignEntity(callsign=unicode(base_callsign_text))
+            if callsign_note is not None:
+                base_callsign_entity.text_note = unicode(callsign_note)
             self.session.add(base_callsign_entity)
             qso.callsign_entity = base_callsign_entity 
 
@@ -32,9 +42,19 @@ class DataConnector():
         self.commit()
         return qso
 
-    def get_qsos(self, callsign_filter=None):
+    def get_qsos(self, callsign_filter=None, base_callsign=True):
         if callsign_filter is not None:
-            return self.session.query(Qso).filter(Qso.callsign.startswith(unicode(callsign_filter))).order_by(Qso.id.desc()).all()
+
+            if base_callsign:
+                # first get basic callsign and then get matching qsos
+                callsign_filter = CallsignEntity.get_base_callsign(callsign_filter)
+                if len(callsign_filter) > 2:
+                    return self.session.query(Qso).join(CallsignEntity).filter(CallsignEntity.callsign.startswith(unicode(callsign_filter))).order_by(Qso.id.desc()).all()
+                else:
+                    return []
+            else:
+                # just return a list matching the given callsign
+                return self.session.query(Qso).filter(Qso.callsign.startswith(unicode(callsign_filter))).order_by(Qso.id.desc()).all()
         else:
             return self.session.query(Qso).order_by(Qso.id.desc()).all()
 

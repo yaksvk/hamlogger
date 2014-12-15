@@ -35,6 +35,9 @@ class CallsignEntity(Base):
         
         return clean_sign
 
+    def __repr__(self):
+        return ''.join((str(self.id), ':', self.callsign))
+
 class QsoType(Base):
     __tablename__ = 'qso_types'
 
@@ -63,6 +66,9 @@ class Qso(Base):
     country_received = Column(Unicode(64))
     text_note = Column(Text)
     export = Column(Boolean, default=True)
+
+    def __repr__(self):
+        return ''.join((self.callsign, ' ', self.datetime_utc.isoformat()))
 
 class QsoVariable(Base):
     __tablename__ = 'qso_variables'
