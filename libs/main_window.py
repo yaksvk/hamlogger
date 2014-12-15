@@ -50,11 +50,18 @@ class MainWindow(Gtk.Window):
         self.widgets['rst_rcvd'].connect("key-press-event", self.widget_rst_keypress)   
 
         self.widgets['input_note'] = Gtk.Entry(max_width_chars=40, width_chars=40)
-        
+       
+        self.widgets['name'] = Gtk.Entry(max_width_chars=15, width_chars=15)
+        self.widgets['qth'] = Gtk.Entry(max_width_chars=20, width_chars=20)
         
         save_button = Gtk.Button(label="Save")
         save_button.connect("button-press-event", self.widget_save_qso)   
-        
+
+        # for some widgets, also add a universal keypress watcher, these will serve for return
+        for i in ('call_entry', 'input_date', 'input_time', 'rst_sent', 'rst_rcvd', 'input_note', 'name', 'qth'):
+            self.widgets[i].connect("key-press-event", self.widget_guard_for_return)   
+
+
         items = (
             ("FREQ", self.widgets['band_combo'],1),
             ("MODE", self.widgets['mode_combo'],1),
@@ -63,8 +70,8 @@ class MainWindow(Gtk.Window):
             ("UTC", self.widgets['input_time'],1),
             ("RST SENT", self.widgets['rst_sent'],1),
             ("RST RCVD", self.widgets['rst_rcvd'],1),
-            ("NAME", Gtk.Entry(max_width_chars=15, width_chars=15),2),
-            ("QTH", Gtk.Entry(max_width_chars=20, width_chars=20),2),
+            ("NAME",  self.widgets['name'],2),
+            ("QTH",  self.widgets['qth'],2),
             ("NOTE", self.widgets['input_note'],4),
             ("", save_button, 1),
         )
@@ -157,6 +164,7 @@ class MainWindow(Gtk.Window):
 
         self.tree_data_create_columns(treeView)
 
+
         
         # FOOTER
         self.statusbar = Gtk.Statusbar()
@@ -164,6 +172,10 @@ class MainWindow(Gtk.Window):
             
         # FINISH OFF
         self.add(main_vbox)
+
+        # reload tree for the first time
+        self.tree_data_refresh_main_tree()
+        self.widgets['call_entry'].grab_focus()
 
     
     # EVENT HANDLING FUNCTIONS FOR THE WIDGETS
@@ -195,12 +207,72 @@ class MainWindow(Gtk.Window):
         if keyname == 'Tab':
             widget.set_text('59')
 
-    def widget_save_qso(self, widget, event):
-        pass
-        #print "testing event, cleaning test store"
-        #self.store_previous.clear()
+    def widget_guard_for_return(self, widget, event):
+        keyname = Gdk.keyval_name(event.keyval)
+        if keyname == 'Return':
+            self.widget_save_qso(widget, event)
 
-        self.tree_data_refresh_main_tree();
+    def widget_save_qso(self, widget, event):        
+        # check if at least CALL, DATE, TIME and RST SENT and RECEIVED are present and save
+        obligatories = ['call_entry', 'input_date', 'input_time', 'rst_sent', 'rst_rcvd']
+
+        freq = self.widgets['band_combo'].get_active_text()
+        mode = self.widgets['mode_combo'].get_active_text()
+
+        for i in obligatories:
+            if self.widgets[i].get_text() == '':
+                print "Not adding. Obligatory fields empty."
+                return
+
+        # save
+        callsign = self.widgets['call_entry'].get_text()
+        dfields = self.widgets['input_date'].get_text().split('-')
+        dat = datetime.date(*map(int, dfields))
+        tfields = self.widgets['input_time'].get_text().split(':')
+        utc = datetime.time(int(tfields[0]), int(tfields[1]))
+
+        datetime_combined=datetime.datetime.combine(dat, utc)
+        
+        found_qso = self.db.get_first_qso(callsign=unicode(callsign),datetime_utc=datetime_combined)
+        if found_qso:
+            print "Not adding. Dupe."
+        else:
+            qso = self.db.create_qso(
+                callsign=unicode(callsign),
+                mode=unicode(mode),
+                datetime_utc=datetime_combined,
+                frequency=unicode(freq),
+            #    rst_sent=row[5].value, 
+            #    rst_received=row[6].value,
+            #    name_received=row[7].value,
+            #    qth_received=row[8].value,
+            #    country_received=row[9].value,
+            #    text_note=row[10].value,
+            )
+
+
+        # clean fields and grab focus
+        for i in obligatories:
+            self.widgets[i].set_text('')
+
+        self.widgets['call_entry'].grab_focus()
+        self.tree_data_refresh_main_tree()
+        self.dupe_log_store.clear()
+
+        """
+            ("FREQ", self.widgets['band_combo'],1),
+            ("MODE", self.widgets['mode_combo'],1),
+            ("CALL", self.widgets['call_entry'],2),  
+            ("DATE", self.widgets['input_date'],1),
+            ("UTC", self.widgets['input_time'],1),
+            ("RST SENT", self.widgets['rst_sent'],1),
+            ("RST RCVD", self.widgets['rst_rcvd'],1),
+            ("NAME",  self.widgets['name'],2),
+            ("QTH",  self.widgets['qth'],2),
+            ("NOTE", self.widgets['input_note'],4),
+
+
+        """
 
     # TREE LOADING / REFRESHING FUNCTIONS
 

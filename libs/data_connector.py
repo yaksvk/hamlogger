@@ -22,7 +22,7 @@ class DataConnector():
             qso.callsign_entity = base_callsign_entity 
         else:
             # base callsign not found, create
-            base_callsign_entity = CallsignEntity(callsign=base_callsign_text)
+            base_callsign_entity = CallsignEntity(callsign=unicode(base_callsign_text))
             self.session.add(base_callsign_entity)
             qso.callsign_entity = base_callsign_entity 
 
