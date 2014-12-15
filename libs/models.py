@@ -4,6 +4,7 @@
 from sqlalchemy.ext.declarative import declarative_base
 from sqlalchemy import *
 from sqlalchemy.orm import relation, sessionmaker, relationship
+import re
 
 Base = declarative_base()
 
@@ -25,6 +26,15 @@ class CallsignEntity(Base):
     qsos = relationship("Qso", backref="callsigns")
     text_note = Column(Text)
 
+    @classmethod
+    def get_base_callsign(myclass, callsign_text):
+        """get base callsign for complicated types like mobile, portable or CEPT calls"""
+        clean_sign = re.sub('(/p|/m|/mm|/am|/qrp)?$', '', callsign_text, flags=re.IGNORECASE)
+        clean_sign = re.sub('(/p|/m|/mm|/am|/qrp)?$', '', clean_sign, flags=re.IGNORECASE)
+        clean_sign = re.sub('^[^/]+/', '', clean_sign, flags=re.IGNORECASE)
+        
+        return clean_sign
+
 class QsoType(Base):
     __tablename__ = 'qso_types'
 
@@ -43,8 +53,7 @@ class Qso(Base):
     callsign_entity = relation(CallsignEntity)
     qso_type = relation(QsoType)
     variables = relationship("QsoVariable", backref="qsos")
-    date = Column(Date)
-    utc_time = Column(Time)
+    datetime_utc = Column(DateTime)
     frequency = Column(Unicode(8))
     mode = Column(Unicode(8))
     rst_sent = Column(Unicode(64))

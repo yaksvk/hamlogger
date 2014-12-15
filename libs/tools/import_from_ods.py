@@ -59,23 +59,28 @@ def execute(ods_file, db_handle, pretend=False):
                         callsign = row[4].value
                         
                         if not pretend and None not in (callsign, dat, utc):    
-                            qso = db_handle.create_qso(
-                                callsign=callsign,
-                                mode=mode,
-                                date=dat,
-                                utc_time=utc,
-                                frequency=band,
-                                rst_sent=row[5].value, 
-                                rst_received=row[6].value,
-                                name_received=row[7].value,
-                                qth_received=row[8].value,
-                                country_received=row[9].value,
-                                text_note=row[10].value,
-                            )
+                            datetime_combined=datetime.datetime.combine(dat, utc)
+                            
+                            found_qso = db_handle.get_first_qso(callsign=unicode(callsign),datetime_utc=datetime_combined)
+
+                            if found_qso:
+                                print "Not adding: %04i:  %-10s %-10s %-6s %-6s (already in db)" % (i, mode, dat, utc, band)
+                            else:
+                                qso = db_handle.create_qso(
+                                    callsign=callsign,
+                                    mode=mode,
+                                    datetime_utc=datetime_combined,
+                                    frequency=band,
+                                    rst_sent=row[5].value, 
+                                    rst_received=row[6].value,
+                                    name_received=row[7].value,
+                                    qth_received=row[8].value,
+                                    country_received=row[9].value,
+                                    text_note=row[10].value,
+                                )
+                                print "Added: %04i:  %-10s %-10s %-6s %-6s" % (i, mode, dat, utc, band)
                         
-                        db_handle.commit()
                         
-                        print "Added: %04i:  %-10s %-10s %-6s %-6s" % (i, dat, utc, mode, band)
                         
 
                     except Exception, e:

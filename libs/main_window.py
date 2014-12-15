@@ -216,7 +216,7 @@ class MainWindow(Gtk.Window):
         qsos = self.db.get_qsos()
         for qso in qsos:
             self.current_log_store.append(
-                  (qso.id, qso.date.isoformat(), qso.utc_time.isoformat()[:5], qso.frequency, qso.mode, qso.callsign, qso.rst_sent, qso.rst_received, qso.name_received, qso.qth_received, qso.text_note )
+                  (qso.id, qso.datetime_utc.date().isoformat(), qso.datetime_utc.time().isoformat()[:5], qso.frequency, qso.mode, qso.callsign, qso.rst_sent, qso.rst_received, qso.name_received, qso.qth_received, qso.text_note )
             )
 
     def tree_data_refresh_dupe_tree(self):
@@ -225,7 +225,7 @@ class MainWindow(Gtk.Window):
         qsos = self.db.get_qsos(callsign_filter=self.widgets['call_entry'].get_text())
         for qso in qsos:
             self.dupe_log_store.append(
-                (qso.id, qso.date.isoformat(), qso.utc_time.isoformat()[:5], qso.frequency, qso.mode, qso.callsign, qso.rst_sent, qso.rst_received, qso.name_received, qso.qth_received, qso.text_note )
+                (qso.id, qso.datetime_utc.date().isoformat(), qso.datetime_utc.time().isoformat()[:5], qso.frequency, qso.mode, qso.callsign, qso.rst_sent, qso.rst_received, qso.name_received, qso.qth_received, qso.text_note )
             )
        
 
