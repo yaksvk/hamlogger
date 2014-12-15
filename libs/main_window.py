@@ -116,7 +116,7 @@ class MainWindow(Gtk.Window):
 
         # TODO - connect this to callsign note
         self.widgets['callsign_note'] = Gtk.TextView()
-        vbox_h_3.pack_start(self.widgets['callsign_note'], True, True, 0)
+        vbox_h_3.pack_start(self.widgets['callsign_note'], False, True, 0)
 
         hbox.pack_start(vbox_h_1, True, True, 0)
         hbox.pack_start(vbox_h_2, True, True, 0)
@@ -134,7 +134,8 @@ class MainWindow(Gtk.Window):
         swp = Gtk.ScrolledWindow()
         swp.set_shadow_type(Gtk.ShadowType.ETCHED_IN)
         swp.set_policy(Gtk.PolicyType.AUTOMATIC, Gtk.PolicyType.ALWAYS)
-        main_vbox.pack_start(swp, True, True, 0)
+        swp.set_min_content_height(self.config.DUPE_LIST_HEIGHT)
+        main_vbox.pack_start(swp, False, True, 0)
 
         self.dupe_log_store = self.tree_data_create_model()
 
