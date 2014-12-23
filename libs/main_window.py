@@ -2,6 +2,8 @@
 # -*- coding: utf-8 -*-
 
 from gi.repository import Gtk, Gdk
+from edit_qso_dialog import EditQsoDialog
+
 import datetime
 
 class MainWindow(Gtk.Window): 
@@ -13,6 +15,10 @@ class MainWindow(Gtk.Window):
         
         self.set_size_request(config.WINDOW_WIDTH, config.WINDOW_HEIGHT)
         self.set_position(Gtk.WindowPosition.CENTER)
+        
+        # maximize if configured
+        if config.WINDOW_MAXIMIZE:
+            self.maximize()
         
         # PREPARE FOR ALL THE WIDGETS
         self.widgets = {}
@@ -159,13 +165,20 @@ class MainWindow(Gtk.Window):
 
         self.current_log_store = self.tree_data_create_model() 
 
-        treeView = Gtk.TreeView(self.current_log_store)
-        treeView.set_rules_hint(True)
-        sw.add(treeView)
+        self.current_log_tree = Gtk.TreeView(self.current_log_store)
+        self.current_log_tree.set_rules_hint(True)
+        self.current_log_tree.connect('button-release-event', self.current_log_keyrelease)
+        sw.add(self.current_log_tree)
 
-        self.tree_data_create_columns(treeView)
+        self.tree_data_create_columns(self.current_log_tree)
 
+        # CURRENT LOG CONTEXT MENU
+        self.current_log_context_menu = Gtk.Menu()
+        menu_item = Gtk.MenuItem("Edit QSO")
+        menu_item.connect("activate", self.current_log_edit_qso)
 
+        self.current_log_context_menu.append(menu_item)
+        menu_item.show()
         
         # FOOTER
         self.statusbar = Gtk.Statusbar()
@@ -272,8 +285,41 @@ class MainWindow(Gtk.Window):
 
         self.widgets['call_entry'].grab_focus()
         self.tree_data_refresh_main_tree()
-        self.dupe_log_store.clear()
+        self.dupe_log_store.clear(
+        )
 
+    def current_log_keyrelease(self, widget, event):
+        if event.button == 3:
+            # if right click was pressed
+            x = int(event.get_root_coords()[0])
+            y = int(event.get_root_coords()[1])
+            time = event.time
+            
+            self.current_log_context_menu.popup(None, None, lambda menu, user_data: (x, y, True), widget, 3, time)
+            
+    def current_log_edit_qso(self, widget):
+        
+        selection = self.current_log_tree.get_selection()
+        model, treeiter = selection.get_selected()
+            
+        column_id = model[treeiter][0]   
+        print "Editing id: %s" % column_id
+        
+        edit_dialog = EditQsoDialog(self)
+        response = edit_dialog.run()
+        
+        if response == Gtk.ResponseType.OK:
+            pass
+        elif response == Gtk.ResponseType.CANCEL:
+            pass
+
+        edit_dialog.destroy()
+        
+        
+        
+        
+        
+        
     # TREE LOADING / REFRESHING FUNCTIONS
 
 

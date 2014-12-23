@@ -15,7 +15,12 @@ APPLICATION_NAME='HamLogger'
 # ---------------------------------------------------------------
 WINDOW_WIDTH=1280
 WINDOW_HEIGHT=800
+WINDOW_MAXIMIZE=True
 DUPE_LIST_HEIGHT=200
+
+EDIT_QSO_HEIGHT=500
+EDIT_QSO_WIDTH=800
+
 
 # ---------------------------------------------------------------
 # HAM WIDGETS

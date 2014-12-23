@@ -1,0 +1,26 @@
+# DATA
+- QSO session variables
+- configurable columns
+
+
+# GUI
+
+- edit qsos from both current log and previous qso log
+- use a special sequence number for qso order (do not use qso id for order), reorder when dates are changed
+- edit a callsign without having to edit QSO
+
+
+# EXPORTS / IMPORTS
+
+- export ADIF
+- export SOTA
+- export Cabrillo
+- export ODS 
+- export ODS without overwrite (keep additional columns if they already exist in the ODS)
+
+
+# HAM
+
+- implement DXCC / ITU prefix lookup
+- show local time of remote stations
+- QRZ.com lookup with cache
