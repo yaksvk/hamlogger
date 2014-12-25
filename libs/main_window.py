@@ -299,18 +299,55 @@ class MainWindow(Gtk.Window):
             
     def current_log_edit_qso(self, widget):
         
+        
         selection = self.current_log_tree.get_selection()
         model, treeiter = selection.get_selected()
             
         column_id = model[treeiter][0]   
-        print "Editing id: %s" % column_id
+        self.editing_qso_id = column_id
         
         edit_dialog = EditQsoDialog(self)
         response = edit_dialog.run()
         
         if response == Gtk.ResponseType.OK:
-            pass
+            print "edit and save"
+            
+            freq = edit_dialog.widgets['band_combo'].get_active_text()
+            mode = edit_dialog.widgets['mode_combo'].get_active_text()
+            
+            callsign = edit_dialog.widgets['call_entry'].get_text()
+            dfields = edit_dialog.widgets['input_date'].get_text().split('-')
+            dat = datetime.date(*map(int, dfields))
+            tfields = edit_dialog.widgets['input_time'].get_text().split(':')
+            utc = datetime.time(int(tfields[0]), int(tfields[1]))
+            
+            datetime_combined=datetime.datetime.combine(dat, utc)
+            
+            self.db.update_qso(
+                
+                edit_dialog.found_qso,
+                
+                callsign=unicode(callsign),
+                mode=unicode(mode),
+                datetime_utc=datetime_combined,
+                frequency=unicode(freq),
+                rst_sent=unicode(edit_dialog.widgets['rst_sent'].get_text()), 
+                rst_received=unicode(edit_dialog.widgets['rst_rcvd'].get_text()),
+                name_received=unicode(edit_dialog.widgets['name'].get_text()),
+                qth_received=edit_dialog.widgets['qth'].get_text(),
+                text_note=unicode(edit_dialog.widgets['input_note'].get_text()),
+                #callsign_text_note=unicode(cs_text_note),
+            #    #country_received=row[9].value,
+            # TODO get country from DXCC entity
+            )
+            
+            self.tree_data_refresh_main_tree()
+            self.widgets['call_entry'].grab_focus()
+       
+        
         elif response == Gtk.ResponseType.CANCEL:
+            pass
+        else:
             pass
 
         edit_dialog.destroy()

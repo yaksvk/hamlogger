@@ -41,6 +41,17 @@ class DataConnector():
 
         self.commit()
         return qso
+    
+    def update_qso(self, qso, *args, **kwargs):
+        
+        for i in kwargs.keys():
+            setattr(qso, i, kwargs[i])
+            
+        # TODO - edit callsign note, maybe pre-register callsign
+        
+        
+        self.session.add(qso)
+        self.commit()
 
     def get_qsos(self, callsign_filter=None, base_callsign=True):
         if callsign_filter is not None:
@@ -61,7 +72,9 @@ class DataConnector():
     def get_first_qso(self, *args, **kwargs):
         return self.session.query(Qso).filter_by(**kwargs).first()
        
-
     def commit(self):
         self.session.commit()
+        
+    def rollback(self):
+        self.session.rollback()
 
