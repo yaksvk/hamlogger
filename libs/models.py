@@ -24,7 +24,7 @@ class CallsignEntity(Base):
     id = Column(Integer, primary_key=True)
     callsign = Column(Unicode(64))
     qsos = relationship("Qso", backref="callsigns")
-    text_note = Column(Text)
+    text_note = Column(UnicodeText)
 
     @classmethod
     def get_base_callsign(myclass, callsign_text):
@@ -64,7 +64,7 @@ class Qso(Base):
     name_received = Column(Unicode(64))
     qth_received = Column(Unicode(64))
     country_received = Column(Unicode(64))
-    text_note = Column(Text)
+    text_note = Column(UnicodeText)
     export = Column(Boolean, default=True)
 
     def __repr__(self):

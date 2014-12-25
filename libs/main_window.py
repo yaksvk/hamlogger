@@ -257,16 +257,16 @@ class MainWindow(Gtk.Window):
             cs_text_note = buf.get_text(*buf.get_bounds(),include_hidden_chars=False)
 
             qso = self.db.create_qso(
-                callsign=unicode(callsign),
-                mode=unicode(mode),
+                callsign=callsign.decode('utf-8'),
+                mode=mode.decode('utf-8'),
                 datetime_utc=datetime_combined,
-                frequency=unicode(freq),
-                rst_sent=unicode(self.widgets['rst_sent'].get_text()), 
-                rst_received=unicode(self.widgets['rst_rcvd'].get_text()),
-                name_received=unicode(self.widgets['name'].get_text()),
-                qth_received=unicode(self.widgets['qth'].get_text()),
-                text_note=unicode(self.widgets['input_note'].get_text()),
-                callsign_text_note=unicode(cs_text_note),
+                frequency=freq.decode('utf-8'),
+                rst_sent=self.widgets['rst_sent'].get_text().decode('utf-8'), 
+                rst_received=self.widgets['rst_rcvd'].get_text().decode('utf-8'),
+                name_received=self.widgets['name'].get_text().decode('utf-8'),
+                qth_received=self.widgets['qth'].get_text().decode('utf-8'),
+                text_note=self.widgets['input_note'].get_text().decode('utf-8'),
+                callsign_text_note=cs_text_note.decode('utf-8'),
             #    country_received=row[9].value,
             # TODO get country from DXCC entity
             )
@@ -311,7 +311,7 @@ class MainWindow(Gtk.Window):
         
         if response == Gtk.ResponseType.OK:
             print "edit and save"
-            
+           
             freq = edit_dialog.widgets['band_combo'].get_active_text()
             mode = edit_dialog.widgets['mode_combo'].get_active_text()
             
@@ -327,15 +327,15 @@ class MainWindow(Gtk.Window):
                 
                 edit_dialog.found_qso,
                 
-                callsign=unicode(callsign),
-                mode=unicode(mode),
+                callsign=callsign.decode('utf-8'),
+                mode=mode.decode('utf-8'),
                 datetime_utc=datetime_combined,
-                frequency=unicode(freq),
-                rst_sent=unicode(edit_dialog.widgets['rst_sent'].get_text()), 
-                rst_received=unicode(edit_dialog.widgets['rst_rcvd'].get_text()),
-                name_received=unicode(edit_dialog.widgets['name'].get_text()),
-                qth_received=edit_dialog.widgets['qth'].get_text(),
-                text_note=unicode(edit_dialog.widgets['input_note'].get_text()),
+                frequency=freq.decode('utf-8'),
+                rst_sent=edit_dialog.widgets['rst_sent'].get_text().decode('utf-8'), 
+                rst_received=edit_dialog.widgets['rst_rcvd'].get_text().decode('utf-8'),
+                name_received=edit_dialog.widgets['name'].get_text().decode('utf-8'),
+                qth_received=edit_dialog.widgets['qth'].get_text().decode('utf-8'),
+                text_note=edit_dialog.widgets['input_note'].get_text().decode('utf-8'),
                 #callsign_text_note=unicode(cs_text_note),
             #    #country_received=row[9].value,
             # TODO get country from DXCC entity
