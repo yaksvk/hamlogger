@@ -44,6 +44,12 @@ class DataConnector():
     
     def update_qso(self, qso, *args, **kwargs):
         
+        if 'callsign_text_note' in kwargs:
+            callsign_note = kwargs['callsign_text_note']
+            del(kwargs['callsign_text_note'])
+        else:
+            callsign_note = None
+        
         for i in kwargs.keys():
             setattr(qso, i, kwargs[i])
             
