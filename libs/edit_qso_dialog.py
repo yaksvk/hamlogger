@@ -22,7 +22,7 @@ class EditQsoDialog(Gtk.Dialog):
         )
         
         # get QSO to edit
-        print "looking for QSO: %s" % parent.editing_qso_id
+        
         self.found_qso = parent.db.get_first_qso(id=parent.editing_qso_id)
         # TODO handle case: found_qso is None: self.response(Gtk.ResponseType.CANCEL)
         

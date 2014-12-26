@@ -146,6 +146,8 @@ class MainWindow(Gtk.Window):
         self.dupe_log_store = self.tree_data_create_model()
 
         treeView_p = Gtk.TreeView(self.dupe_log_store)
+        treeView_p.connect('button-release-event', self.current_log_keyrelease)
+        
         swp.add(treeView_p)
 
         self.tree_data_create_columns(treeView_p)
@@ -295,12 +297,13 @@ class MainWindow(Gtk.Window):
             y = int(event.get_root_coords()[1])
             time = event.time
             
+            self.last_active_tree = widget
             self.current_log_context_menu.popup(None, None, lambda menu, user_data: (x, y, True), widget, 3, time)
             
     def current_log_edit_qso(self, widget):
         
         
-        selection = self.current_log_tree.get_selection()
+        selection = self.last_active_tree.get_selection()
         model, treeiter = selection.get_selected()
             
         column_id = model[treeiter][0]   
@@ -310,7 +313,6 @@ class MainWindow(Gtk.Window):
         response = edit_dialog.run()
         
         if response == Gtk.ResponseType.OK:
-            print "edit and save"
            
             freq = edit_dialog.widgets['band_combo'].get_active_text()
             mode = edit_dialog.widgets['mode_combo'].get_active_text()
@@ -344,6 +346,9 @@ class MainWindow(Gtk.Window):
             )
             
             self.tree_data_refresh_main_tree()
+            self.tree_data_refresh_dupe_tree()
+            
+            
             if edit_dialog.found_qso.callsign_entity.text_note is not None:
                 self.widgets['callsign_note'].get_buffer().set_text(edit_dialog.found_qso.callsign_entity.text_note)
             else:

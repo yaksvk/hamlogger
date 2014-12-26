@@ -56,6 +56,10 @@ def execute(ods_file, db_handle, pretend=False):
                             utc = datetime.time(int(row[1].value[2:4]), int(row[1].value[5:7]))
                         mode = row[2].value
                         band = row[3].value
+                        
+                        if int(band) == band:
+                            band = int(band)
+                        
                         callsign = row[4].value
                         
                         if not pretend and None not in (callsign, dat, utc):    
