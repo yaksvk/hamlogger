@@ -123,7 +123,7 @@ class MainWindow(Gtk.Window):
 
         # TODO - connect this to callsign note
         self.widgets['callsign_note'] = Gtk.TextView()
-        vbox_h_3.pack_start(self.widgets['callsign_note'], False, True, 0)
+        vbox_h_3.pack_start(self.widgets['callsign_note'], True, True, 0)
 
         hbox.pack_start(vbox_h_1, True, True, 0)
         hbox.pack_start(vbox_h_2, True, True, 0)

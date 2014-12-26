@@ -135,7 +135,7 @@ class EditQsoDialog(Gtk.Dialog):
         if self.found_qso.callsign_entity.text_note is not None:
             self.widgets['callsign_note'].get_buffer().set_text(self.found_qso.callsign_entity.text_note)
         box.pack_start(label_h3, False, True, 0)
-        box.pack_start(self.widgets['callsign_note'], False, True, 0)
+        box.pack_start(self.widgets['callsign_note'], True, True, 0)
         self.show_all()
         
         

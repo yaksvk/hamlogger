@@ -24,7 +24,7 @@ class ConfirmDialog(Gtk.Dialog):
         box = self.get_content_area()
         
         question_label = Gtk.Label()
-        question_label.set_markup("<b>Really do this?</b>")
+        question_label.set_markup("Really do this?")
        
         box.pack_start(question_label, False, True, 0)
         
