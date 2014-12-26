@@ -72,7 +72,13 @@ class DataConnector():
         
         self.session.add(qso)
         self.commit()
-
+    
+    def delete_qso(self, qso):
+        
+        self.session.delete(qso)
+        self.session.flush()
+        self.session.commit()
+        
     def get_qsos(self, callsign_filter=None, base_callsign=True):
         if callsign_filter is not None:
 

@@ -3,6 +3,7 @@
 
 from gi.repository import Gtk, Gdk
 from edit_qso_dialog import EditQsoDialog
+from confirm_dialog import ConfirmDialog
 
 import datetime
 
@@ -176,11 +177,20 @@ class MainWindow(Gtk.Window):
 
         # CURRENT LOG CONTEXT MENU
         self.current_log_context_menu = Gtk.Menu()
-        menu_item = Gtk.MenuItem("Edit QSO")
-        menu_item.connect("activate", self.current_log_edit_qso)
+        menu_item1 = Gtk.MenuItem("Edit QSO")
+        menu_item1.connect("activate", self.current_log_edit_qso)
+        
+        separator = Gtk.SeparatorMenuItem()
 
-        self.current_log_context_menu.append(menu_item)
-        menu_item.show()
+        menu_item2 = Gtk.MenuItem("Delete QSO")
+        menu_item2.connect("activate", self.current_log_delete_qso)
+
+        self.current_log_context_menu.append(menu_item1)
+        self.current_log_context_menu.append(separator)
+        self.current_log_context_menu.append(menu_item2)
+        menu_item1.show()
+        separator.show()
+        menu_item2.show()
         
         # FOOTER
         self.statusbar = Gtk.Statusbar()
@@ -365,9 +375,25 @@ class MainWindow(Gtk.Window):
         edit_dialog.destroy()
         
         
+    def current_log_delete_qso(self, widget):
+        selection = self.last_active_tree.get_selection()
+        model, treeiter = selection.get_selected()
+            
+        column_id = model[treeiter][0]   
+        self.editing_qso_id = column_id # TODO refactor get active Id, we have it too many times here
+        found_qso = self.db.get_first_qso(id=self.editing_qso_id)
         
+        # open a yes-no dialog to confirm action
+        confirm_dialog = ConfirmDialog(self)
+        response = confirm_dialog.run()
         
+        if response == Gtk.ResponseType.OK:
+            self.db.delete_qso(found_qso)
+            
+            self.tree_data_refresh_main_tree()
+            self.tree_data_refresh_dupe_tree()
         
+        confirm_dialog.destroy()
         
     # TREE LOADING / REFRESHING FUNCTIONS
 
