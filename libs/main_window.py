@@ -322,6 +322,8 @@ class MainWindow(Gtk.Window):
             utc = datetime.time(int(tfields[0]), int(tfields[1]))
             
             datetime_combined=datetime.datetime.combine(dat, utc)
+            buf = edit_dialog.widgets['callsign_note'].get_buffer()
+            cs_text_note = buf.get_text(*buf.get_bounds(),include_hidden_chars=False)
             
             self.db.update_qso(
                 
@@ -336,12 +338,17 @@ class MainWindow(Gtk.Window):
                 name_received=edit_dialog.widgets['name'].get_text().decode('utf-8'),
                 qth_received=edit_dialog.widgets['qth'].get_text().decode('utf-8'),
                 text_note=edit_dialog.widgets['input_note'].get_text().decode('utf-8'),
-                #callsign_text_note=unicode(cs_text_note),
+                callsign_text_note=cs_text_note.decode('utf-8'),
             #    #country_received=row[9].value,
             # TODO get country from DXCC entity
             )
             
             self.tree_data_refresh_main_tree()
+            if edit_dialog.found_qso.callsign_entity.text_note is not None:
+                self.widgets['callsign_note'].get_buffer().set_text(edit_dialog.found_qso.callsign_entity.text_note)
+            else:
+                self.widgets['callsign_note'].get_buffer().set_text('')
+                
             self.widgets['call_entry'].grab_focus()
        
         

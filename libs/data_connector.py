@@ -27,12 +27,12 @@ class DataConnector():
             # base callsign found, assign
             qso.callsign_entity = base_callsign_entity 
             if callsign_note is not None:
-                qso.callsign_entity.text_note = unicode(callsign_note)
+                qso.callsign_entity.text_note = callsign_note
         else:
             # base callsign not found, create
-            base_callsign_entity = CallsignEntity(callsign=unicode(base_callsign_text))
+            base_callsign_entity = CallsignEntity(callsign=base_callsign_text)
             if callsign_note is not None:
-                base_callsign_entity.text_note = unicode(callsign_note)
+                base_callsign_entity.text_note = callsign_note
             self.session.add(base_callsign_entity)
             qso.callsign_entity = base_callsign_entity 
 
@@ -53,8 +53,22 @@ class DataConnector():
         for i in kwargs.keys():
             setattr(qso, i, kwargs[i])
             
-        # TODO - edit callsign note, maybe pre-register callsign
+        # TODO - unify settings callsign with create qso
+        base_callsign_text = CallsignEntity.get_base_callsign(kwargs['callsign'])
+        base_callsign_entity = self.session.query(CallsignEntity).filter_by(callsign=base_callsign_text).first()
         
+        if  base_callsign_entity is not None:
+            # base callsign found, assign
+            qso.callsign_entity = base_callsign_entity 
+            if callsign_note is not None:
+                qso.callsign_entity.text_note = callsign_note
+        else:
+            # base callsign not found, create
+            base_callsign_entity = CallsignEntity(callsign=base_callsign_text)
+            if callsign_note is not None:
+                base_callsign_entity.text_note = callsign_note
+            self.session.add(base_callsign_entity)
+            qso.callsign_entity = base_callsign_entity 
         
         self.session.add(qso)
         self.commit()
