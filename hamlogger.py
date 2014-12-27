@@ -12,6 +12,7 @@ from gi.repository import Gtk
 import config 
 from libs import main_window
 from libs import data_connector
+from libs import prefix_resolver
 
 class HamLogger(Gtk.Application):
 
@@ -21,7 +22,10 @@ class HamLogger(Gtk.Application):
         # config post processing ->
         # change a potentially relative path to absolute path
         config.DB_FILE = os.path.abspath(config.DB_FILE)
-
+        
+        # initialize DXCC prefix resolver
+        self.resolver = prefix_resolver.Resolver(config.PREFIX_FILE)
+        
         # create a db handle, this will be handled by our intelligent connector
         self.db_handle = data_connector.DataConnector(config.DB_FILE) 
 
@@ -32,7 +36,7 @@ class HamLogger(Gtk.Application):
         
 
         # create the main window and send it a reference to the config module
-        window = main_window.MainWindow(application=self, config=self.config, db=self.db_handle)
+        window = main_window.MainWindow(application=self, config=self.config, db=self.db_handle, resolver=self.resolver)
         window.set_title(self.config.APPLICATION_NAME)
         window.set_position(Gtk.WindowPosition.CENTER)
         window.show_all()

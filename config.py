@@ -35,3 +35,5 @@ MODES = ["SSB", "CW", "FM", "PSK31", "RTTY"]
 DB_FILE='db/log.sqlite'
 # this can be a file relative to hamlogger.py or an absolute file
 
+PREFIX_FILE='db/entity_list.xml'
+# data file for the entity prefix resolver

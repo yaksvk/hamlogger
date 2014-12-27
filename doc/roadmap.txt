@@ -1,6 +1,8 @@
 # DATA
 - QSO session variables
 - configurable columns
+- my callsign session variable (was I portable that day?)
+- activity type variable (SOTA, basestation, contests)
 
 
 # GUI
@@ -8,9 +10,9 @@
 DONE - edit qsos from both current log and previous qso log
 - use a special sequence number for qso order (do not use qso id for order), reorder when dates are changed
 - edit a callsign without having to edit QSO
-- delete QSO (should not delete an existing callsign entity, if it has a note)
+DONE delete QSO (should not delete an existing callsign entity, if it has a note)
 - set a number of lines for the callsign widget object
-
+- delete existing callsign entity if it has no note
 
 # EXPORTS / IMPORTS
 

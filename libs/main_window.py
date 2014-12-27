@@ -8,11 +8,12 @@ from confirm_dialog import ConfirmDialog
 import datetime
 
 class MainWindow(Gtk.Window): 
-    def __init__(self, config, db, *args, **kwargs):
+    def __init__(self, config, db, resolver, *args, **kwargs):
         super(MainWindow, self).__init__(*args, **kwargs)
 
         self.config = config
         self.db = db
+        self.resolver = resolver
         
         self.set_size_request(config.WINDOW_WIDTH, config.WINDOW_HEIGHT)
         self.set_position(Gtk.WindowPosition.CENTER)
@@ -109,8 +110,13 @@ class MainWindow(Gtk.Window):
 
         # TODO DXCC info block
         label_h1 = Gtk.Label()
-        label_h1.set_markup("<b>DXCC INFO:</b>")
-        vbox_h_1.pack_start(label_h1, True, True, 0)
+        label_h1.set_markup("<b>DXCC / ITU ENTITY INFO:</b>")
+        vbox_h_1.pack_start(label_h1, False, True, 0)
+        
+        self.widgets['entity_note'] = Gtk.TextView()
+        self.widgets['entity_note'].set_editable(False)
+        vbox_h_1.pack_start(self.widgets['entity_note'], True, True, 0)
+       
 
         # TODO callsign info gathethed from the internet
         label_h2 = Gtk.Label()
@@ -215,6 +221,7 @@ class MainWindow(Gtk.Window):
 
         if len(new_text) > 1:
             self.tree_data_refresh_dupe_tree()
+            self.update_entity_info(new_text)
         else:
             self.dupe_log_store.clear()
 
@@ -309,7 +316,19 @@ class MainWindow(Gtk.Window):
             
             self.last_active_tree = widget
             self.current_log_context_menu.popup(None, None, lambda menu, user_data: (x, y, True), widget, 3, time)
-            
+    
+    def update_entity_info(self, callsign):
+        # TODO also, if many subsequent searches are made, i.e. OM, OM1, OM1AWS, do not re-do the search, unless
+        # we're deleting some chars
+        
+        result = self.resolver.get_entity_for_call(callsign)
+        if result is not None:
+            text = ("Country: %s\nITU zone: %s\nCQ zone: %s\nLat / Long: %s / %s\nUTC offset: %s" %
+                (result['name'], result['itu_zone'], result['cq_zone'], result['lat'], result['long'], result['utc']))
+            self.widgets['entity_note'].get_buffer().set_text(text)
+        else:
+            self.widgets['entity_note'].get_buffer().set_text('')
+    
     def current_log_edit_qso(self, widget):
         
         
