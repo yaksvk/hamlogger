@@ -37,17 +37,34 @@ def execute(ods_file, db_handle, pretend=False):
         columns = "ABCDEFGHIJKLMNO"
         
         qsos.append_columns(len(properties))
-        
         qsos.append_rows(1)
-        # property property row
+        
+        # header property row
         for j, prop in enumerate(properties):
             qsos[columns[j]+'1'].set_value(prop)
-        # export callsigns
+            
         for i, qso in enumerate(export_list):
             for j, prop in enumerate(properties):
                 if getattr(qso, prop) is not None:
                     qsos.append_rows(1)
                     qsos[columns[j]+str(i+2)].set_value(getattr(qso, prop))
+        
+        # export callsigns
+        callsign_list = db_handle.get_callsigns()
+        properties = "id callsign qso_count text_note".split()
+        
+        callsigns.append_columns(len(properties))
+        callsigns.append_rows(1)
+        
+        # header property row
+        for j, prop in enumerate(properties):
+            callsigns[columns[j]+'1'].set_value(prop)
+        
+        for i, call in enumerate(callsign_list):
+            for j, prop in enumerate(properties):
+                if getattr(call, prop) is not None:
+                    callsigns.append_rows(1)
+                    callsigns[columns[j]+str(i+2)].set_value(getattr(call, prop))
         
         doc.save()
     

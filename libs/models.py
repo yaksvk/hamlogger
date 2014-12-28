@@ -37,6 +37,10 @@ class CallsignEntity(Base):
 
     def __repr__(self):
         return ''.join((str(self.id), ':', self.callsign))
+    
+    @property
+    def qso_count(self):
+        return len(self.qsos)
 
 class QsoType(Base):
     __tablename__ = 'qso_types'

@@ -94,6 +94,9 @@ class DataConnector():
                 return self.session.query(Qso).filter(Qso.callsign.startswith(unicode(callsign_filter))).order_by(Qso.id.desc()).all()
         else:
             return self.session.query(Qso).order_by(Qso.id.desc()).all()
+    
+    def get_callsigns(self):
+        return self.session.query(CallsignEntity).order_by(CallsignEntity.callsign).all()
 
     def get_first_qso(self, *args, **kwargs):
         return self.session.query(Qso).filter_by(**kwargs).first()
