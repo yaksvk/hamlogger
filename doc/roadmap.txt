@@ -14,6 +14,16 @@ DONE delete QSO (should not delete an existing callsign entity, if it has a note
 - set a number of lines for the callsign widget object
 - delete existing callsign entity if it has no note
 
+
+# PYTHON
+- python distribution and installation
+- resolve relative to absolute paths and vice versa, be able to run the program from any location
+
+
+# MEDIA
+- create an icon
+
+
 # EXPORTS / IMPORTS
 
 - export ADIF

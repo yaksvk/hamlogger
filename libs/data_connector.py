@@ -85,7 +85,7 @@ class DataConnector():
             if base_callsign:
                 # first get basic callsign and then get matching qsos
                 callsign_filter = CallsignEntity.get_base_callsign(callsign_filter)
-                if len(callsign_filter) > 2:
+                if len(callsign_filter) > 1:
                     return self.session.query(Qso).join(CallsignEntity).filter(CallsignEntity.callsign.startswith(unicode(callsign_filter))).order_by(Qso.id.desc()).all()
                 else:
                     return []

@@ -60,6 +60,9 @@ def execute(ods_file, db_handle, pretend=False):
                         if int(band) == band:
                             band = int(band)
                         
+                        rst_received = str(row[6].value).replace('.0', '')
+                        rst_sent = str(row[5].value).replace('.0', '')
+                        
                         callsign = row[4].value
                         
                         if not pretend and None not in (callsign, dat, utc):    
@@ -75,8 +78,8 @@ def execute(ods_file, db_handle, pretend=False):
                                     mode=mode,
                                     datetime_utc=datetime_combined,
                                     frequency=band,
-                                    rst_sent=row[5].value, 
-                                    rst_received=row[6].value,
+                                    rst_sent=rst_sent, 
+                                    rst_received=rst_received,
                                     name_received=row[7].value,
                                     qth_received=row[8].value,
                                     country_received=row[9].value,

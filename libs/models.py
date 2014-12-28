@@ -4,8 +4,8 @@
 from sqlalchemy.ext.declarative import declarative_base
 from sqlalchemy import *
 from sqlalchemy.orm import relation, sessionmaker, relationship
-import re
 
+import re
 Base = declarative_base()
 
 # create the necessary models and database session
@@ -69,6 +69,19 @@ class Qso(Base):
 
     def __repr__(self):
         return ''.join((self.callsign, ' ', self.datetime_utc.isoformat()))
+    
+    @property
+    def time_iso(self):
+        if self.datetime_utc is not None:
+            return self.datetime_utc.time().isoformat()[:5]
+        else:
+            return None
+    @property
+    def date_iso(self):
+        if self.datetime_utc is not None:
+            return self.datetime_utc.date().isoformat()
+        else:
+            return None
 
 class QsoVariable(Base):
     __tablename__ = 'qso_variables'

@@ -40,6 +40,7 @@ class HamLogger(Gtk.Application):
         # config post processing ->
         # change a potentially relative path to absolute path
         config.DB_FILE = os.path.abspath(config.DB_FILE)
+        config.PREFIX_FILE = os.path.abspath(config.PREFIX_FILE)
         
         # initialize DXCC prefix resolver
         self.resolver = prefix_resolver.Resolver(config.PREFIX_FILE)
@@ -57,6 +58,7 @@ class HamLogger(Gtk.Application):
         window = main_window.MainWindow(application=self, config=self.config, db=self.db_handle, resolver=self.resolver)
         window.set_title(self.config.APPLICATION_NAME)
         window.set_position(Gtk.WindowPosition.CENTER)
+        window.set_icon_from_file('icons/application.png')
         window.show_all()
 
 # INIT APPLICATION
@@ -65,18 +67,27 @@ app = HamLogger(config)
 
 # PROCESS COMMAND LINE ARGUMENTS
 parser = argparse.ArgumentParser(description='%s - a Ham radio logger application by OM1AWS' % config.APPLICATION_NAME)
-parser.add_argument("-i", "--import_ods", type=str, help="import log records from an ODS file.", metavar="ODS_FILE")
 parser.add_argument("-l", "--license", dest="license", action="store_true", help="show licensing information")
+parser.add_argument("-i", "--import_ods", type=str, help="import log records from an ODS file.", metavar="ODS_FILE")
+parser.add_argument("-x", "--export_ods", type=str, help="export log records to an ODS file.", metavar="ODS_FILE")
+
 args = parser.parse_args()
 
-# 1. import log data from an ods file 
+# 1. print licensing information and exit
 if args.license:
     print license
     sys.exit()
 
+# 2. import log data from an ods file 
 if args.import_ods:
     from libs.tools import import_from_ods
     import_from_ods.execute(ods_file=args.import_ods, db_handle=app.db_handle)
+    sys.exit()
+    
+# 3. export log data to an ods file 
+if args.export_ods:
+    from libs.tools import export_to_ods
+    export_to_ods.execute(ods_file=args.export_ods, db_handle=app.db_handle)
     sys.exit()
 
 
