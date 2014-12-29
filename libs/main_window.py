@@ -239,7 +239,7 @@ class MainWindow(Gtk.Window):
         
     def widget_rst_keypress(self, widget, event):
         keyname = Gdk.keyval_name(event.keyval)
-        if keyname == 'Tab':
+        if keyname == 'Tab' and not widget.get_text():
             widget.set_text('59')
 
     def widget_guard_for_return(self, widget, event):
@@ -286,6 +286,7 @@ class MainWindow(Gtk.Window):
                 qth_received=self.widgets['qth'].get_text().decode('utf-8'),
                 text_note=self.widgets['input_note'].get_text().decode('utf-8'),
                 callsign_text_note=cs_text_note.decode('utf-8'),
+                country_received=self.country,
             #    country_received=row[9].value,
             # TODO get country from DXCC entity
             )
@@ -326,8 +327,10 @@ class MainWindow(Gtk.Window):
             text = ("Country: %s\nITU zone: %s\nCQ zone: %s\nLat / Long: %s / %s\nUTC offset: %s" %
                 (result['name'], result['itu_zone'], result['cq_zone'], result['lat'], result['long'], result['utc']))
             self.widgets['entity_note'].get_buffer().set_text(text)
+            self.country = result['name'].decode('utf-8')
         else:
             self.widgets['entity_note'].get_buffer().set_text('')
+            self.country = None
     
     def current_log_edit_qso(self, widget):
         
@@ -368,7 +371,7 @@ class MainWindow(Gtk.Window):
                 rst_received=edit_dialog.widgets['rst_rcvd'].get_text().decode('utf-8'),
                 name_received=edit_dialog.widgets['name'].get_text().decode('utf-8'),
                 qth_received=edit_dialog.widgets['qth'].get_text().decode('utf-8'),
-                text_note=edit_dialog.widgets['input_note'].get_text().decode('utf-8'),
+                country_received=edit_dialog.widgets['country_received'].get_text().decode('utf-8'),
                 callsign_text_note=cs_text_note.decode('utf-8'),
             #    #country_received=row[9].value,
             # TODO get country from DXCC entity
@@ -418,7 +421,7 @@ class MainWindow(Gtk.Window):
 
 
     def tree_data_create_model(self):
-        store = Gtk.ListStore(int, str, str, str, str, str, str, str, str, str, str)
+        store = Gtk.ListStore(int, str, str, str, str, str, str, str, str, str, str, str)
 
         return store
 
@@ -439,6 +442,7 @@ class MainWindow(Gtk.Window):
                       qso.rst_received,
                       qso.name_received, 
                       qso.qth_received, 
+                      qso.country_received,
                       qso.text_note
                   )
             )
@@ -460,6 +464,7 @@ class MainWindow(Gtk.Window):
                     qso.rst_received,
                     qso.name_received,
                     qso.qth_received,
+                    qso.country_received,
                     qso.text_note 
                 )
             )
@@ -480,7 +485,7 @@ class MainWindow(Gtk.Window):
 
     def tree_data_create_columns(self, treeView):
    
-        columns = ['ID','DATE', 'UTC', 'FREQ', 'MODE', 'CALL', 'RST_SENT', 'RST_RCVD', 'NAME', 'QTH', 'NOTE']
+        columns = ['ID','DATE', 'UTC', 'FREQ', 'MODE', 'CALL', 'RST_SENT', 'RST_RCVD', 'NAME', 'QTH', 'COUNTRY', 'NOTE']
 
         for i, column in enumerate(columns):
             rendererText = Gtk.CellRendererText()

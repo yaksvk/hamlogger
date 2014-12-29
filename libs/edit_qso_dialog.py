@@ -76,6 +76,11 @@ class EditQsoDialog(Gtk.Dialog):
             
         if self.found_qso.rst_received is not None:
             self.widgets['rst_rcvd'].set_text(self.found_qso.rst_received)
+            
+        self.widgets['country_received'] = Gtk.Entry(max_width_chars=14, width_chars=14)
+        if self.found_qso.country_received is not None:
+            self.widgets['country_received'].set_text(self.found_qso.country_received)
+
 
         self.widgets['input_note'] = Gtk.Entry(max_width_chars=40, width_chars=40)
        
@@ -101,6 +106,7 @@ class EditQsoDialog(Gtk.Dialog):
             ("RST RCVD", self.widgets['rst_rcvd'],1),
             ("NAME",  self.widgets['name'],2),
             ("QTH",  self.widgets['qth'],2),
+            ("COUNTRY",  self.widgets['country_received'],2),
         )
         
         flex_sum = reduce(lambda x,y: x + y, [ i[2] for i in items ] )
