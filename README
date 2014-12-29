@@ -65,16 +65,16 @@ GOALS (TODOS = THIS IS NOT DONE YET, THIS IS WHAT I WANT...EVENTUALLY :))
 
 - fix design glitches
 
-  use actual sequence numbers instead of database ids for qso order
-- improve DXCC / ITU prefix lookup, especially USA
+  - use actual sequence numbers instead of database ids for qso order
+  - improve DXCC / ITU prefix lookup, especially USA
 
 - gui
   
-  control all functionaity from the GUI
-  special listing of callsign entities with edit and export capability
-  improve the behavior of the callsign entity text note - set a fixed
-  number of lines
-  show local time for contacted stations
+  - control all functionaity from the GUI
+  - special listing of callsign entities with edit and export capability
+  - improve the behavior of the callsign entity text note - set a fixed
+  - number of lines
+  - show local time for contacted stations
 
 - configurable columns and variables:
 
@@ -95,27 +95,27 @@ GOALS (TODOS = THIS IS NOT DONE YET, THIS IS WHAT I WANT...EVENTUALLY :))
 
 - imports:
 
-  adif 
-  opendocument spreadsheet (ODS) - (partially implemented)
+  - adif 
+  - opendocument spreadsheet (ODS) - (partially implemented)
 
 - exports:
 
-  opendocument spreadsheet (partially implemented)
-  csv
-  adif (v2, v3)
+  - opendocument spreadsheet (partially implemented)
+  - csv
+  - adif (v2, v3)
 
 - connectors:
 
-  direct upload to eQSL.cc, LOTW and SOTA
-  automatic callsign querying at qrz.com, hamqth.com, hamcall.net
+  - direct upload to eQSL.cc, LOTW and SOTA
+  - automatic callsign querying at qrz.com, hamqth.com, hamcall.net
 
 - database:
   
-  permit all standard SQLAlchemy engine strings in the config (allow use of 
-  databases other than SQLite)
+  - permit all standard SQLAlchemy engine strings in the config (allow use 
+    of databases other than SQLite)
 
 - i18n support
-  extract strings to an external file and enable translations
+  - extract strings to an external file and enable translations
 
 - standard python distribution and installation (distutils)
 
