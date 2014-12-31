@@ -366,6 +366,9 @@ class MainWindow(Gtk.Window):
             buf = edit_dialog.widgets['callsign_note'].get_buffer()
             cs_text_note = buf.get_text(*buf.get_bounds(),include_hidden_chars=False)
             
+            
+            text_note = edit_dialog.widgets['input_note'].get_text()
+            
             self.db.update_qso(
                 
                 edit_dialog.found_qso,
@@ -380,6 +383,7 @@ class MainWindow(Gtk.Window):
                 qth_received=edit_dialog.widgets['qth'].get_text().decode('utf-8'),
                 country_received=edit_dialog.widgets['country_received'].get_text().decode('utf-8'),
                 callsign_text_note=cs_text_note.decode('utf-8'),
+                text_note=text_note.decode('utf-8'),
             #    #country_received=row[9].value,
             # TODO get country from DXCC entity
             )
