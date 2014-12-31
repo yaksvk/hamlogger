@@ -156,7 +156,10 @@ class MainWindow(Gtk.Window):
         treeView_p.connect('button-release-event', self.current_log_keyrelease)
         
         swp.add(treeView_p)
-
+        
+        self.dupe_log_scroll_window = swp
+        self.dupe_log_tree = treeView_p
+        
         self.tree_data_create_columns(treeView_p)
 
 
@@ -180,6 +183,8 @@ class MainWindow(Gtk.Window):
         sw.add(self.current_log_tree)
 
         self.tree_data_create_columns(self.current_log_tree)
+        
+        self.current_log_scroll_window = sw
 
         # CURRENT LOG CONTEXT MENU
         self.current_log_context_menu = Gtk.Menu()
@@ -338,7 +343,9 @@ class MainWindow(Gtk.Window):
         selection = self.last_active_tree.get_selection()
         model, treeiter = selection.get_selected()
             
-        column_id = model[treeiter][0]   
+        column_id = model[treeiter][0]  
+        path = model.get_path(treeiter)
+        
         self.editing_qso_id = column_id
         
         edit_dialog = EditQsoDialog(self)
@@ -377,8 +384,21 @@ class MainWindow(Gtk.Window):
             # TODO get country from DXCC entity
             )
             
+            
+            current_tree = self.current_log_tree.get_vadjustment().get_value()
+            
+              
+            # dupe_tree = self.dupe_log_tree.get_vadjustment().get_value()
+            
+            
             self.tree_data_refresh_main_tree()
             self.tree_data_refresh_dupe_tree()
+            
+            # self.current_log_tree.get_vadjustment().set_value(current_tree)
+            # self.current_log_scroll_window.get_vadjustment().set_value(current_win)
+            
+                        
+            self.current_log_tree.scroll_to_cell(path)
             
             
             if edit_dialog.found_qso.callsign_entity.text_note is not None:
