@@ -33,7 +33,7 @@ def execute(ods_file, db_handle, pretend=False):
         doc.sheets.append(callsigns)
         
         # export qsos
-        properties = "id date_iso time_iso mode frequency callsign rst_sent rst_received name_received qth_received text_note".split()
+        properties = "id date_iso time_iso mode frequency callsign rst_sent rst_received name_received qth_received country_received text_note".split()
         columns = "ABCDEFGHIJKLMNO"
         
         qsos.append_columns(len(properties))

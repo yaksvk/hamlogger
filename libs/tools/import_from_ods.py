@@ -39,31 +39,28 @@ def execute(ods_file, db_handle, pretend=False):
                     callsign=None
 
                     try:
-                        # try other formats before
-                        
-                        if row[0] is not None:
-                            tfields = row[0].value.split('-')
+                        if row[1] is not None:
+                            tfields = row[1].value.split('-')
                             if len(tfields) == 3:
                                 dat = datetime.date(*map(int, tfields))
                             else:
-                                tfields = map(int, row[0].value.split('.'))
-                                if len(tfields) == 3:
-                                    dat = datetime.date(tfields[2], tfields[1], tfields[0])
-                                else:
-                                    print "Unable to parse date."            
+                                print "Unable to parse date."            
                         
-                        if row[1].value is not None:
-                            utc = datetime.time(int(row[1].value[2:4]), int(row[1].value[5:7]))
-                        mode = row[2].value
-                        band = row[3].value
+                        if row[2].value is not None:
+                            utc = datetime.time(*map(int, row[2].value.split(':')))
+                        mode = row[3].value
+                        band = row[4].value
                         
-                        if int(band) == band:
-                            band = int(band)
+                        try:
+                            if int(band) == band:
+                                band = int(band)
+                        except:
+                            print "not converting band"
                         
-                        rst_received = str(row[6].value).replace('.0', '')
-                        rst_sent = str(row[5].value).replace('.0', '')
+                        rst_received = str(row[7].value).replace('.0', '')
+                        rst_sent = str(row[6].value).replace('.0', '')
                         
-                        callsign = row[4].value
+                        callsign = row[5].value
                         
                         if not pretend and None not in (callsign, dat, utc):    
                             datetime_combined=datetime.datetime.combine(dat, utc)
@@ -80,10 +77,10 @@ def execute(ods_file, db_handle, pretend=False):
                                     frequency=band,
                                     rst_sent=rst_sent, 
                                     rst_received=rst_received,
-                                    name_received=row[7].value,
-                                    qth_received=row[8].value,
-                                    country_received=row[9].value,
-                                    text_note=row[10].value,
+                                    name_received=row[8].value,
+                                    qth_received=row[9].value,
+                                    country_received=row[10].value,
+                                    text_note=row[11].value,
                                 )
                                 print "Added: %04i:  %-10s %-10s %-6s %-6s" % (i, mode, dat, utc, band)
                         
