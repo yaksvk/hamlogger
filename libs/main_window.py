@@ -45,17 +45,14 @@ class MainWindow(Gtk.Window):
         self.widgets['mode_combo'].set_active(0)
 
         self.widgets['call_entry'] = Gtk.Entry(max_width_chars=10, width_chars=10)
-        self.widgets['call_entry'].connect("changed", self.widget_call_entry_changed) 
-        self.widgets['call_entry'].connect("key-press-event", self.widget_call_entry_keypress)   
+        self.widgets['call_entry'].connect("changed", self.widget_call_entry_changed)   
 
         self.widgets['input_date'] = Gtk.Entry(max_width_chars=10, width_chars=10)
+        
         self.widgets['input_time'] = Gtk.Entry(max_width_chars=5, width_chars=5)
         
         self.widgets['rst_sent'] = Gtk.Entry(max_width_chars=6, width_chars=6)
         self.widgets['rst_rcvd'] = Gtk.Entry(max_width_chars=6, width_chars=6)
-
-        self.widgets['rst_sent'].connect("key-press-event", self.widget_rst_keypress)   
-        self.widgets['rst_rcvd'].connect("key-press-event", self.widget_rst_keypress)   
 
         self.widgets['input_note'] = Gtk.Entry(max_width_chars=40, width_chars=40)
        
@@ -67,7 +64,7 @@ class MainWindow(Gtk.Window):
 
         # for some widgets, also add a universal keypress watcher, these will serve for return
         for i in ('call_entry', 'input_date', 'input_time', 'rst_sent', 'rst_rcvd', 'input_note', 'name', 'qth'):
-            self.widgets[i].connect("key-press-event", self.widget_guard_for_return)   
+            self.widgets[i].connect("key-press-event", self.widget_monitor_keypress)   
 
 
         items = (
@@ -229,28 +226,41 @@ class MainWindow(Gtk.Window):
             self.update_entity_info(new_text)
         else:
             self.dupe_log_store.clear()
-
+    
+    def widget_monitor_keypress(self, widget, event):
+        keyname = Gdk.keyval_name(event.keyval)
         
-
-    def widget_call_entry_keypress(self, widget, event):
-        keyname = Gdk.keyval_name(event.keyval)
-        if keyname == 'Tab':
-            # get current UTC date and time
-            utc = datetime.datetime.utcnow().timetuple()
-            self.widgets['input_date'].set_text("%04i-%02i-%02i" % (utc.tm_year , utc.tm_mon, utc.tm_mday))
-            self.widgets['input_time'].set_text("%02i:%02i" % (utc.tm_hour, utc.tm_min))
-            
-            self.widgets['input_time'].grab_focus()
-        
-    def widget_rst_keypress(self, widget, event):
-        keyname = Gdk.keyval_name(event.keyval)
-        if keyname == 'Tab' and not widget.get_text():
-            widget.set_text('59')
-
-    def widget_guard_for_return(self, widget, event):
-        keyname = Gdk.keyval_name(event.keyval)
+        # guard for return
         if keyname == 'Return':
             self.widget_save_qso(widget, event)
+            return
+        
+        # guard for TAB
+        if keyname == 'Tab':
+            
+            # complete RST reports 
+            if widget in (self.widgets['rst_sent'], self.widgets['rst_rcvd']):
+                if not widget.get_text():
+                    mode = self.widgets['mode_combo'].get_active_text()
+                    # TODO: this should be somewhat configurable, but ok for now
+                    if mode in ('CW', 'RTTY'):
+                        widget.set_text('599')
+                    else:
+                        widget.set_text('59')
+
+            # TODO enable auto-jump mode here, so that one tab fills in date and time and focuses on RST 
+            
+            # complete date (when focused on CALL and call not empty or when focused on date and date not empty)
+            if (widget == self.widgets['call_entry'] and self.widgets['call_entry'].get_text()) or widget == self.widgets['input_date']:
+                if not self.widgets['input_date'].get_text():
+                    utc = datetime.datetime.utcnow().timetuple()
+                    self.widgets['input_date'].set_text("%04i-%02i-%02i" % (utc.tm_year , utc.tm_mon, utc.tm_mday))
+            
+            # complete time when focused on date or time
+            if (widget == self.widgets['input_date'] and self.widgets['input_date'].get_text()) or widget == self.widgets['input_time']:
+                if not self.widgets['input_time'].get_text():
+                    utc = datetime.datetime.utcnow().timetuple()
+                    self.widgets['input_time'].set_text("%02i:%02i" % (utc.tm_hour, utc.tm_min))
 
     def widget_save_qso(self, widget, event):        
         # check if at least CALL, DATE, TIME and RST SENT and RECEIVED are present and save

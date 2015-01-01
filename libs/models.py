@@ -2,6 +2,7 @@
 # -*- coding: utf-8 -*-
 
 from sqlalchemy.ext.declarative import declarative_base
+from sqlalchemy.orm.collections import attribute_mapped_collection
 from sqlalchemy import *
 from sqlalchemy.orm import relation, sessionmaker, relationship
 
@@ -59,7 +60,7 @@ class Qso(Base):
     callsign = Column(Unicode(64))
     callsign_entity = relation(CallsignEntity)
     qso_type = relation(QsoType)
-    variables = relationship("QsoVariable", backref="qsos")
+    variables = relationship("QsoVariable", collection_class=attribute_mapped_collection('name'), cascade="all, delete-orphan", backref="qsos")
     datetime_utc = Column(DateTime)
     frequency = Column(Unicode(8))
     mode = Column(Unicode(8))
@@ -95,3 +96,11 @@ class QsoVariable(Base):
     qso_id = Column(Integer, ForeignKey('qsos.id'), nullable=False)
     name = Column(Unicode(64))
     value = Column(Unicode(64))
+    
+    def __init__(self, name, value):
+        self.name = name
+        self.value = value
+        
+    
+    def __repr__(self):
+        return ''.join(('Var: ', self.name, ': ', self.value))
