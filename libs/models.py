@@ -103,4 +103,4 @@ class QsoVariable(Base):
         
     
     def __repr__(self):
-        return ''.join(('Var: ', self.name, ': ', self.value))
+        return ''.join(('QsoVariable(\'', self.name, '\', \'', self.value, '\')'))

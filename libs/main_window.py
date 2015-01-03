@@ -4,6 +4,7 @@
 from gi.repository import Gtk, Gdk
 from edit_qso_dialog import EditQsoDialog
 from confirm_dialog import ConfirmDialog
+from qso_variables_editor import QsoVariablesEditor
 
 import datetime
 
@@ -117,8 +118,12 @@ class MainWindow(Gtk.Window):
 
         # TODO callsign info gathethed from the internet
         label_h2 = Gtk.Label()
-        label_h2.set_markup("<b>CALLSIGN INFO:</b>")
-        vbox_h_2.pack_start(label_h2, True, True, 0)
+        label_h2.set_markup("<b>QSO VARIABLES:</b>")
+        vbox_h_2.pack_start(label_h2, False, True, 0)
+        self.qso_variables = QsoVariablesEditor(self.config)
+        
+        vbox_h_2.pack_start(self.qso_variables, True, True, 0)
+        
 
         label_h3 = Gtk.Label()
         label_h3.set_markup("<b>CALLSIGN NOTE:</b>")
@@ -302,8 +307,7 @@ class MainWindow(Gtk.Window):
                 text_note=self.widgets['input_note'].get_text().decode('utf-8'),
                 callsign_text_note=cs_text_note.decode('utf-8'),
                 country_received=self.country,
-            #    country_received=row[9].value,
-            # TODO get country from DXCC entity
+                variables=self.qso_variables.value
             )
 
 
@@ -378,6 +382,7 @@ class MainWindow(Gtk.Window):
             
             
             text_note = edit_dialog.widgets['input_note'].get_text()
+            #print edit_dialog.qso_variables.value
             
             self.db.update_qso(
                 
@@ -394,8 +399,7 @@ class MainWindow(Gtk.Window):
                 country_received=edit_dialog.widgets['country_received'].get_text().decode('utf-8'),
                 callsign_text_note=cs_text_note.decode('utf-8'),
                 text_note=text_note.decode('utf-8'),
-            #    #country_received=row[9].value,
-            # TODO get country from DXCC entity
+                variables=edit_dialog.qso_variables.value,
             )
             
             
@@ -526,6 +530,5 @@ class MainWindow(Gtk.Window):
             col = Gtk.TreeViewColumn(column, rendererText, text=i)
             col.set_sort_column_id(i)    
             treeView.append_column(col)
-        
-
+    
 

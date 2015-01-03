@@ -2,6 +2,7 @@
 # -*- coding: utf-8 -*-
 
 from gi.repository import Gtk
+from qso_variables_editor import QsoVariablesEditor
 
 class EditQsoDialog(Gtk.Dialog):
 
@@ -135,13 +136,35 @@ class EditQsoDialog(Gtk.Dialog):
         if self.found_qso.text_note is not None:
             self.widgets['input_note'].set_text(self.found_qso.text_note)
             
+            
+        hbox = Gtk.HBox(False, 2)
+        vbox_h_1 = Gtk.VBox(False, 2)
+        vbox_h_2 = Gtk.VBox(False, 2)
+        
+        
         label_h3 = Gtk.Label()
         label_h3.set_markup("<b>CALLSIGN NOTE:</b>")
         self.widgets['callsign_note'] = Gtk.TextView()
         if self.found_qso.callsign_entity.text_note is not None:
             self.widgets['callsign_note'].get_buffer().set_text(self.found_qso.callsign_entity.text_note)
-        box.pack_start(label_h3, False, True, 0)
-        box.pack_start(self.widgets['callsign_note'], True, True, 0)
+        vbox_h_1.pack_start(label_h3, False, True, 0)
+        vbox_h_1.pack_start(self.widgets['callsign_note'], True, True, 0)
+        
+        label_h4 = Gtk.Label()
+        label_h4.set_markup("<b>QSO VARIABLES:</b>")
+        self.qso_variables = QsoVariablesEditor(parent.config)
+        
+        if self.found_qso.variables:
+            self.qso_variables.value = self.found_qso.variables
+        
+        vbox_h_2.pack_start(label_h4, False, True, 0)
+        vbox_h_2.pack_start(self.qso_variables, True, True, 0)
+       
+        hbox.pack_start(vbox_h_1, True, True, 0)
+        hbox.pack_start(vbox_h_2, True, True, 0)
+        
+        box.pack_start(hbox, True, True, 0)
+        
         self.show_all()
         
         
