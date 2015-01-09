@@ -18,8 +18,8 @@ class EditQsoDialog(Gtk.Dialog):
         )
 
         self.set_default_size(
-            parent.config.EDIT_QSO_WIDTH, 
-            parent.config.EDIT_QSO_HEIGHT
+            parent.config['EDIT_QSO_WIDTH'], 
+            parent.config['EDIT_QSO_HEIGHT']
         )
         
         # get QSO to edit
@@ -40,21 +40,21 @@ class EditQsoDialog(Gtk.Dialog):
          # PREPARE FOR ALL THE WIDGETS
         self.widgets = {}
         self.widgets['band_combo'] = Gtk.ComboBoxText()
-        for band in parent.config.BANDS:
+        for band in parent.config['BANDS']:
             self.widgets['band_combo'].append_text(band)
         
         try:
-            self.widgets['band_combo'].set_active(parent.config.BANDS.index(self.found_qso.frequency))
+            self.widgets['band_combo'].set_active(parent.config['BANDS'].index(self.found_qso.frequency))
         except Exception, e:
             pass
             
         
         self.widgets['mode_combo'] = Gtk.ComboBoxText()
-        for mode in parent.config.MODES:
+        for mode in parent.config['MODES']:
             self.widgets['mode_combo'].append_text(mode)
         
         try:
-            self.widgets['mode_combo'].set_active(parent.config.MODES.index(self.found_qso.mode))
+            self.widgets['mode_combo'].set_active(parent.config['MODES'].index(self.found_qso.mode))
         except Exception, e:
             pass
         

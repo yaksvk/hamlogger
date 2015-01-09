@@ -27,10 +27,11 @@ import signal
 from gi.repository import Gtk
 
 # application libs
-import config 
+
 from libs import main_window
 from libs import data_connector
 from libs import prefix_resolver
+from libs import config as cfg
 
 class HamLogger(Gtk.Application):
 
@@ -39,14 +40,18 @@ class HamLogger(Gtk.Application):
 
         # config post processing ->
         # change a potentially relative path to absolute path
-        config.DB_FILE = os.path.abspath(config.DB_FILE)
-        config.PREFIX_FILE = os.path.abspath(config.PREFIX_FILE)
+        # TODO remove these lines
+        #config['DB_FILE'] = os.path.abspath(config.`DB_FILE)
+        #config['PREFIX_FILE'] = os.path.abspath(config.PREFIX_FILE)
         
         # initialize DXCC prefix resolver
-        self.resolver = prefix_resolver.Resolver(config.PREFIX_FILE)
+        self.resolver = prefix_resolver.Resolver(config['PREFIX_FILE'])
         
         # create a db handle, this will be handled by our intelligent connector
-        self.db_handle = data_connector.DataConnector(config.DB_FILE) 
+        if not config.get('DB_FILE', ''):
+            config['DB_FILE'] = os.path.join(os.environ['HOME'], '.hamlogger', 'log.sqlite')
+
+        self.db_handle = data_connector.DataConnector(config['DB_FILE']) 
 
         # save the config as my attribute
         self.config = config
@@ -56,20 +61,24 @@ class HamLogger(Gtk.Application):
 
         # create the main window and send it a reference to the config module
         window = main_window.MainWindow(application=self, config=self.config, db=self.db_handle, resolver=self.resolver)
-        window.set_title(self.config.APPLICATION_NAME)
+        window.set_title(self.config['APPLICATION_NAME'])
         window.set_position(Gtk.WindowPosition.CENTER)
         window.set_icon_from_file('icons/application.png')
         window.show_all()
 
 # INIT APPLICATION
+#absolute_script path = os.path.dirname(os.path.realpath(__file__))
+config = cfg.PersistentConfig()
 app = HamLogger(config)
 
 
 # PROCESS COMMAND LINE ARGUMENTS
-parser = argparse.ArgumentParser(description='%s - a Ham radio logger application by OM1AWS' % config.APPLICATION_NAME)
+parser = argparse.ArgumentParser(description='%s - a Ham radio logger application by OM1AWS' % config['APPLICATION_NAME'])
 parser.add_argument("-l", "--license", dest="license", action="store_true", help="show licensing information")
 parser.add_argument("-i", "--import_ods", type=str, help="import log records from an ODS file.", metavar="ODS_FILE")
 parser.add_argument("-x", "--export_ods", type=str, help="export log records to an ODS file.", metavar="ODS_FILE")
+parser.add_argument("-s", "--export_sota", type=str, help="export log records to a SOTA-compatible activator CSV file. "
+    "Automatically filters for QSOs with the SUMMIT_SENT meta variable. MY_CALL overrides default callsign.", metavar="CSV_FILE")
 
 args = parser.parse_args()
 
@@ -88,6 +97,12 @@ if args.import_ods:
 if args.export_ods:
     from libs.tools import export_to_ods
     export_to_ods.execute(ods_file=args.export_ods, db_handle=app.db_handle)
+    sys.exit()
+    
+# 4. export sota 
+if args.export_sota:
+    from libs.tools import export_sota
+    export_sota.execute(csv_file=args.export_sota, db_handle=app.db_handle, config=app.config)
     sys.exit()
 
 

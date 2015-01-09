@@ -95,8 +95,18 @@ class DataConnector():
         else:
             return self.session.query(Qso).order_by(Qso.id.desc()).all()
     
+    def get_qsos_sota(self):
+        
+        #  TODO or QsoVariable.name=='SUMMIT_RECEIVED'
+        return self.session.query(Qso).join(QsoVariable).filter(QsoVariable.name=='SUMMIT_SENT').order_by(Qso.id).all()
+
+    
     def get_callsigns(self):
         return self.session.query(CallsignEntity).order_by(CallsignEntity.callsign).all()
+    
+    def get_callsign(self, call):
+        return self.session.query(CallsignEntity).filter(CallsignEntity.callsign==call).first()
+    
 
     def get_first_qso(self, *args, **kwargs):
         return self.session.query(Qso).filter_by(**kwargs).first()

@@ -16,11 +16,11 @@ class MainWindow(Gtk.Window):
         self.db = db
         self.resolver = resolver
         
-        self.set_size_request(config.WINDOW_WIDTH, config.WINDOW_HEIGHT)
+        self.set_size_request(config['WINDOW_WIDTH'], config['WINDOW_HEIGHT'])
         self.set_position(Gtk.WindowPosition.CENTER)
         
         # maximize if configured
-        if config.WINDOW_MAXIMIZE:
+        if config['WINDOW_MAXIMIZE']:
             self.maximize()
         
         # PREPARE FOR ALL THE WIDGETS
@@ -36,12 +36,12 @@ class MainWindow(Gtk.Window):
         main_vbox = Gtk.VBox(False, 8)
         
         self.widgets['band_combo'] = Gtk.ComboBoxText()
-        for band in config.BANDS:
+        for band in config['BANDS']:
             self.widgets['band_combo'].append_text(band)
         self.widgets['band_combo'].set_active(1)
         
         self.widgets['mode_combo'] = Gtk.ComboBoxText()
-        for mode in config.MODES:
+        for mode in config['MODES']:
             self.widgets['mode_combo'].append_text(mode)
         self.widgets['mode_combo'].set_active(0)
 
@@ -149,7 +149,7 @@ class MainWindow(Gtk.Window):
         swp = Gtk.ScrolledWindow()
         swp.set_shadow_type(Gtk.ShadowType.ETCHED_IN)
         swp.set_policy(Gtk.PolicyType.AUTOMATIC, Gtk.PolicyType.ALWAYS)
-        swp.set_min_content_height(self.config.DUPE_LIST_HEIGHT)
+        swp.set_min_content_height(self.config['DUPE_LIST_HEIGHT'])
         main_vbox.pack_start(swp, False, True, 0)
 
         self.dupe_log_store = self.tree_data_create_model()

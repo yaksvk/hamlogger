@@ -49,17 +49,26 @@ class QsoType(Base):
     id = Column(Integer, primary_key=True)
     description = Column(Unicode(64))
     qsos = relationship("Qso", backref="qso_types")
-    
 
+class QsoSession(Base):
+    __tablename__ = 'qso_sessions'
+    
+    id = Column(Integer, primary_key=True)
+    description = Column(Unicode(64))
+    text_note = Column(UnicodeText)
+    qsos = relationship("Qso", backref="qso_sessions")
+    
 class Qso(Base):
     __tablename__ = 'qsos'
     
     id = Column(Integer, primary_key=True)
     callsign_id = Column(Integer, ForeignKey('callsigns.id'), nullable=True)
     type_id = Column(Integer, ForeignKey('qso_types.id'), nullable=True)
+    session_id = Column(Integer, ForeignKey('qso_sessions.id'), nullable=True)
     callsign = Column(Unicode(64))
     callsign_entity = relation(CallsignEntity)
     qso_type = relation(QsoType)
+    qso_session = relation(QsoSession)
     variables = relationship("QsoVariable", collection_class=attribute_mapped_collection('name'), cascade="all, delete-orphan", backref="qsos")
     datetime_utc = Column(DateTime)
     frequency = Column(Unicode(8))
@@ -71,6 +80,8 @@ class Qso(Base):
     country_received = Column(Unicode(64))
     text_note = Column(UnicodeText)
     export = Column(Boolean, default=True)
+    qsl_sent = Column(Boolean, default=False)
+    qsl_received = Column(Boolean, default=False)
 
     def __repr__(self):
         return ''.join((self.callsign, ' ', self.datetime_utc.isoformat()))

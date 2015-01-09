@@ -13,6 +13,29 @@ import datetime
 import re
 import os.path
 
+def column_name_generator(n):
+    C = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ'
+    X = C[0]
+    i = 0
+
+    while i < n:
+        yield X
+        
+        chars = list(X)
+        for k, j in enumerate(reversed(chars)):
+            if C.index(j) < len(C) - 1:
+                chars[(len(chars)-1) -k] = C[C.index(j)+1]
+                for l in range(len(chars)-k, len(chars)):
+                    chars[l] = C[0]
+                break
+        else:
+            chars = list(C[0] * (len(chars) + 1))
+
+        X = ''.join(chars)
+
+        i += 1
+
+
 def execute(ods_file, db_handle, pretend=False):
     
     print "Processing file: %s" % ods_file
@@ -34,10 +57,14 @@ def execute(ods_file, db_handle, pretend=False):
         
         # export qsos
         properties = "id date_iso time_iso mode frequency callsign rst_sent rst_received name_received qth_received country_received text_note".split()
-        columns = "ABCDEFGHIJKLMNO"
+        col_gen = column_name_generator(1000)
+        columns = list(col_gen)
+        variable_columns_source = columns[len(columns)-1:len(properties)-1:-1]
         
         qsos.append_columns(len(properties))
         qsos.append_rows(1)
+        
+        variable_columns = {}
         
         # header property row
         for j, prop in enumerate(properties):
@@ -48,6 +75,14 @@ def execute(ods_file, db_handle, pretend=False):
                 if getattr(qso, prop) is not None:
                     qsos.append_rows(1)
                     qsos[columns[j]+str(i+2)].set_value(getattr(qso, prop))
+            
+            # process variables
+            for key, var in qso.variables.items():
+                if key not in variable_columns:
+                    variable_columns[key] = variable_columns_source.pop()
+                    qsos[variable_columns[key]+'1'].set_value(key)
+                
+                qsos[variable_columns[key]+str(i+2)].set_value(var.value)
         
         # export callsigns
         callsign_list = db_handle.get_callsigns()

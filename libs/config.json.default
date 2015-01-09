@@ -1,0 +1,14 @@
+{
+    "APPLICATION_NAME": "HamLogger",
+    "WINDOW_WIDTH": 1280,
+    "WINDOW_HEIGHT": 800,
+    "WINDOW_MAXIMIZE": true,
+    "DUPE_LIST_HEIGHT": 200,
+    "EDIT_QSO_HEIGHT": 500,
+    "EDIT_QSO_WIDTH": 800,
+    "BANDS": ["1.8", "3.5", "7", "14", "21", "28", "144", "440"],
+    "MODES": ["SSB", "CW", "FM", "PSK31", "RTTY"],
+    "DB_FILE": "",
+    "PREFIX_FILE": "db/entity_list.xml",
+    "MY_CALLSIGN": "YOUR_CALL_HERE"
+}

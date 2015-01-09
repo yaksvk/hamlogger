@@ -8,9 +8,9 @@ TWEAKING :)
 """
 
 import ezodf
-from ezodf.timeparser import TimeParser
 import datetime
 import re
+from ..models import QsoVariable
 
 def execute(ods_file, db_handle, pretend=False):
     
@@ -28,7 +28,18 @@ def execute(ods_file, db_handle, pretend=False):
     for j, sheet in enumerate(doc.sheets):
         print "Processing sheet: %s" % sheet.name
         if j == 0:
+            next
+            meta_variables = {}
+            
             for i, row in enumerate(sheet.rows()):
+                
+                if i == 0:
+                    pass
+                    # process QSO variables here
+                    if len(row) > 12:
+                        for k in range(12, len(row)):
+                            if row[k].value:
+                                meta_variables[row[k].value] = k
                 
                 if i > 0:
                     
@@ -55,12 +66,18 @@ def execute(ods_file, db_handle, pretend=False):
                             if int(band) == band:
                                 band = int(band)
                         except:
-                            print "not converting band"
+                            pass
                         
                         rst_received = str(row[7].value).replace('.0', '')
                         rst_sent = str(row[6].value).replace('.0', '')
                         
                         callsign = row[5].value
+                        
+                        # QSO variables
+                        qso_variables = {}
+                        for key, val in meta_variables.items():
+                            if row[val].value is not None and len(row[val].value):
+                                qso_variables[key] = QsoVariable(key, row[val].value)
                         
                         if not pretend and None not in (callsign, dat, utc):    
                             datetime_combined=datetime.datetime.combine(dat, utc)
@@ -81,6 +98,7 @@ def execute(ods_file, db_handle, pretend=False):
                                     qth_received=row[9].value,
                                     country_received=row[10].value,
                                     text_note=row[11].value,
+                                    variables=qso_variables
                                 )
                                 print "Added: %04i:  %-10s %-10s %-6s %-6s" % (i, mode, dat, utc, band)
                         
@@ -91,5 +109,18 @@ def execute(ods_file, db_handle, pretend=False):
                         print "%04i:  Invalid data. (%s)" % (i, str(e))
                         next
                     
-                   
-
+        if j == 1:
+            print "Processing callsign data..."
+            for i, row in enumerate(sheet.rows()):
+                if len(row) >= 4:
+                    if row[1].value:
+                        entity = db_handle.get_callsign(row[1].value)
+                        if entity:
+                            if row[3].value is not None:
+                                print "Updating note for %s to: %s" % (row[1].value, row[3].value)
+                                db_handle.session.add(entity)
+                                entity.text_note = row[3].value
+                                db_handle.session.commit()
+                            
+                        
+                
