@@ -45,7 +45,7 @@ class HamLogger(Gtk.Application):
         #config['PREFIX_FILE'] = os.path.abspath(config.PREFIX_FILE)
         
         # initialize DXCC prefix resolver
-        self.resolver = prefix_resolver.Resolver(config['PREFIX_FILE'])
+        self.resolver = prefix_resolver.Resolver(config.get_absolute_path(config['PREFIX_FILE']))
         
         # create a db handle, this will be handled by our intelligent connector
         if not config.get('DB_FILE', ''):
@@ -63,12 +63,13 @@ class HamLogger(Gtk.Application):
         window = main_window.MainWindow(application=self, config=self.config, db=self.db_handle, resolver=self.resolver)
         window.set_title(self.config['APPLICATION_NAME'])
         window.set_position(Gtk.WindowPosition.CENTER)
-        window.set_icon_from_file('icons/application.png')
+        window.set_icon_from_file(config.get_absolute_path('icons/application.png'))
         window.show_all()
 
 # INIT APPLICATION
-#absolute_script path = os.path.dirname(os.path.realpath(__file__))
-config = cfg.PersistentConfig()
+absolute_script_path = os.path.dirname(os.path.realpath(__file__))
+config = cfg.PersistentConfig(source_path=absolute_script_path)
+
 app = HamLogger(config)
 
 
@@ -79,6 +80,7 @@ parser.add_argument("-i", "--import_ods", type=str, help="import log records fro
 parser.add_argument("-x", "--export_ods", type=str, help="export log records to an ODS file.", metavar="ODS_FILE")
 parser.add_argument("-s", "--export_sota", type=str, help="export log records to a SOTA-compatible activator CSV file. "
     "Automatically filters for QSOs with the SUMMIT_SENT meta variable. MY_CALL overrides default callsign.", metavar="CSV_FILE")
+parser.add_argument("-a", "--export_adif", type=str, help="export log records to an ADIF v2 file.", metavar="ADIF_FILE")
 
 args = parser.parse_args()
 
@@ -105,7 +107,11 @@ if args.export_sota:
     export_sota.execute(csv_file=args.export_sota, db_handle=app.db_handle, config=app.config)
     sys.exit()
 
-
+# 5. export adif 
+if args.export_adif:
+    from libs.tools import export_adif_v2
+    export_adif_v2.execute(adif_file=args.export_adif, db_handle=app.db_handle, config=app.config)
+    sys.exit()
 
 
 # RUN GTK APPLICATION

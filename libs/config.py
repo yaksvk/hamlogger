@@ -17,21 +17,36 @@ import os
 class PersistentConfig(dict):
     _instance = None
 
-    def __new__(cls, *args, **kwargs):
+    def __new__(cls, source_path, *args, **kwargs):
         
         if cls._instance is None:
             cls._instance = super(PersistentConfig, cls).__new__(cls, *args, **kwargs)
             cls._instance._initialized = False
-            
+        
         return cls._instance
 
-    def __init__(self, *args, **kwargs):
+    def __init__(self, source_path, *args, **kwargs):
+        
+        if source_path:
+            self.__source_path = source_path
+        else:
+            self.__source_path = ''
+            
+        
         if not self._initialized:
             self.__save_file = None
             self.__initialize_from_file()
             self._initialized = True
 
     # CUSTOM METHODS, LOADING, PROBING DIR, SAVING
+    
+    def get_absolute_path(self, path):
+        """
+        """
+        if path[0] != '/':
+            return os.path.join(self.__source_path, path)
+        else:
+            return path
 
     def __probe_home_dir_and_install_config(self):
         """
@@ -74,7 +89,7 @@ class PersistentConfig(dict):
     def __save_to_file(self):
         if self.__save_file is not None:
             with open(self.__save_file,'w') as out_file:
-                json.dump(dict(self), out_file)
+                json.dump(dict(self), out_file, indent=4, sort_keys=True)
             
     # STANDARD DICTIONARY METHODS
 
