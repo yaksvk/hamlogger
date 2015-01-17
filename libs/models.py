@@ -56,6 +56,7 @@ class QsoSession(Base):
     id = Column(Integer, primary_key=True)
     description = Column(Unicode(64))
     text_note = Column(UnicodeText)
+    locator = Column(Unicode(8))
     qsos = relationship("Qso", backref="qso_sessions")
     
 class Qso(Base):

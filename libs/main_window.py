@@ -182,6 +182,7 @@ class MainWindow(Gtk.Window):
         self.current_log_tree = Gtk.TreeView(self.current_log_store)
         self.current_log_tree.set_rules_hint(True)
         self.current_log_tree.connect('button-release-event', self.current_log_keyrelease)
+        self.current_log_tree.connect('button-press-event', self.tree_click)
         sw.add(self.current_log_tree)
 
         self.tree_data_create_columns(self.current_log_tree)
@@ -336,6 +337,13 @@ class MainWindow(Gtk.Window):
             
             self.last_active_tree = widget
             self.current_log_context_menu.popup(None, None, lambda menu, user_data: (x, y, True), widget, 3, time)
+        
+    
+    def tree_click(self, widget, event):
+        if event.type == Gdk.EventType._2BUTTON_PRESS:
+            self.last_active_tree = widget
+            self.current_log_edit_qso(widget)
+            
     
     def update_entity_info(self, callsign):
         # TODO also, if many subsequent searches are made, i.e. OM, OM1, OM1AWS, do not re-do the search, unless
