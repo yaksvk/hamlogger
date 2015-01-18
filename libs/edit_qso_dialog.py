@@ -94,6 +94,14 @@ class EditQsoDialog(Gtk.Dialog):
         if self.found_qso.qth_received is not None:
             self.widgets['qth'].set_text(self.found_qso.qth_received)
         
+        self.widgets['qsl_sent'] =  Gtk.CheckButton(label="sent")
+        self.widgets['qsl_received'] =  Gtk.CheckButton(label="received")
+        
+        self.widgets['qsl_sent'].set_active(self.found_qso.qsl_sent == True)
+        self.widgets['qsl_received'].set_active(self.found_qso.qsl_received == True)
+        
+            
+        
         
         #save_button.connect("button-press-event", self.widget_save_qso)   
         
@@ -139,7 +147,7 @@ class EditQsoDialog(Gtk.Dialog):
             
         hbox = Gtk.HBox(False, 2)
         vbox_h_1 = Gtk.VBox(False, 2)
-        vbox_h_2 = Gtk.VBox(False, 2)
+        vbox_h_2 = Gtk.VBox(False, 4)
         
         
         label_h3 = Gtk.Label()
@@ -159,6 +167,20 @@ class EditQsoDialog(Gtk.Dialog):
         
         vbox_h_2.pack_start(label_h4, False, True, 0)
         vbox_h_2.pack_start(self.qso_variables, True, True, 0)
+        
+        label_h5 = Gtk.Label()
+        label_h5.set_markup("<b>QSL DETAILS:</b>")
+        vbox_h_2.pack_start(label_h5, False, True, 0)
+        
+        
+        hbox_qsl = Gtk.HBox(False, 2)
+        
+        hbox_qsl.pack_start(self.widgets['qsl_sent'], True, True, 0)
+        hbox_qsl.pack_start(self.widgets['qsl_received'], True, True, 0)
+        
+        
+        vbox_h_2.pack_start(hbox_qsl, False, True, 0)
+        
        
         hbox.pack_start(vbox_h_1, True, True, 0)
         hbox.pack_start(vbox_h_2, True, True, 0)

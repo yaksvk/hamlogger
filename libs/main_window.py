@@ -407,6 +407,8 @@ class MainWindow(Gtk.Window):
                 country_received=edit_dialog.widgets['country_received'].get_text().decode('utf-8'),
                 callsign_text_note=cs_text_note.decode('utf-8'),
                 text_note=text_note.decode('utf-8'),
+                qsl_sent=edit_dialog.widgets['qsl_sent'].get_active(),
+                qsl_received=edit_dialog.widgets['qsl_received'].get_active(),
                 variables=edit_dialog.qso_variables.value,
             )
             
