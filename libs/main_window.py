@@ -155,6 +155,7 @@ class MainWindow(Gtk.Window):
         self.dupe_log_store = self.tree_data_create_model()
 
         treeView_p = Gtk.TreeView(self.dupe_log_store)
+        treeView_p.connect('button-press-event', self.tree_click)
         treeView_p.connect('button-release-event', self.current_log_keyrelease)
         
         swp.add(treeView_p)
@@ -469,7 +470,7 @@ class MainWindow(Gtk.Window):
 
 
     def tree_data_create_model(self):
-        store = Gtk.ListStore(int, str, str, str, str, str, str, str, str, str, str, str)
+        store = Gtk.ListStore(int, str, str, str, str, str, str, str, str, str, str, str, str)
 
         return store
 
@@ -478,6 +479,13 @@ class MainWindow(Gtk.Window):
 
         qsos = self.db.get_qsos()
         for qso in qsos:
+            
+            check = ''
+            if qso.qsl_sent:
+                check = '✔'
+            elif qso.qsl_received:
+                check = '✗'
+                
             self.current_log_store.append(
                   (
                       qso.id, 
@@ -491,6 +499,7 @@ class MainWindow(Gtk.Window):
                       qso.name_received, 
                       qso.qth_received, 
                       qso.country_received,
+                      check,
                       qso.text_note
                   )
             )
@@ -533,12 +542,18 @@ class MainWindow(Gtk.Window):
 
     def tree_data_create_columns(self, treeView):
    
-        columns = ['ID','DATE', 'UTC', 'FREQ', 'MODE', 'CALL', 'RST_SENT', 'RST_RCVD', 'NAME', 'QTH', 'COUNTRY', 'NOTE']
+        columns = ['ID','DATE', 'UTC', 'FREQ', 'MODE', 'CALL', 'RST_SENT', 'RST_RCVD', 'NAME', 'QTH', 'COUNTRY', 'Q', 'NOTE']
 
         for i, column in enumerate(columns):
             rendererText = Gtk.CellRendererText()
             col = Gtk.TreeViewColumn(column, rendererText, text=i)
-            col.set_sort_column_id(i)    
+            col.set_sort_column_id(i)  
+            
+            # QSL info - TODO this appears not to work FTM
+            if i == 11:
+                col.sizing = Gtk.TreeViewColumnSizing.FIXED
+                col.set_fixed_width(10)
+            
             treeView.append_column(col)
     
 
