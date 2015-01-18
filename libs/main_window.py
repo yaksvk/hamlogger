@@ -7,6 +7,7 @@ from confirm_dialog import ConfirmDialog
 from qso_variables_editor import QsoVariablesEditor
 
 import datetime
+import sys
 
 class MainWindow(Gtk.Window): 
     def __init__(self, config, db, resolver, *args, **kwargs):
@@ -26,14 +27,26 @@ class MainWindow(Gtk.Window):
         # PREPARE FOR ALL THE WIDGETS
         self.widgets = {}
         
-        # MENU HEADERS
-        
-        
         
         
         
         # MAIN CONTENT
         main_vbox = Gtk.VBox(False, 8)
+        
+        # MENU HEADERS
+        
+        menu_bar = Gtk.MenuBar()
+        menu_bar_file = Gtk.MenuItem("File")
+        menu_bar_file_menu = Gtk.Menu()
+        menu_bar_file_menu_exit = Gtk.MenuItem("Exit")
+        menu_bar_file_menu_exit.connect("activate", self.menu_file_exit)
+        
+        menu_bar_file_menu.append(menu_bar_file_menu_exit)
+        menu_bar_file.set_submenu(menu_bar_file_menu)
+        menu_bar.append(menu_bar_file)
+        
+        main_vbox.pack_start(menu_bar, False, True, 0)
+        
         
         self.widgets['band_combo'] = Gtk.ComboBoxText()
         for band in config['BANDS']:
@@ -555,5 +568,9 @@ class MainWindow(Gtk.Window):
                 col.set_fixed_width(10)
             
             treeView.append_column(col)
+            
+    # MENU ACTIONS
+    def menu_file_exit(self, widget):
+        sys.exit()
     
 
