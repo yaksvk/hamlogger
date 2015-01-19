@@ -5,9 +5,14 @@ from gi.repository import Gtk, Gdk
 from edit_qso_dialog import EditQsoDialog
 from confirm_dialog import ConfirmDialog
 from qso_variables_editor import QsoVariablesEditor
+from models import CallsignEntity
 
 import datetime
 import sys
+
+HAMCALL_ROOT = 'http://www.hamcall.net/call/'
+QRZ_ROOT = 'http://www.qrz.com/db/'
+HAMQTH_ROOT = 'http://www.hamqth.com/'
 
 class MainWindow(Gtk.Window): 
     def __init__(self, config, db, resolver, *args, **kwargs):
@@ -120,6 +125,29 @@ class MainWindow(Gtk.Window):
 
 
         # TODO DXCC info block
+        
+        # weblinks
+        link_qrz = Gtk.Label()
+        link_hamcall = Gtk.Label()
+        link_hamqth = Gtk.Label()
+        
+        self.widgets['links'] = {
+            'qrz': Gtk.Label(),
+            'hamcall': Gtk.Label(),
+            'hamqth': Gtk.Label()
+        }
+        
+        self.widgets['links']['qrz'].set_markup("<b><a href=\"#\">QRZ.com</a></b>")
+        self.widgets['links']['hamcall'].set_markup("<b><a href=\"#\">HAMCALL.net</a></b>")
+        self.widgets['links']['hamqth'].set_markup("<b><a href=\"#\">HamQTH.com</a></b>")
+        
+        
+        hbox_links = Gtk.HBox(False, 2)
+        hbox_links.pack_start(self.widgets['links']['qrz'], True, True, 0)
+        hbox_links.pack_start(self.widgets['links']['hamcall'], True, True, 0)
+        hbox_links.pack_start(self.widgets['links']['hamqth'], True, True, 0)
+        
+        
         label_h1 = Gtk.Label()
         label_h1.set_markup("<b>DXCC / ITU ENTITY INFO:</b>")
         vbox_h_1.pack_start(label_h1, False, True, 0)
@@ -127,7 +155,12 @@ class MainWindow(Gtk.Window):
         self.widgets['entity_note'] = Gtk.TextView()
         self.widgets['entity_note'].set_editable(False)
         vbox_h_1.pack_start(self.widgets['entity_note'], True, True, 0)
-       
+        
+        label_h0 = Gtk.Label()
+        label_h0.set_markup("<b>WEB LINKS:</b>")
+        vbox_h_1.pack_start(label_h0, False, True, 0)
+        
+        vbox_h_1.pack_start(hbox_links, False, True, 0)
 
         # TODO callsign info gathethed from the internet
         label_h2 = Gtk.Label()
@@ -237,6 +270,13 @@ class MainWindow(Gtk.Window):
     def something():
         pass
 
+    def update_links(self, callsign):
+        base_call = CallsignEntity.get_base_callsign(callsign)
+        
+        self.widgets['links']['qrz'].set_markup('<b><a href="' + QRZ_ROOT + base_call + '">QRZ.com</a></b>')
+        self.widgets['links']['hamcall'].set_markup('<b><a href="'+ HAMCALL_ROOT + base_call + '">HAMCALL.net</a></b>')
+        self.widgets['links']['hamqth'].set_markup('<b><a href="'+ HAMQTH_ROOT + base_call + '">HamQTH.com</a></b>')
+
     def widget_call_entry_changed(self, widget):
         new_text = widget.get_text().upper()
         widget.set_text(new_text)
@@ -244,6 +284,7 @@ class MainWindow(Gtk.Window):
         if len(new_text) > 1:
             self.tree_data_refresh_dupe_tree()
             self.update_entity_info(new_text)
+            self.update_links(new_text)
         else:
             self.dupe_log_store.clear()
     
@@ -522,6 +563,12 @@ class MainWindow(Gtk.Window):
         
         qsos = self.db.get_qsos(callsign_filter=self.widgets['call_entry'].get_text())
         for qso in qsos:
+            check = ''
+            if qso.qsl_sent:
+                check = '✔'
+            elif qso.qsl_received:
+                check = '✗'
+                
             self.dupe_log_store.append(
                 (
                     qso.id, 
@@ -535,6 +582,7 @@ class MainWindow(Gtk.Window):
                     qso.name_received,
                     qso.qth_received,
                     qso.country_received,
+                    check,
                     qso.text_note 
                 )
             )
