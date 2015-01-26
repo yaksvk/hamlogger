@@ -5,6 +5,8 @@ from gi.repository import Gtk, Gdk
 from edit_qso_dialog import EditQsoDialog
 from confirm_dialog import ConfirmDialog
 from qso_variables_editor import QsoVariablesEditor
+from session_manage_dialog import ManageSessionDialog
+from session_new_dialog import NewSessionDialog
 from models import CallsignEntity
 
 import datetime
@@ -21,6 +23,7 @@ class MainWindow(Gtk.Window):
         self.config = config
         self.db = db
         self.resolver = resolver
+        self.active_session = None
         
         self.set_size_request(config['WINDOW_WIDTH'], config['WINDOW_HEIGHT'])
         self.set_position(Gtk.WindowPosition.CENTER)
@@ -49,6 +52,35 @@ class MainWindow(Gtk.Window):
         menu_bar_file_menu.append(menu_bar_file_menu_exit)
         menu_bar_file.set_submenu(menu_bar_file_menu)
         menu_bar.append(menu_bar_file)
+        
+        menu_bar_export = Gtk.MenuItem("Export")
+        menu_bar_export_menu = Gtk.Menu()
+        menu_bar_export_menu_ods = Gtk.MenuItem("OpenDocument")
+        menu_bar_export_menu_adif = Gtk.MenuItem("ADIF")
+        menu_bar_export_menu_sota = Gtk.MenuItem("SOTA CSV")
+        
+        menu_bar_export_menu.append(menu_bar_export_menu_ods)
+        menu_bar_export_menu.append(menu_bar_export_menu_adif)
+        menu_bar_export_menu.append(menu_bar_export_menu_sota)
+        menu_bar_export.set_submenu(menu_bar_export_menu)
+        menu_bar.append(menu_bar_export)
+        
+        
+        menu_bar_session = Gtk.MenuItem("Sessions")
+        menu_bar_session_menu = Gtk.Menu()
+        menu_bar_session_menu_new = Gtk.MenuItem("New")
+        menu_bar_session_menu_new.connect("activate", self.menu_session_new)
+        menu_bar_session_menu_manage = Gtk.MenuItem("Manage")
+        menu_bar_session_menu_manage.connect("activate", self.menu_session_manage)
+        menu_bar_session_menu_reset = Gtk.MenuItem("Reset")
+        menu_bar_session_menu_reset.connect("activate", self.menu_session_reset)
+        
+        menu_bar_session_menu.append(menu_bar_session_menu_new)
+        menu_bar_session_menu.append(menu_bar_session_menu_manage)
+        menu_bar_session_menu.append(menu_bar_session_menu_reset)
+        menu_bar_session.set_submenu(menu_bar_session_menu)
+        menu_bar.append(menu_bar_session)
+        
         
         main_vbox.pack_start(menu_bar, False, True, 0)
         
@@ -138,7 +170,7 @@ class MainWindow(Gtk.Window):
         }
         
         self.widgets['links']['qrz'].set_markup("<b><a href=\"#\">QRZ.com</a></b>")
-        self.widgets['links']['hamcall'].set_markup("<b><a href=\"#\">HAMCALL.net</a></b>")
+        self.widgets['links']['hamcall'].set_markup("<b><a href=\"#\">Hamcall.net</a></b>")
         self.widgets['links']['hamqth'].set_markup("<b><a href=\"#\">HamQTH.com</a></b>")
         
         
@@ -238,6 +270,26 @@ class MainWindow(Gtk.Window):
 
         # CURRENT LOG CONTEXT MENU
         self.current_log_context_menu = Gtk.Menu()
+        
+        # Weblinks
+        menu_item_weblinks = Gtk.MenuItem("Weblinks")
+        menu_item_weblinks_menu = Gtk.Menu()
+        menu_item_weblinks_menu_qrz = Gtk.MenuItem("QRZ.com")
+        menu_item_weblinks_menu_qrz.connect("button-press-event", self.open_weblink, QRZ_ROOT)
+        menu_item_weblinks_menu_hamcall = Gtk.MenuItem("Hamcall.net")
+        menu_item_weblinks_menu_hamcall.connect("button-press-event", self.open_weblink, HAMCALL_ROOT)
+        menu_item_weblinks_menu_hamqth = Gtk.MenuItem("HamQTH.com")
+        menu_item_weblinks_menu_hamqth.connect("button-press-event", self.open_weblink, HAMQTH_ROOT)
+        
+        menu_item_weblinks_menu.append(menu_item_weblinks_menu_qrz)
+        menu_item_weblinks_menu.append(menu_item_weblinks_menu_hamcall)
+        menu_item_weblinks_menu.append(menu_item_weblinks_menu_hamqth)
+        menu_item_weblinks.set_submenu(menu_item_weblinks_menu)
+        menu_item_weblinks_menu.show()
+        menu_item_weblinks_menu_qrz.show()
+        menu_item_weblinks_menu_hamcall.show()
+        menu_item_weblinks_menu_hamqth.show()
+        
         menu_item1 = Gtk.MenuItem("Edit QSO")
         menu_item1.connect("activate", self.current_log_edit_qso)
         
@@ -246,9 +298,12 @@ class MainWindow(Gtk.Window):
         menu_item2 = Gtk.MenuItem("Delete QSO")
         menu_item2.connect("activate", self.current_log_delete_qso)
 
+        self.current_log_context_menu.append(menu_item_weblinks)
         self.current_log_context_menu.append(menu_item1)
         self.current_log_context_menu.append(separator)
         self.current_log_context_menu.append(menu_item2)
+       
+        menu_item_weblinks.show()
         menu_item1.show()
         separator.show()
         menu_item2.show()
@@ -363,7 +418,8 @@ class MainWindow(Gtk.Window):
                 text_note=self.widgets['input_note'].get_text().decode('utf-8'),
                 callsign_text_note=cs_text_note.decode('utf-8'),
                 country_received=self.country,
-                variables=self.qso_variables.value
+                variables=self.qso_variables.value,
+                qso_session=self.active_session
             )
 
 
@@ -433,6 +489,10 @@ class MainWindow(Gtk.Window):
             freq = edit_dialog.widgets['band_combo'].get_active_text()
             mode = edit_dialog.widgets['mode_combo'].get_active_text()
             
+            qso_session = None
+            if edit_dialog.widgets['qso_session_combo'].get_active() != -1:
+                qso_session = edit_dialog.qso_sessions[edit_dialog.widgets['qso_session_combo'].get_active()]
+            
             callsign = edit_dialog.widgets['call_entry'].get_text()
             dfields = edit_dialog.widgets['input_date'].get_text().split('-')
             dat = datetime.date(*map(int, dfields))
@@ -443,9 +503,7 @@ class MainWindow(Gtk.Window):
             buf = edit_dialog.widgets['callsign_note'].get_buffer()
             cs_text_note = buf.get_text(*buf.get_bounds(),include_hidden_chars=False)
             
-            
             text_note = edit_dialog.widgets['input_note'].get_text()
-            #print edit_dialog.qso_variables.value
             
             self.db.update_qso(
                 
@@ -464,6 +522,7 @@ class MainWindow(Gtk.Window):
                 text_note=text_note.decode('utf-8'),
                 qsl_sent=edit_dialog.widgets['qsl_sent'].get_active(),
                 qsl_received=edit_dialog.widgets['qsl_received'].get_active(),
+                qso_session=qso_session,
                 variables=edit_dialog.qso_variables.value,
             )
             
@@ -616,9 +675,69 @@ class MainWindow(Gtk.Window):
                 col.set_fixed_width(10)
             
             treeView.append_column(col)
+    
+    # Context menu actions
+    def open_weblink(self, widget, event, *params):
+        selection = self.last_active_tree.get_selection()
+        model, treeiter = selection.get_selected()
             
-    # MENU ACTIONS
+        column_call = model[treeiter][5]  
+        base_call = CallsignEntity.get_base_callsign(column_call)
+        
+        Gtk.show_uri(None, params[0] + base_call, Gdk.CURRENT_TIME)
+           
+           
+    # FILE MENU ACTIONS
     def menu_file_exit(self, widget):
         sys.exit()
+
+    def menu_session_new(self, widget):
+        
+        dialog = NewSessionDialog(self)
+        response = dialog.run()
+        
+        if response == Gtk.ResponseType.OK:
+            
+            locator = dialog.widgets['locator'].get_text()
+            description = dialog.widgets['description'].get_text()
+            buf = dialog.widgets['text_note'].get_buffer()
+            text_note = buf.get_text(*buf.get_bounds(),include_hidden_chars=False)
+            
+            qso_session = self.db.create_qso_session(
+                locator=locator,
+                description=description,
+                text_note=text_note
+            )
+            
+            if dialog.widgets['activate_session'].get_active():
+                self.set_title(self.config['APPLICATION_NAME'] + ' Active Session: ' + qso_session.description)
+                self.active_session = qso_session
+            
+        dialog.destroy()
+    
+    def menu_session_reset(self, widget):
+        self.active_session = None
+        self.set_title(self.config['APPLICATION_NAME'])
+                       
+    def menu_session_manage(self, widget):
+        pass
+        
+    # STANDARD FILE CHOOSER
+    def display_file_dialog(self, extension=None):
+        dialog = Gtk.FileChooserDialog("Select target file", self,
+            Gtk.FileChooserAction.SAVE,
+            (Gtk.STOCK_CANCEL, Gtk.ResponseType.CANCEL,
+             Gtk.STOCK_OPEN, Gtk.ResponseType.OK))
+
+        response = dialog.run()
+        return_file = None
+        
+        if response == Gtk.ResponseType.OK:
+            return_file = dialog.get_filename()
+        elif response == Gtk.ResponseType.CANCEL:
+            pass
+        dialog.destroy()
+        
+        return return_file
     
 

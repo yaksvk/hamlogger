@@ -6,6 +6,8 @@
     "DUPE_LIST_HEIGHT": 200,
     "EDIT_QSO_HEIGHT": 500,
     "EDIT_QSO_WIDTH": 800,
+    "EDIT_QSO_SESSION_HEIGHT": 500,
+    "EDIT_QSO_SESSION_WIDTH": 400,
     "BANDS": ["1.8", "3.5", "7", "14", "21", "28", "144", "440"],
     "MODES": ["SSB", "CW", "FM", "PSK31", "RTTY"],
     "DB_FILE": "",

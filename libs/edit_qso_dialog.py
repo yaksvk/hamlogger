@@ -27,18 +27,26 @@ class EditQsoDialog(Gtk.Dialog):
         self.found_qso = parent.db.get_first_qso(id=parent.editing_qso_id)
         # TODO handle case: found_qso is None: self.response(Gtk.ResponseType.CANCEL)
         
-        
-        
-        
-        
+       
 
         box = self.get_content_area()
-      
-        # add elements here - TODO
         
         
          # PREPARE FOR ALL THE WIDGETS
         self.widgets = {}
+        
+        self.widgets['qso_session_combo'] = Gtk.ComboBoxText()
+        self.qso_sessions = parent.db.get_qso_sessions()
+        
+        for session in self.qso_sessions:
+            self.widgets['qso_session_combo'].append_text(str(session.id) + ' ' + session.description)
+        self.widgets['qso_session_combo'].append_text("No session")
+        self.qso_sessions.append(None)
+        
+        if self.found_qso.qso_session:
+            self.widgets['qso_session_combo'].set_active(self.qso_sessions.index(self.found_qso.qso_session))
+        
+        
         self.widgets['band_combo'] = Gtk.ComboBoxText()
         for band in parent.config['BANDS']:
             self.widgets['band_combo'].append_text(band)
@@ -143,6 +151,12 @@ class EditQsoDialog(Gtk.Dialog):
         
         if self.found_qso.text_note is not None:
             self.widgets['input_note'].set_text(self.found_qso.text_note)
+        
+        session_label = Gtk.Label()
+        session_label.set_markup("<b>QSO SESSION:</b>")
+        
+        box.pack_start(session_label, False, True, 0)
+        box.pack_start(self.widgets['qso_session_combo'], False, True, 0)
             
             
         hbox = Gtk.HBox(False, 2)

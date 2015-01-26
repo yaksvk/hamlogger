@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 
-from models import Base, CallsignEntity, QsoType, Qso, QsoVariable
+from models import Base, CallsignEntity, QsoType, Qso, QsoVariable, QsoSession
 from models import probe_models_and_create_session
 
 class DataConnector():
@@ -104,8 +104,17 @@ class DataConnector():
     def get_callsigns(self):
         return self.session.query(CallsignEntity).order_by(CallsignEntity.callsign).all()
     
+    def get_qso_sessions(self):
+        return self.session.query(QsoSession).order_by(QsoSession.id).all()
+    
     def get_callsign(self, call):
         return self.session.query(CallsignEntity).filter(CallsignEntity.callsign==call).first()
+    
+    def create_qso_session(self, *args, **kwargs):
+        qso_session = QsoSession(*args, **kwargs)
+        self.session.add(qso_session)
+        self.commit()
+        return qso_session
     
 
     def get_first_qso(self, *args, **kwargs):
