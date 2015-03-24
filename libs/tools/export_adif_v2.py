@@ -32,6 +32,20 @@ Locator: %s
         
         export_line += create_adif_tag('QSO_DATE', item.date_iso.replace('-',''))
         export_line += create_adif_tag('TIME_ON', item.time_iso.replace(':',''))
+        
+        # use custom callsign if applicable (Portable, etc.)
+        if 'MY_CALL' in item.variables:
+            export_line += create_adif_tag('STATION_CALLSIGN', item.variables['MY_CALL'].value)
+
+        note = u''            
+        # put sota variables into note
+        if 'SUMMIT_SENT' in item.variables:
+            note += u'SOTA summit sent: ' + item.variables.get('SUMMIT_SENT').value
+        if 'SUMMIT_RECEIVED' in item.variables:
+            note += u'SOTA summit received: ' + item.variables.get('SUMMIT_RECEIVED').value
+        if note != u'':
+            export_line += create_adif_tag('NOTES', note)
+        
         export_line += create_adif_tag('CALL', item.callsign)
         export_line += create_adif_tag('FREQ', item.frequency)
         export_line += create_adif_tag('MODE', item.mode)
