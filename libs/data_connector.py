@@ -79,7 +79,7 @@ class DataConnector():
         self.session.flush()
         self.session.commit()
         
-    def get_qsos(self, callsign_filter=None, base_callsign=True):
+    def get_qsos(self, callsign_filter=None, base_callsign=True, asc=False):
         if callsign_filter is not None:
 
             if base_callsign:
@@ -93,7 +93,10 @@ class DataConnector():
                 # just return a list matching the given callsign
                 return self.session.query(Qso).filter(Qso.callsign.startswith(unicode(callsign_filter))).order_by(Qso.id.desc()).all()
         else:
-            return self.session.query(Qso).order_by(Qso.id.desc()).all()
+            if asc:
+                return self.session.query(Qso).order_by(Qso.id.asc()).all()
+            else:
+                return self.session.query(Qso).order_by(Qso.id.desc()).all()
     
     def get_qsos_sota(self):
         

@@ -81,6 +81,7 @@ parser.add_argument("-x", "--export_ods", type=str, help="export log records to 
 parser.add_argument("-s", "--export_sota", type=str, help="export log records to a SOTA-compatible activator CSV file. "
     "Automatically filters for QSOs with the SUMMIT_SENT meta variable. MY_CALL overrides default callsign.", metavar="CSV_FILE")
 parser.add_argument("-a", "--export_adif", type=str, help="export log records to an ADIF v2 file.", metavar="ADIF_FILE")
+parser.add_argument("-c", "--export_cabrillo", type=str, help="export log records in cabrillo format", metavar="CABRILLO_FILE")
 
 args = parser.parse_args()
 
@@ -113,6 +114,11 @@ if args.export_adif:
     export_adif_v2.execute(adif_file=args.export_adif, db_handle=app.db_handle, config=app.config)
     sys.exit()
 
+# 6. export cabrillo 
+if args.export_cabrillo:
+    from libs.tools import export_cabrillo
+    export_cabrillo.execute(adif_file=args.export_cabrillo, db_handle=app.db_handle, config=app.config)
+    sys.exit()
 
 # RUN GTK APPLICATION
 

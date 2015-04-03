@@ -438,6 +438,7 @@ class MainWindow(Gtk.Window):
         self.tree_data_refresh_main_tree()
         self.dupe_log_store.clear(
         )
+      
 
     def current_log_keyrelease(self, widget, event):
         if event.button == 3:
