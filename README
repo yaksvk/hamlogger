@@ -60,6 +60,20 @@ CURRENT FUNCTIONALITY
 
 - opendocument spreadsheet (ODS) import and export (partially implemented)
 
+- export ADIF v.2 (only basic QSO details)
+
+- export SOTA CSV file 
+
+
+KEYBOARD SHORTCUTS
+
+  CTRL-Z   Clear QSO fields and focus on the callsign box. 
+           (failed QSO)
+
+  CTRL-A   Increase QSO time by 1 minute
+  CTRL-X   Decrease QSO time by 1 minute
+
+
 
 GOALS (TODOS = THIS IS NOT DONE YET, THIS IS WHAT I WANT...EVENTUALLY :))
 
