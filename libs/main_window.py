@@ -25,6 +25,8 @@ class MainWindow(Gtk.Window):
         self.resolver = resolver
         self.active_session = None
         
+        self.obligatories = ['call_entry', 'input_date', 'input_time', 'rst_sent', 'rst_rcvd']
+        
         self.set_size_request(config['WINDOW_WIDTH'], config['WINDOW_HEIGHT'])
         self.set_position(Gtk.WindowPosition.CENTER)
         
@@ -34,6 +36,10 @@ class MainWindow(Gtk.Window):
         
         # PREPARE FOR ALL THE WIDGETS
         self.widgets = {}
+        
+        
+        # CONNECT KEYPRESS EVENTS
+        self.connect('key-press-event', self.window_key_press)
         
         
         
@@ -81,6 +87,8 @@ class MainWindow(Gtk.Window):
         menu_bar_session.set_submenu(menu_bar_session_menu)
         menu_bar.append(menu_bar_session)
         
+        menu_bar_mode = Gtk.MenuItem("Mode")
+        menu_bar.append(menu_bar_mode)
         
         main_vbox.pack_start(menu_bar, False, True, 0)
         
@@ -378,14 +386,21 @@ class MainWindow(Gtk.Window):
                     utc = datetime.datetime.utcnow().timetuple()
                     self.widgets['input_time'].set_text("%02i:%02i" % (utc.tm_hour, utc.tm_min))
 
+    def window_key_press(self, widget, event):        
+        if Gdk.ModifierType.CONTROL_MASK:
+            keyval = Gdk.keyval_name(event.keyval)
+            
+            if keyval == 'z':
+                # CTRL-Z
+                self.clear_fields_and_reset_focus()
+
     def widget_save_qso(self, widget, event):        
         # check if at least CALL, DATE, TIME and RST SENT and RECEIVED are present and save
-        obligatories = ['call_entry', 'input_date', 'input_time', 'rst_sent', 'rst_rcvd']
 
         freq = self.widgets['band_combo'].get_active_text()
         mode = self.widgets['mode_combo'].get_active_text()
 
-        for i in obligatories:
+        for i in self.obligatories:
             if self.widgets[i].get_text() == '':
                 print "Not adding. Obligatory fields empty."
                 return
@@ -421,10 +436,14 @@ class MainWindow(Gtk.Window):
                 variables=self.qso_variables.value,
                 qso_session=self.active_session
             )
+            
+        self.clear_fields_and_reset_focus()
+        self.tree_data_refresh_main_tree()
+        self.dupe_log_store.clear()
 
-
+    def clear_fields_and_reset_focus(self):
         # clean fields and grab focus
-        for i in obligatories:
+        for i in self.obligatories:
             self.widgets[i].set_text('')
 
         self.widgets['rst_sent'].set_text('')
@@ -435,9 +454,8 @@ class MainWindow(Gtk.Window):
         self.widgets['callsign_note'].get_buffer().set_text('')
 
         self.widgets['call_entry'].grab_focus()
-        self.tree_data_refresh_main_tree()
-        self.dupe_log_store.clear(
-        )
+        
+        
       
 
     def current_log_keyrelease(self, widget, event):
