@@ -72,6 +72,9 @@ KEYBOARD SHORTCUTS
 
   CTRL-A   Increase QSO time by 1 minute
   CTRL-X   Decrease QSO time by 1 minute
+  
+  CTRL-L   Lock focused widget in place (adding QSOs from an older date without
+           having to type it again)
 
 
 

@@ -36,6 +36,7 @@ class MainWindow(Gtk.Window):
         
         # PREPARE FOR ALL THE WIDGETS
         self.widgets = {}
+        self.locked_widgets = {}
         
         
         # CONNECT KEYPRESS EVENTS
@@ -86,9 +87,6 @@ class MainWindow(Gtk.Window):
         menu_bar_session_menu.append(menu_bar_session_menu_reset)
         menu_bar_session.set_submenu(menu_bar_session_menu)
         menu_bar.append(menu_bar_session)
-        
-        menu_bar_mode = Gtk.MenuItem("Mode")
-        menu_bar.append(menu_bar_mode)
         
         main_vbox.pack_start(menu_bar, False, True, 0)
         
@@ -354,6 +352,26 @@ class MainWindow(Gtk.Window):
     def widget_monitor_keypress(self, widget, event):
         keyname = Gdk.keyval_name(event.keyval)
         
+        # guard for lock of this widget
+        if Gdk.ModifierType.CONTROL_MASK and keyname == 'l':
+            
+            # CTRL-L
+            # toggle lock on this widget
+            
+            # find this widget in the widget list 
+            for key, val in self.widgets.items():
+                if widget is val:
+                    # toggle locked state
+                    if key in self.locked_widgets:
+                        del self.locked_widgets[key]
+                        widget.override_background_color(Gtk.StateFlags.NORMAL, None)
+                        widget.override_color(Gtk.StateFlags.NORMAL, None)
+                    else:
+                        self.locked_widgets[key] = True
+                        widget.override_background_color(Gtk.StateFlags.NORMAL, Gdk.RGBA(1.0, 1.0, 0.8, 1.0))
+                        widget.override_color(Gtk.StateFlags.NORMAL, Gdk.RGBA(0.0, 0.0, 0.0, 1.0))
+            
+        
         # guard for return
         if keyname == 'Return':
             self.widget_save_qso(widget, event)
@@ -389,14 +407,16 @@ class MainWindow(Gtk.Window):
     def input_time_inc(self, increment):
         # get current datetime
         iso_datetime = self.widgets['input_date'].get_text() + ' ' + self.widgets['input_time'].get_text()
-        current = datetime.datetime.strptime(iso_datetime, '%Y-%m-%d %H:%M')
-        delta = datetime.timedelta(minutes=increment)
-        current = current + delta
         
-        utc = current.timetuple()
-        self.widgets['input_date'].set_text("%04i-%02i-%02i" % (utc.tm_year , utc.tm_mon, utc.tm_mday))
-        self.widgets['input_time'].set_text("%02i:%02i" % (utc.tm_hour, utc.tm_min))
+        if iso_datetime != ' ':
+            current = datetime.datetime.strptime(iso_datetime, '%Y-%m-%d %H:%M')
+            delta = datetime.timedelta(minutes=increment)
+            current = current + delta
             
+            utc = current.timetuple()
+            self.widgets['input_date'].set_text("%04i-%02i-%02i" % (utc.tm_year , utc.tm_mon, utc.tm_mday))
+            self.widgets['input_time'].set_text("%02i:%02i" % (utc.tm_hour, utc.tm_min))
+                
         
 
     def window_key_press(self, widget, event):        
@@ -408,16 +428,17 @@ class MainWindow(Gtk.Window):
                 # clear all fields and focus back on callsign
                 
                 self.clear_fields_and_reset_focus()
-            
             elif keyval == 'a':
                 # CTRL-A
                 # increment minute
                 self.input_time_inc(1)
-                
             elif keyval == 'x':
                 # CTRL-X
                 # decrement minutes
                 self.input_time_inc(-1)
+                
+                
+                
                
 
     def widget_save_qso(self, widget, event):        
@@ -470,13 +491,22 @@ class MainWindow(Gtk.Window):
     def clear_fields_and_reset_focus(self):
         # clean fields and grab focus
         for i in self.obligatories:
-            self.widgets[i].set_text('')
+            if i not in self.locked_widgets:
+                self.widgets[i].set_text('')
 
+        other_widgets = ['rst_sent','rst_rcvd','name','qth','input_note']
+        for i in other_widgets:
+            if i not in self.locked_widgets:
+                self.widgets[i].set_text('')
+        
+        """
         self.widgets['rst_sent'].set_text('')
         self.widgets['rst_rcvd'].set_text('')
         self.widgets['name'].set_text('')
         self.widgets['qth'].set_text('')
         self.widgets['input_note'].set_text('')
+        """
+        
         self.widgets['callsign_note'].get_buffer().set_text('')
 
         self.widgets['call_entry'].grab_focus()
