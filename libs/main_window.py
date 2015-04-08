@@ -386,13 +386,39 @@ class MainWindow(Gtk.Window):
                     utc = datetime.datetime.utcnow().timetuple()
                     self.widgets['input_time'].set_text("%02i:%02i" % (utc.tm_hour, utc.tm_min))
 
+    def input_time_inc(self, increment):
+        # get current datetime
+        iso_datetime = self.widgets['input_date'].get_text() + ' ' + self.widgets['input_time'].get_text()
+        current = datetime.datetime.strptime(iso_datetime, '%Y-%m-%d %H:%M')
+        delta = datetime.timedelta(minutes=increment)
+        current = current + delta
+        
+        utc = current.timetuple()
+        self.widgets['input_date'].set_text("%04i-%02i-%02i" % (utc.tm_year , utc.tm_mon, utc.tm_mday))
+        self.widgets['input_time'].set_text("%02i:%02i" % (utc.tm_hour, utc.tm_min))
+            
+        
+
     def window_key_press(self, widget, event):        
         if Gdk.ModifierType.CONTROL_MASK:
             keyval = Gdk.keyval_name(event.keyval)
             
             if keyval == 'z':
                 # CTRL-Z
+                # clear all fields and focus back on callsign
+                
                 self.clear_fields_and_reset_focus()
+            
+            elif keyval == 'a':
+                # CTRL-A
+                # increment minute
+                self.input_time_inc(1)
+                
+            elif keyval == 'x':
+                # CTRL-X
+                # decrement minutes
+                self.input_time_inc(-1)
+               
 
     def widget_save_qso(self, widget, event):        
         # check if at least CALL, DATE, TIME and RST SENT and RECEIVED are present and save
