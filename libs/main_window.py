@@ -353,7 +353,7 @@ class MainWindow(Gtk.Window):
         keyname = Gdk.keyval_name(event.keyval)
         
         # guard for lock of this widget
-        if Gdk.ModifierType.CONTROL_MASK and keyname == 'l':
+        if event.state == Gdk.ModifierType.CONTROL_MASK and keyname == 'l':
             
             # CTRL-L
             # toggle lock on this widget
@@ -420,7 +420,7 @@ class MainWindow(Gtk.Window):
         
 
     def window_key_press(self, widget, event):        
-        if Gdk.ModifierType.CONTROL_MASK:
+        if event.state == Gdk.ModifierType.CONTROL_MASK:
             keyval = Gdk.keyval_name(event.keyval)
             
             if keyval == 'z':
@@ -499,16 +499,9 @@ class MainWindow(Gtk.Window):
             if i not in self.locked_widgets:
                 self.widgets[i].set_text('')
         
-        """
-        self.widgets['rst_sent'].set_text('')
-        self.widgets['rst_rcvd'].set_text('')
-        self.widgets['name'].set_text('')
-        self.widgets['qth'].set_text('')
-        self.widgets['input_note'].set_text('')
-        """
-        
         self.widgets['callsign_note'].get_buffer().set_text('')
 
+        # grab focus in the callsign box again
         self.widgets['call_entry'].grab_focus()
         
         
