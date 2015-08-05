@@ -78,7 +78,10 @@ parser = argparse.ArgumentParser(description='%s - a Ham radio logger applicatio
 parser.add_argument("-l", "--license", dest="license", action="store_true", help="show licensing information")
 parser.add_argument("-i", "--import_ods", type=str, help="import log records from an ODS file.", metavar="ODS_FILE")
 parser.add_argument("-x", "--export_ods", type=str, help="export log records to an ODS file.", metavar="ODS_FILE")
+parser.add_argument("-t", "--export_odt", type=str, help="export log records to an ODT file (nice document).", metavar="ODT_FILE")
 parser.add_argument("-s", "--export_sota", type=str, help="export log records to a SOTA-compatible activator CSV file. "
+    "Automatically filters for QSOs with the SUMMIT_SENT meta variable. MY_CALL overrides default callsign.", metavar="CSV_FILE")
+parser.add_argument("-r", "--export_sota_chaser", type=str, help="export log records to a SOTA-compatible chaser CSV file. "
     "Automatically filters for QSOs with the SUMMIT_SENT meta variable. MY_CALL overrides default callsign.", metavar="CSV_FILE")
 parser.add_argument("-a", "--export_adif", type=str, help="export log records to an ADIF v2 file.", metavar="ADIF_FILE")
 parser.add_argument("-c", "--export_cabrillo", type=str, help="export log records in cabrillo format", metavar="CABRILLO_FILE")
@@ -102,19 +105,31 @@ if args.export_ods:
     export_to_ods.execute(ods_file=args.export_ods, db_handle=app.db_handle)
     sys.exit()
     
-# 4. export sota 
+# 4. export log data to an ods file 
+if args.export_odt:
+    from libs.tools import export_to_odt
+    export_to_odt.execute(odt_file=args.export_odt, db_handle=app.db_handle)
+    sys.exit()
+    
+# 5. export sota 
 if args.export_sota:
     from libs.tools import export_sota
     export_sota.execute(csv_file=args.export_sota, db_handle=app.db_handle, config=app.config)
     sys.exit()
 
-# 5. export adif 
+# 6. export sota 
+if args.export_sota_chaser:
+    from libs.tools import export_sota_chaser
+    export_sota_chaser.execute(csv_file=args.export_sota_chaser, db_handle=app.db_handle, config=app.config)
+    sys.exit()
+
+# 7. export adif 
 if args.export_adif:
     from libs.tools import export_adif_v2
     export_adif_v2.execute(adif_file=args.export_adif, db_handle=app.db_handle, config=app.config)
     sys.exit()
 
-# 6. export cabrillo 
+# 8. export cabrillo 
 if args.export_cabrillo:
     from libs.tools import export_cabrillo
     export_cabrillo.execute(adif_file=args.export_cabrillo, db_handle=app.db_handle, config=app.config)

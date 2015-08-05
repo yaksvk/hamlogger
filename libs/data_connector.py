@@ -9,7 +9,7 @@ class DataConnector():
     def __init__(self, db_file):
         
         self.session = probe_models_and_create_session(db_file)
-   
+  
     def create_qso(self, *args, **kwargs):
         
         if 'callsign_text_note' in kwargs:
@@ -79,6 +79,9 @@ class DataConnector():
         self.session.flush()
         self.session.commit()
         
+    def get_orphan_qsos(self, asc=False):
+        return self.session.query(Qso).filter_by(qso_session=None).order_by(Qso.id.asc()).all()
+
     def get_qsos(self, callsign_filter=None, base_callsign=True, asc=False):
         if callsign_filter is not None:
 
@@ -103,6 +106,10 @@ class DataConnector():
         #  TODO or QsoVariable.name=='SUMMIT_RECEIVED'
         return self.session.query(Qso).join(QsoVariable).filter(QsoVariable.name=='SUMMIT_SENT').order_by(Qso.id).all()
 
+    def get_qsos_sota_chaser(self):
+        
+        #  TODO or QsoVariable.name=='SUMMIT_RECEIVED'
+        return self.session.query(Qso).join(QsoVariable).filter(QsoVariable.name=='SUMMIT_RECEIVED').order_by(Qso.id).all()
     
     def get_callsigns(self):
         return self.session.query(CallsignEntity).order_by(CallsignEntity.callsign).all()

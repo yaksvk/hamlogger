@@ -25,6 +25,10 @@ class MainWindow(Gtk.Window):
         self.resolver = resolver
         self.active_session = None
         
+        self.logging_mode_standard = True
+        self.logging_mode_contest = False
+
+        
         self.obligatories = ['call_entry', 'input_date', 'input_time', 'rst_sent', 'rst_rcvd']
         
         self.set_size_request(config['WINDOW_WIDTH'], config['WINDOW_HEIGHT'])
@@ -88,6 +92,18 @@ class MainWindow(Gtk.Window):
         menu_bar_session.set_submenu(menu_bar_session_menu)
         menu_bar.append(menu_bar_session)
         
+        menu_bar_mode = Gtk.MenuItem("Mode")
+
+        menu_bar_mode_menu = Gtk.Menu()
+        menu_bar_mode_menu_standard = Gtk.MenuItem("Standard")
+        menu_bar_mode_menu_standard.connect("activate", self.menu_mode_switch, "standard")
+        menu_bar_mode_menu_contest = Gtk.MenuItem("Contest")
+        menu_bar_mode_menu_contest.connect("activate", self.menu_mode_switch, "contest")
+        menu_bar_mode_menu.append(menu_bar_mode_menu_standard)
+        menu_bar_mode_menu.append(menu_bar_mode_menu_contest)
+        menu_bar_mode.set_submenu(menu_bar_mode_menu)
+        menu_bar.append(menu_bar_mode)
+
         main_vbox.pack_start(menu_bar, False, True, 0)
         
         
@@ -111,43 +127,24 @@ class MainWindow(Gtk.Window):
         self.widgets['rst_sent'] = Gtk.Entry(max_width_chars=6, width_chars=6)
         self.widgets['rst_rcvd'] = Gtk.Entry(max_width_chars=6, width_chars=6)
 
+        # CONTEST FIELDS
+        self.widgets['contest_sent'] = Gtk.Entry(max_width_chars=6, width_chars=6)
+        self.widgets['contest_received'] = Gtk.Entry(max_width_chars=6, width_chars=6)
+
         self.widgets['input_note'] = Gtk.Entry(max_width_chars=40, width_chars=40)
        
         self.widgets['name'] = Gtk.Entry(max_width_chars=15, width_chars=15)
         self.widgets['qth'] = Gtk.Entry(max_width_chars=20, width_chars=20)
         
-        save_button = Gtk.Button(label="Save")
-        save_button.connect("button-press-event", self.widget_save_qso)   
+        self.save_button = Gtk.Button(label="Save")
+        self.save_button.connect("button-press-event", self.widget_save_qso)   
 
         # for some widgets, also add a universal keypress watcher, these will serve for return
         for i in ('call_entry', 'input_date', 'input_time', 'rst_sent', 'rst_rcvd', 'input_note', 'name', 'qth'):
             self.widgets[i].connect("key-press-event", self.widget_monitor_keypress)   
 
 
-        items = (
-            ("FREQ", self.widgets['band_combo'],1),
-            ("MODE", self.widgets['mode_combo'],1),
-            ("CALL", self.widgets['call_entry'],2),  
-            ("DATE", self.widgets['input_date'],1),
-            ("UTC", self.widgets['input_time'],1),
-            ("RST SENT", self.widgets['rst_sent'],1),
-            ("RST RCVD", self.widgets['rst_rcvd'],1),
-            ("NAME",  self.widgets['name'],2),
-            ("QTH",  self.widgets['qth'],2),
-            ("NOTE", self.widgets['input_note'],4),
-            ("", save_button, 1),
-        )
-        
-        flex_sum = reduce(lambda x,y: x + y, [ i[2] for i in items ] )
-
-        # create a table with a phantom number of columns (calculated flex sum)
-        table = Gtk.Table(rows=2, columns=flex_sum, homogeneous=False)
-
-        flex_cumulative = 0
-        for item in items:
-            table.attach(Gtk.Label(item[0]), flex_cumulative, flex_cumulative + item[2], 0, 1)
-            table.attach(item[1], flex_cumulative, flex_cumulative + item[2], 1, 2)
-            flex_cumulative += item[2]
+        table = self.build_qso_variables_table()
         
         table_label = Gtk.Label()
         table_label.set_markup("<b>EDIT QSO:</b>")
@@ -325,6 +322,37 @@ class MainWindow(Gtk.Window):
         self.tree_data_refresh_main_tree()
         self.widgets['call_entry'].grab_focus()
 
+    def build_qso_variables_table(self):
+        # label, widget, flex int, standard mode boolean, contest mode boolean 
+
+        items = (
+            ("FREQ", self.widgets['band_combo'],1, True, True),
+            ("MODE", self.widgets['mode_combo'],1, True, True),
+            ("CALL", self.widgets['call_entry'],2, True, True),  
+            ("DATE", self.widgets['input_date'],1, True, True),
+            ("UTC", self.widgets['input_time'],1, True, True),
+            ("RST SENT", self.widgets['rst_sent'],1, True, True),
+            ("CONTEST SENT", self.widgets['contest_sent'],1, False, True),
+            ("RST RCVD", self.widgets['rst_rcvd'],1, True, True),
+            ("CONTEST RCVD", self.widgets['contest_received'],1, False, True),
+            ("NAME",  self.widgets['name'],2, True, False),
+            ("QTH",  self.widgets['qth'],2, True, False),
+            ("NOTE", self.widgets['input_note'],4, True, True),
+            ("", self.save_button, 1, True, True),
+        )
+        
+        flex_sum = reduce(lambda x,y: x + y, [ i[2] for i in filter(lambda x:(x[3] == True and self.logging_mode_standard == True) or (x[4] == True and self.logging_mode_contest == True), items) ] )
+
+        # create a table with a phantom number of columns (calculated flex sum)
+        table = Gtk.Table(rows=2, columns=flex_sum, homogeneous=False)
+
+        flex_cumulative = 0
+        for item in filter(lambda x: (x[3] == True and self.logging_mode_standard == True) or (x[4] == True and self.logging_mode_contest == True), items):
+            table.attach(Gtk.Label(item[0]), flex_cumulative, flex_cumulative + item[2], 0, 1)
+            table.attach(item[1], flex_cumulative, flex_cumulative + item[2], 1, 2)
+            flex_cumulative += item[2]
+        
+        return table
     
     # EVENT HANDLING FUNCTIONS FOR THE WIDGETS
 
@@ -494,7 +522,7 @@ class MainWindow(Gtk.Window):
             if i not in self.locked_widgets:
                 self.widgets[i].set_text('')
 
-        other_widgets = ['rst_sent','rst_rcvd','name','qth','input_note']
+        other_widgets = ['rst_sent','rst_rcvd','name','qth','input_note', 'contest_sent', 'contest_received']
         for i in other_widgets:
             if i not in self.locked_widgets:
                 self.widgets[i].set_text('')
@@ -789,6 +817,16 @@ class MainWindow(Gtk.Window):
                        
     def menu_session_manage(self, widget):
         pass
+
+    def menu_mode_switch(self, widget, mode):
+        if mode == "standard":
+            self.logging_mode_standard = True
+            self.logging_mode_contest = False
+
+        elif mode == "contest":
+            self.logging_mode_standard = False
+            self.logging_mode_contest = True
+            
         
     # STANDARD FILE CHOOSER
     def display_file_dialog(self, extension=None):

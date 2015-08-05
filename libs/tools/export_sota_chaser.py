@@ -11,7 +11,7 @@ import os.path
 import io
 
 def execute(csv_file, db_handle, config, pretend=False):
-    output = db_handle.get_qsos_sota()
+    output = db_handle.get_qsos_sota_chaser()
     
     with io.open(csv_file,'w', encoding='utf8') as out_file:
         for item in output:
@@ -25,8 +25,11 @@ def execute(csv_file, db_handle, config, pretend=False):
                 fields.append(config['MY_CALLSIGN'])
                 
             
-            # my summit
-            fields.append(item.variables.get('SUMMIT_SENT').value)
+            # my summit)
+            if 'SUMMIT_SENT' in item.variables:
+                fields.append(item.variables['SUMMIT_SENT'].value)
+            else:
+                fields.append('')
             
             # date = Use of International date format (DD/MM/YY) is recommended
             # The time in UTC. Either HHMM or HH:MM will work. Use the 24 hour clock!
@@ -61,5 +64,5 @@ def execute(csv_file, db_handle, config, pretend=False):
             
             text = ','.join(fields)
             out_file.write(text + "\n")
-        
+     
         
