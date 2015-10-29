@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 
-from gi.repository import Gtk
+from gi.repository import Gtk, Gdk
 from models import QsoVariable
 
 class QsoVariablesEditor(Gtk.TreeView):
@@ -10,9 +10,10 @@ class QsoVariablesEditor(Gtk.TreeView):
         
         self.liststore = Gtk.ListStore(str, str)
         
+        
         super(QsoVariablesEditor, self).__init__(model=self.liststore, *args, **kwargs)
         
-        
+        self.connect("key-press-event", self.monitor_keypress)   
 
         renderer_editabletext0 = Gtk.CellRendererText()
         renderer_editabletext0.set_property("editable", True)
@@ -70,8 +71,20 @@ class QsoVariablesEditor(Gtk.TreeView):
         
         if treeiter is not None:
             model.remove(treeiter)
+            
+    # EVENTS
     
     # VALUE
+    def monitor_keypress(self, widget, event):
+        if event.state == Gdk.ModifierType.CONTROL_MASK:
+            keyval = Gdk.keyval_name(event.keyval)
+            
+            if keyval == 'a':
+                self.add_new_variable(widget)
+            elif keyval == 'x':
+                self.delete_selected_variable(widget)
+            else:
+                pass
     
     @property
     def value(self):
