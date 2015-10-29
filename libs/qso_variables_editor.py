@@ -9,23 +9,46 @@ class QsoVariablesEditor(Gtk.TreeView):
     def __init__(self, config, variables=None, *args, **kwargs):
         
         self.liststore = Gtk.ListStore(str, str)
+        self.option_store = Gtk.ListStore(str)
+        
+        self.combo_values = ['MY_CALL', 'SUMMIT_SENT', 'SUMMIT_RECEIVED']
+        for combo_val in self.combo_values:
+            self.option_store.append([combo_val])
+        
         
         
         super(QsoVariablesEditor, self).__init__(model=self.liststore, *args, **kwargs)
         
         self.connect("key-press-event", self.monitor_keypress)   
 
-        renderer_editabletext0 = Gtk.CellRendererText()
+        # obsolete
+        #renderer_editabletext0 = Gtk.CellRendererText()
+        #renderer_editabletext0.set_property("editable", True)
+        
+        renderer_editabletext0 = Gtk.CellRendererCombo()
         renderer_editabletext0.set_property("editable", True)
+        renderer_editabletext0.set_property("model", self.option_store)
+        renderer_editabletext0.set_property("text-column", 0)
+        renderer_editabletext0.set_property("has-entry", True)
+        
+         # user picks a value from combo
+        renderer_editabletext0.connect("changed", self.combo_changed)
+        # user enters a text into box
+        renderer_editabletext0.connect("edited", self.combo_edited)
+        
         
         renderer_editabletext1 = Gtk.CellRendererText()
         renderer_editabletext1.set_property("editable", True)
 
         column_editabletext0 = Gtk.TreeViewColumn("VARIABLE NAME",
             renderer_editabletext0, text=0)
+            # TODO
+            #column_combo.pack_start(renderer_combo, False)
+            #column_combo.add_attribute(renderer_combo, "text", 1)
         self.append_column(column_editabletext0)
         
-        renderer_editabletext0.connect("edited", self.text_edited0)
+        # obsolete
+        #renderer_editabletext0.connect("edited", self.text_edited0)
         
         column_editabletext1 = Gtk.TreeViewColumn("VARIABLE VALUE",
             renderer_editabletext1, text=1)
@@ -47,8 +70,17 @@ class QsoVariablesEditor(Gtk.TreeView):
         menu_item1.show()
         menu_item2.show()
          
-    def text_edited0(self, widget, path, text):
-        self.liststore[path][0] = text
+    def combo_edited(self, cellrenderercombo, path, newtext):    
+        self.liststore[path][0] = newtext
+
+        if newtext not in self.combo_values:
+            self.combo_values.append(newtext)
+            self.option_store.clear()
+            for item in self.combo_values:
+                self.option_store.append([item])
+
+    def combo_changed(self, cellrenderercombo, path, treeiter):    
+        self.liststore[path][0] = self.option_store[treeiter][0]
     
     def text_edited1(self, widget, path, text):
         self.liststore[path][1] = text
