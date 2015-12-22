@@ -85,6 +85,7 @@ parser.add_argument("-r", "--export_sota_chaser", type=str, help="export log rec
     "Automatically filters for QSOs with the SUMMIT_SENT meta variable. MY_CALL overrides default callsign.", metavar="CSV_FILE")
 parser.add_argument("-a", "--export_adif", type=str, help="export log records to an ADIF v2 file.", metavar="ADIF_FILE")
 parser.add_argument("-c", "--export_cabrillo", type=str, help="export log records in cabrillo format", metavar="CABRILLO_FILE")
+parser.add_argument("-b", "--import_sota", type=str, help="import log records from sotadata website", metavar="CSV_FILE")
 
 args = parser.parse_args()
 
@@ -133,6 +134,12 @@ if args.export_adif:
 if args.export_cabrillo:
     from libs.tools import export_cabrillo
     export_cabrillo.execute(adif_file=args.export_cabrillo, db_handle=app.db_handle, config=app.config)
+    sys.exit()
+
+# 9. import csv log data from sotadata 
+if args.import_sota:
+    from libs.tools import import_from_sota
+    import_from_sota.execute(csv_file=args.import_sota, db_handle=app.db_handle)
     sys.exit()
 
 # RUN GTK APPLICATION
