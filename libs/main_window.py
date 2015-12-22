@@ -28,6 +28,8 @@ class MainWindow(Gtk.Window):
         self.logging_mode_standard = True
         self.logging_mode_contest = False
 
+        # manual editing mode (as opposed to clicking-through mode)
+        self.editing_mode = False
         
         self.obligatories = ['call_entry', 'input_date', 'input_time', 'rst_sent', 'rst_rcvd']
         
@@ -265,6 +267,10 @@ class MainWindow(Gtk.Window):
         self.current_log_tree.set_rules_hint(True)
         self.current_log_tree.connect('button-release-event', self.current_log_keyrelease)
         self.current_log_tree.connect('button-press-event', self.tree_click)
+
+        selection = self.current_log_tree.get_selection()
+        selection.connect("changed", self.main_tree_selection_changed)
+
         sw.add(self.current_log_tree)
 
         self.tree_data_create_columns(self.current_log_tree)
@@ -367,6 +373,8 @@ class MainWindow(Gtk.Window):
         self.widgets['links']['hamqth'].set_markup('<b><a href="'+ HAMQTH_ROOT + base_call + '">HamQTH.com</a></b>')
 
     def widget_call_entry_changed(self, widget):
+        self.editing_mode = True
+
         new_text = widget.get_text().upper()
         widget.set_text(new_text)
 
@@ -451,6 +459,7 @@ class MainWindow(Gtk.Window):
         if event.state == Gdk.ModifierType.CONTROL_MASK:
             keyval = Gdk.keyval_name(event.keyval)
             
+            print keyval
             if keyval == 'z':
                 # CTRL-Z
                 # clear all fields and focus back on callsign
@@ -464,9 +473,6 @@ class MainWindow(Gtk.Window):
                 # CTRL-X
                 # decrement minutes
                 self.input_time_inc(-1)
-                
-                
-                
                
 
     def widget_save_qso(self, widget, event):        
@@ -550,7 +556,33 @@ class MainWindow(Gtk.Window):
         if event.type == Gdk.EventType._2BUTTON_PRESS:
             self.last_active_tree = widget
             self.current_log_edit_qso(widget)
+
+    def main_tree_selection_changed(self, selection):
+        # TODO
+        # This will probably require something else. Perhaps use onclick and verify for selection. Maybe not onclick, but onselect
+        # to cover for situations:
+        # - do not fire if nothing is selected (left click fires before seelction takes place)
+        # - do not only fire when selection changed, also fire when click is made on the same selection
+        # - also change previous conversations when entry is already filled in - but not by user, keep a global memory whether
+        #   the entry was changed by typing or by selection DONE
+        # when editing a window, the tree refreshes, selection changes and everything goes to hell - probably will be fixed by listering to left click instead of selection
+        
+        # assume this was to search for previous QSOs
+        model, treeiter = selection.get_selected()
+
+        if model is not None and treeiter is not None:
+            column_callsign = model[treeiter][5]  
             
+            # if the callsign editing entry is empty, fill in callsign and refresh previous qso
+            if not self.widgets['call_entry'].get_text() or not self.editing_mode:
+                self.widgets['call_entry'].set_text(column_callsign)
+
+                self.tree_data_refresh_dupe_tree()
+                self.update_entity_info(column_callsign)
+                self.update_links(column_callsign)
+
+                self.editing_mode = False
+
     
     def update_entity_info(self, callsign):
         # TODO also, if many subsequent searches are made, i.e. OM, OM1, OM1AWS, do not re-do the search, unless
@@ -581,7 +613,7 @@ class MainWindow(Gtk.Window):
         response = edit_dialog.run()
         
         if response == Gtk.ResponseType.OK:
-           
+
             freq = edit_dialog.widgets['band_combo'].get_active_text()
             mode = edit_dialog.widgets['mode_combo'].get_active_text()
             
@@ -628,7 +660,6 @@ class MainWindow(Gtk.Window):
               
             # dupe_tree = self.dupe_log_tree.get_vadjustment().get_value()
             
-            
             self.tree_data_refresh_main_tree()
             self.tree_data_refresh_dupe_tree()
             
@@ -645,7 +676,6 @@ class MainWindow(Gtk.Window):
                 self.widgets['callsign_note'].get_buffer().set_text('')
                 
             self.widgets['call_entry'].grab_focus()
-       
         
         elif response == Gtk.ResponseType.CANCEL:
             pass
@@ -656,6 +686,11 @@ class MainWindow(Gtk.Window):
         
         
     def current_log_delete_qso(self, widget):
+        
+        # for some reason, for now, we only support current log tree delete:
+        if self.current_log_tree is not self.last_active_tree:
+            return
+
         selection = self.last_active_tree.get_selection()
         model, treeiter = selection.get_selected()
             
@@ -677,14 +712,19 @@ class MainWindow(Gtk.Window):
         
     # TREE LOADING / REFRESHING FUNCTIONS
 
-
     def tree_data_create_model(self):
         store = Gtk.ListStore(int, str, str, str, str, str, str, str, str, str, str, str, str)
 
         return store
 
     def tree_data_refresh_main_tree(self):
-        self.current_log_store.clear()
+        
+        # self.current_log_store.clear()
+        # Clearing the log by using .clear() is very slow. a faster  approch that works is to create a new ListStore, throw away
+        # the old liststore and point the tree to it - set_model
+
+        self.current_log_store = self.tree_data_create_model()
+        self.current_log_tree.set_model(self.current_log_store)
 
         qsos = self.db.get_qsos()
         for qso in qsos:
@@ -714,7 +754,8 @@ class MainWindow(Gtk.Window):
             )
 
     def tree_data_refresh_dupe_tree(self):
-        self.dupe_log_store.clear()
+        self.dupe_log_store = self.tree_data_create_model()
+        self.dupe_log_tree.set_model(self.dupe_log_store)
         
         qsos = self.db.get_qsos(callsign_filter=self.widgets['call_entry'].get_text())
         for qso in qsos:
