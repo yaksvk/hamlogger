@@ -7,6 +7,7 @@ from confirm_dialog import ConfirmDialog
 from qso_variables_editor import QsoVariablesEditor
 from session_manage_dialog import ManageSessionDialog
 from session_new_dialog import NewSessionDialog
+from export_sota_dialog import ExportSotaDialog
 from models import CallsignEntity
 
 import datetime
@@ -71,6 +72,7 @@ class MainWindow(Gtk.Window):
         menu_bar_export_menu_ods = Gtk.MenuItem("OpenDocument")
         menu_bar_export_menu_adif = Gtk.MenuItem("ADIF")
         menu_bar_export_menu_sota = Gtk.MenuItem("SOTA CSV")
+        menu_bar_export_menu_sota.connect("activate", self.export_menu_sota)
         
         menu_bar_export_menu.append(menu_bar_export_menu_ods)
         menu_bar_export_menu.append(menu_bar_export_menu_adif)
@@ -101,8 +103,11 @@ class MainWindow(Gtk.Window):
         menu_bar_mode_menu_standard.connect("activate", self.menu_mode_switch, "standard")
         menu_bar_mode_menu_contest = Gtk.MenuItem("Contest")
         menu_bar_mode_menu_contest.connect("activate", self.menu_mode_switch, "contest")
+        menu_bar_mode_menu_qsl = Gtk.MenuItem("QSL Agenda")
+        menu_bar_mode_menu_qsl.connect("activate", self.menu_mode_switch, "qsl_agenda")
         menu_bar_mode_menu.append(menu_bar_mode_menu_standard)
         menu_bar_mode_menu.append(menu_bar_mode_menu_contest)
+        menu_bar_mode_menu.append(menu_bar_mode_menu_qsl)
         menu_bar_mode.set_submenu(menu_bar_mode_menu)
         menu_bar.append(menu_bar_mode)
 
@@ -754,10 +759,12 @@ class MainWindow(Gtk.Window):
             )
 
     def tree_data_refresh_dupe_tree(self):
+
         self.dupe_log_store = self.tree_data_create_model()
         self.dupe_log_tree.set_model(self.dupe_log_store)
         
         qsos = self.db.get_qsos(callsign_filter=self.widgets['call_entry'].get_text())
+
         for qso in qsos:
             check = ''
             if qso.qsl_sent:
@@ -867,7 +874,19 @@ class MainWindow(Gtk.Window):
         elif mode == "contest":
             self.logging_mode_standard = False
             self.logging_mode_contest = True
+
+    def export_menu_sota(self, widget):
+        # get sota activations
+        activations = self.db.get_sota_activations()
+
+        dialog = ExportSotaDialog(self, activations)
+        response = dialog.run()
+        
+        if response == Gtk.ResponseType.OK:
+            pass    
             
+        dialog.destroy()
+
         
     # STANDARD FILE CHOOSER
     def display_file_dialog(self, extension=None):

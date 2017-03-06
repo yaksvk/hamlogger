@@ -3,6 +3,7 @@
 
 from models import Base, CallsignEntity, QsoType, Qso, QsoVariable, QsoSession
 from models import probe_models_and_create_session
+from sqlalchemy import func
 
 class DataConnector():
     
@@ -105,6 +106,17 @@ class DataConnector():
         
         #  TODO or QsoVariable.name=='SUMMIT_RECEIVED'
         return self.session.query(Qso).join(QsoVariable).filter(QsoVariable.name=='SUMMIT_SENT').order_by(Qso.id).all()
+
+    def get_sota_activations(self):
+        
+        sota_activations = self.session.query(
+            func.count(Qso.id), 
+            func.date(Qso.datetime_utc),
+            QsoSession.description,
+            QsoVariable.value
+        ).join(Qso.variables).join(Qso.qso_session).filter(QsoVariable.name==u'SUMMIT_SENT').group_by(QsoVariable.value, func.date(Qso.datetime_utc)).order_by(func.date(Qso.datetime_utc)).all()
+
+        return sota_activations
 
     def get_qsos_sota_chaser(self):
         

@@ -86,6 +86,10 @@ parser.add_argument("-r", "--export_sota_chaser", type=str, help="export log rec
 parser.add_argument("-a", "--export_adif", type=str, help="export log records to an ADIF v2 file.", metavar="ADIF_FILE")
 parser.add_argument("-c", "--export_cabrillo", type=str, help="export log records in cabrillo format", metavar="CABRILLO_FILE")
 parser.add_argument("-b", "--import_sota", type=str, help="import log records from sotadata website", metavar="CSV_FILE")
+parser.add_argument("-L", "--export_lotw", type=str, help="export log records to an ADIF v2 file. The name is used as prefix.", metavar="ADIF_FILE")
+
+# TODO experimental feature
+parser.add_argument("-u", "--upload_sota", dest="upload_sota", action="store_true", help="upload sota log to sotadata")
 
 args = parser.parse_args()
 
@@ -141,6 +145,20 @@ if args.import_sota:
     from libs.tools import import_from_sota
     import_from_sota.execute(csv_file=args.import_sota, db_handle=app.db_handle)
     sys.exit()
+
+# 10. upload QSOs to sotadata.org.uk
+if args.upload_sota:
+    from libs.tools import interactively_upload_sota
+    interactively_upload_sota.execute(db_handle=app.db_handle, config=app.config)
+    sys.exit()
+
+# 11. export lotw 
+if args.export_lotw:
+    from libs.tools import export_lotw
+    export_lotw.execute(adif_file_prefix=args.export_lotw, db_handle=app.db_handle, config=app.config)
+    sys.exit()
+
+
 
 # RUN GTK APPLICATION
 
