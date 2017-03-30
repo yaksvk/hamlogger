@@ -10,11 +10,9 @@ import re
 import os.path
 import io
 
-def execute(csv_file, db_handle, config, pretend=False):
-    output = db_handle.get_qsos_sota()
-    
+def create_export_file_from_qsos(qsos, csv_file, config):
     with io.open(csv_file,'w', encoding='utf8') as out_file:
-        for item in output:
+        for item in qsos:
             
             fields = ['V2']
             
@@ -62,4 +60,9 @@ def execute(csv_file, db_handle, config, pretend=False):
             text = ','.join(fields)
             out_file.write(text + "\n")
         
-        
+
+def execute(csv_file, db_handle, config, pretend=False, **kwargs):
+    qsos = db_handle.get_qsos_sota(**kwargs)
+    create_export_file_from_qsos(qsos, csv_file, config)
+
+    

@@ -3,7 +3,7 @@
 
 from models import Base, CallsignEntity, QsoType, Qso, QsoVariable, QsoSession
 from models import probe_models_and_create_session
-from sqlalchemy import func
+from sqlalchemy import func, desc
 
 class DataConnector():
     
@@ -102,10 +102,18 @@ class DataConnector():
             else:
                 return self.session.query(Qso).order_by(Qso.id.desc()).all()
     
-    def get_qsos_sota(self):
-        
-        #  TODO or QsoVariable.name=='SUMMIT_RECEIVED'
-        return self.session.query(Qso).join(QsoVariable).filter(QsoVariable.name=='SUMMIT_SENT').order_by(Qso.id).all()
+    def get_qsos_sota(self, summit=None, date=None):
+
+        # TODO this is a quick and easy way to make exception for an activation
+        # the qsos shoudl be filtered by DATE +- 1d
+
+        if summit is not None and date is not None:
+            return self.session.query(Qso).join(QsoVariable) \
+                .filter(QsoVariable.name=='SUMMIT_SENT') \
+                .filter(QsoVariable.value==summit) \
+                .filter(func.date(Qso.datetime_utc)==date).order_by(Qso.id).all()
+        else:                        
+            return self.session.query(Qso).join(QsoVariable).filter(QsoVariable.name=='SUMMIT_SENT').order_by(Qso.id).all()
 
     def get_sota_activations(self):
         
@@ -114,7 +122,7 @@ class DataConnector():
             func.date(Qso.datetime_utc),
             QsoSession.description,
             QsoVariable.value
-        ).join(Qso.variables).join(Qso.qso_session).filter(QsoVariable.name==u'SUMMIT_SENT').group_by(QsoVariable.value, func.date(Qso.datetime_utc)).order_by(func.date(Qso.datetime_utc)).all()
+        ).join(Qso.variables).join(Qso.qso_session).filter(QsoVariable.name==u'SUMMIT_SENT').group_by(QsoVariable.value, func.date(Qso.datetime_utc)).order_by(desc(func.date(Qso.datetime_utc))).all()
 
         return sota_activations
 

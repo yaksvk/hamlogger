@@ -55,6 +55,9 @@ class ExportSotaDialog(Gtk.Dialog):
 
         self.refresh_main_tree()
 
+        self.selection = self.sota_activation_tree.get_selection()
+	self.selection.set_mode(Gtk.SelectionMode.MULTIPLE)
+
     def tree_data_create_model(self):
         store = Gtk.ListStore(str, int, str, str)
         return store

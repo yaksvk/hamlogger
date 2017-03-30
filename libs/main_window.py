@@ -883,7 +883,23 @@ class MainWindow(Gtk.Window):
         response = dialog.run()
         
         if response == Gtk.ResponseType.OK:
-            pass    
+            if dialog.selection is not None:
+                model, tree_paths = dialog.selection.get_selected_rows()
+
+                sota_qsos = []
+
+                output_file = self.display_file_dialog("csv")
+                
+                if output_file is not None:
+                    for path in tree_paths:
+                        # model[path][0]       # summit
+                        # print model[path][2] # date
+
+                        search_results = self.db.get_qsos_sota(summit=model[path][0], date=model[path][2]) 
+                        sota_qsos.extend(search_results)
+
+                    from tools.export_sota import create_export_file_from_qsos
+                    create_export_file_from_qsos(sota_qsos, csv_file=output_file, config=self.config)
             
         dialog.destroy()
 
