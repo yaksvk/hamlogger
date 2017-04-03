@@ -891,9 +891,9 @@ class MainWindow(Gtk.Window):
                 output_file = self.display_file_dialog("csv")
                 
                 if output_file is not None:
-                    for path in tree_paths:
+                    for path in reversed(tree_paths):
                         # model[path][0]       # summit
-                        # print model[path][2] # date
+                        # model[path][2] # date
 
                         search_results = self.db.get_qsos_sota(summit=model[path][0], date=model[path][2]) 
                         sota_qsos.extend(search_results)

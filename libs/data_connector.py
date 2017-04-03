@@ -109,11 +109,11 @@ class DataConnector():
 
         if summit is not None and date is not None:
             return self.session.query(Qso).join(QsoVariable) \
-                .filter(QsoVariable.name=='SUMMIT_SENT') \
-                .filter(QsoVariable.value==summit) \
+                .filter(QsoVariable.name==u'SUMMIT_SENT') \
+                .filter(QsoVariable.value==unicode(summit)) \
                 .filter(func.date(Qso.datetime_utc)==date).order_by(Qso.id).all()
         else:                        
-            return self.session.query(Qso).join(QsoVariable).filter(QsoVariable.name=='SUMMIT_SENT').order_by(Qso.id).all()
+            return self.session.query(Qso).join(QsoVariable).filter(QsoVariable.name==u'SUMMIT_SENT').order_by(Qso.id).all()
 
     def get_sota_activations(self):
         
@@ -129,7 +129,7 @@ class DataConnector():
     def get_qsos_sota_chaser(self):
         
         #  TODO or QsoVariable.name=='SUMMIT_RECEIVED'
-        return self.session.query(Qso).join(QsoVariable).filter(QsoVariable.name=='SUMMIT_RECEIVED').order_by(Qso.id).all()
+        return self.session.query(Qso).join(QsoVariable).filter(QsoVariable.name==u'SUMMIT_RECEIVED').order_by(Qso.id).all()
     
     def get_callsigns(self):
         return self.session.query(CallsignEntity).order_by(CallsignEntity.callsign).all()
