@@ -12,7 +12,10 @@ import io
 
 def execute(csv_file, db_handle, config, pretend=False):
     output = db_handle.get_qsos_sota_chaser()
+    create_export_file_from_qsos(output, csv_file, config)
     
+
+def create_export_file_from_qsos(output, csv_file, config):
     with io.open(csv_file,'w', encoding='utf8') as out_file:
         for item in output:
             
@@ -65,4 +68,7 @@ def execute(csv_file, db_handle, config, pretend=False):
             text = ','.join(fields)
             out_file.write(text + "\n")
      
+    
+
+    
         

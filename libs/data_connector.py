@@ -126,10 +126,15 @@ class DataConnector():
 
         return sota_activations
 
-    def get_qsos_sota_chaser(self):
-        
-        #  TODO or QsoVariable.name=='SUMMIT_RECEIVED'
-        return self.session.query(Qso).join(QsoVariable).filter(QsoVariable.name==u'SUMMIT_RECEIVED').order_by(Qso.id).all()
+    def get_qsos_sota_chaser(self, descending=False, ids=None):
+
+        if ids is not None: 
+            return self.session.query(Qso).join(QsoVariable).filter(QsoVariable.name==u'SUMMIT_RECEIVED').filter(Qso.id.in_(ids)).order_by(Qso.id).all()
+
+        if desc:
+            return self.session.query(Qso).join(QsoVariable).filter(QsoVariable.name==u'SUMMIT_RECEIVED').order_by(desc(Qso.id)).all()
+        else:
+            return self.session.query(Qso).join(QsoVariable).filter(QsoVariable.name==u'SUMMIT_RECEIVED').order_by(Qso.id).all()
     
     def get_callsigns(self):
         return self.session.query(CallsignEntity).order_by(CallsignEntity.callsign).all()

@@ -8,6 +8,7 @@ from qso_variables_editor import QsoVariablesEditor
 from session_manage_dialog import ManageSessionDialog
 from session_new_dialog import NewSessionDialog
 from export_sota_dialog import ExportSotaDialog
+from export_sota_chaser_dialog import ExportSotaChaserDialog
 from models import CallsignEntity
 
 import datetime
@@ -71,12 +72,15 @@ class MainWindow(Gtk.Window):
         menu_bar_export_menu = Gtk.Menu()
         menu_bar_export_menu_ods = Gtk.MenuItem("OpenDocument")
         menu_bar_export_menu_adif = Gtk.MenuItem("ADIF")
-        menu_bar_export_menu_sota = Gtk.MenuItem("SOTA CSV")
+        menu_bar_export_menu_sota = Gtk.MenuItem("SOTA CSV Activator")
         menu_bar_export_menu_sota.connect("activate", self.export_menu_sota)
+        menu_bar_export_menu_sota_chaser = Gtk.MenuItem("SOTA CSV Chaser")
+        menu_bar_export_menu_sota_chaser.connect("activate", self.export_menu_sota_chaser)
         
         menu_bar_export_menu.append(menu_bar_export_menu_ods)
         menu_bar_export_menu.append(menu_bar_export_menu_adif)
         menu_bar_export_menu.append(menu_bar_export_menu_sota)
+        menu_bar_export_menu.append(menu_bar_export_menu_sota_chaser)
         menu_bar_export.set_submenu(menu_bar_export_menu)
         menu_bar.append(menu_bar_export)
         
@@ -874,6 +878,33 @@ class MainWindow(Gtk.Window):
         elif mode == "contest":
             self.logging_mode_standard = False
             self.logging_mode_contest = True
+
+    def export_menu_sota_chaser(self, widget):
+        chaser_qsos = self.db.get_qsos_sota_chaser(descending=True)
+
+        dialog = ExportSotaChaserDialog(self, chaser_qsos)
+        response = dialog.run()
+        
+        if response == Gtk.ResponseType.OK:
+            if dialog.selection is not None:
+                model, tree_paths = dialog.selection.get_selected_rows()
+
+                qso_ids = []
+
+                output_file = self.display_file_dialog("csv")
+
+                if output_file is not None:
+                    for path in reversed(tree_paths):
+                        qso_ids.append(model[path][0])
+                    
+                    sota_qsos = self.db.get_qsos_sota_chaser(ids=qso_ids)
+                    from tools.export_sota_chaser import create_export_file_from_qsos
+                    create_export_file_from_qsos(sota_qsos, csv_file=output_file, config=self.config)
+
+                        
+
+        dialog.destroy()
+
 
     def export_menu_sota(self, widget):
         # get sota activations

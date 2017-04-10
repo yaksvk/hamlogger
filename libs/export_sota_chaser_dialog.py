@@ -3,16 +3,16 @@
 
 from gi.repository import Gtk
 
-class ExportSotaDialog(Gtk.Dialog):
+class ExportSotaChaserDialog(Gtk.Dialog):
 
-    def __init__(self, parent, activations):
+    def __init__(self, parent, chase_qsos):
 
-        self.activations = activations
+        self.chase_qsos = chase_qsos
         
         
         Gtk.Dialog.__init__(
             self, 
-            "Export Sota CSV", 
+            "Export SOTA Chaser CSV", 
             parent,
             Gtk.DialogFlags.MODAL,
             (Gtk.STOCK_CANCEL, Gtk.ResponseType.CANCEL,Gtk.STOCK_OK, Gtk.ResponseType.OK)
@@ -29,7 +29,7 @@ class ExportSotaDialog(Gtk.Dialog):
       
         self.widgets = {}
         label1 = Gtk.Label()
-        label1.set_markup("<b>Select activations</b>")
+        label1.set_markup("<b>Select chase QSOs</b>")
         
         box.pack_start(label1, False, True, 0)
 
@@ -59,12 +59,12 @@ class ExportSotaDialog(Gtk.Dialog):
 	self.selection.set_mode(Gtk.SelectionMode.MULTIPLE)
 
     def tree_data_create_model(self):
-        store = Gtk.ListStore(str, int, str, str)
+        store = Gtk.ListStore(int, str, str, str, str, str, str, str)
         return store
         
     def tree_data_create_columns(self, treeView):
    
-        columns = ['SUMMIT', 'COUNT', 'DATE', 'NOTE']
+        columns = ['ID', 'DATE', 'UTC', 'FREQ', 'MODE', 'CALL', 'SUMMIT_RECEIVED', 'SUMMIT_SENT']
 
         for i, column in enumerate(columns):
             rendererText = Gtk.CellRendererText()
@@ -79,14 +79,21 @@ class ExportSotaDialog(Gtk.Dialog):
         self.sota_activation_store = self.tree_data_create_model()
         self.sota_activation_tree.set_model(self.sota_activation_store)
 
-        for activation in self.activations:
+        for qso in self.chase_qsos:
             #print(''.join(map(lambda x: str(x), activation)))
+            summit_received = qso.variables['SUMMIT_RECEIVED'].value if 'SUMMIT_RECEIVED' in qso.variables else ''
+            summit_sent = qso.variables['SUMMIT_RECEIVED'].value if 'SUMMIT_RECEIVED' in qso.variables else ''
+
             self.sota_activation_store.append(
-                (
-                    activation[3],
-                    activation[0],
-                    activation[1],
-                    activation[2],
-                )
+                  (
+                      qso.id,
+                      qso.datetime_utc.date().isoformat(), 
+                      qso.datetime_utc.time().isoformat()[:5], 
+                      qso.frequency,
+                      qso.mode, 
+                      qso.callsign,
+                      summit_received[:15],
+                      summit_sent[:15]
+                  )
             )
 
