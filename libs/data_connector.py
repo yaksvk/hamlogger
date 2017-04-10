@@ -122,7 +122,7 @@ class DataConnector():
             func.date(Qso.datetime_utc),
             QsoSession.description,
             QsoVariable.value
-        ).join(Qso.variables).join(Qso.qso_session).filter(QsoVariable.name==u'SUMMIT_SENT').group_by(QsoVariable.value, func.date(Qso.datetime_utc)).order_by(desc(func.date(Qso.datetime_utc))).all()
+        ).join(Qso.variables).outerjoin(Qso.qso_session).filter(QsoVariable.name==u'SUMMIT_SENT').group_by(QsoVariable.value, func.date(Qso.datetime_utc)).order_by(desc(func.date(Qso.datetime_utc))).all()
 
         return sota_activations
 
