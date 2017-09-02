@@ -98,7 +98,7 @@ class MainWindow(Gtk.Window):
         menu_bar_session_menu_reset.connect("activate", self.menu_session_reset)
         
         menu_bar_session_menu.append(menu_bar_session_menu_new)
-        menu_bar_session_menu.append(menu_bar_session_menu_manage)
+        #menu_bar_session_menu.append(menu_bar_session_menu_manage)
         menu_bar_session_menu.append(menu_bar_session_menu_reset)
         menu_bar_session.set_submenu(menu_bar_session_menu)
         menu_bar.append(menu_bar_session)
