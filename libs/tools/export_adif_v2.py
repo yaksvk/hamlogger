@@ -32,10 +32,20 @@ Locator: %s
         
         export_line += create_adif_tag('QSO_DATE', item.date_iso.replace('-',''))
         export_line += create_adif_tag('TIME_ON', item.time_iso.replace(':',''))
-        
+
+
         # use custom callsign if applicable (Portable, etc.)
         if 'MY_CALL' in item.variables:
             export_line += create_adif_tag('STATION_CALLSIGN', item.variables['MY_CALL'].value)
+            # if callsign used is different than callsign configured, also use the OPERATOR tag
+            if item.variables['MY_CALL'].value != config['MY_CALLSIGN']:
+                export_line += create_adif_tag('OPERATOR', config['MY_CALLSIGN'])
+        
+        # fast support for WWFF
+        if 'WWFF_SENT' in item.variables:
+            export_line += create_adif_tag('MY_SIG', 'WWFF')
+            export_line += create_adif_tag('MY_SIG_INFO', item.variables['WWFF_SENT'].value)
+
 
         note = u''            
         # put sota variables into note
