@@ -12,7 +12,8 @@ import io
 
 def create_export_file_from_qsos(qsos, csv_file, config):
     with io.open(csv_file,'w', encoding='utf8') as out_file:
-        for item in qsos:
+        # make sure we sort the QSOs by date and time - sotadata will refuse the file otherwise
+        for item in sorted(qsos, key=lambda qso: qso.datetime_utc):
             
             fields = ['V2']
             
