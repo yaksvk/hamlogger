@@ -10,8 +10,9 @@ class QsoVariablesEditor(Gtk.TreeView):
         
         self.liststore = Gtk.ListStore(str, str)
         self.option_store = Gtk.ListStore(str)
-        
-        self.combo_values = ['MY_CALL', 'SUMMIT_SENT', 'SUMMIT_RECEIVED']
+
+        # TODO these should be read from config
+        self.combo_values = ['MY_CALL', 'SUMMIT_SENT', 'SUMMIT_RECEIVED', 'WWFF_SENT', 'WWFF_RECEIVED']
         for combo_val in self.combo_values:
             self.option_store.append([combo_val])
         
