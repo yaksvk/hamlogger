@@ -146,13 +146,7 @@ if args.import_sota:
     import_from_sota.execute(csv_file=args.import_sota, db_handle=app.db_handle)
     sys.exit()
 
-# 10. upload QSOs to sotadata.org.uk
-if args.upload_sota:
-    from libs.tools import interactively_upload_sota
-    interactively_upload_sota.execute(db_handle=app.db_handle, config=app.config)
-    sys.exit()
-
-# 11. export lotw 
+# 10. export lotw 
 if args.export_lotw:
     from libs.tools import export_lotw
     export_lotw.execute(adif_file_prefix=args.export_lotw, db_handle=app.db_handle, config=app.config)
