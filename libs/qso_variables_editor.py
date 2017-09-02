@@ -8,7 +8,7 @@ class QsoVariablesEditor(Gtk.TreeView):
     
     def __init__(self, config, variables=None, *args, **kwargs):
         
-        self.liststore = Gtk.ListStore(str, str)
+        self.liststore = Gtk.ListStore(str, str, str)
         self.option_store = Gtk.ListStore(str)
 
         # TODO these should be read from config
@@ -40,6 +40,7 @@ class QsoVariablesEditor(Gtk.TreeView):
         
         renderer_editabletext1 = Gtk.CellRendererText()
         renderer_editabletext1.set_property("editable", True)
+        
 
         column_editabletext0 = Gtk.TreeViewColumn("VARIABLE NAME",
             renderer_editabletext0, text=0)
@@ -53,9 +54,19 @@ class QsoVariablesEditor(Gtk.TreeView):
         
         column_editabletext1 = Gtk.TreeViewColumn("VARIABLE VALUE",
             renderer_editabletext1, text=1)
-        self.append_column(column_editabletext1)
 
-        renderer_editabletext1.connect("edited", self.text_edited1)
+        column_editabletext1.set_expand(True);
+        self.append_column(column_editabletext1)
+        
+        renderer_delete_click = Gtk.CellRendererText()
+        self.column_delete_click = Gtk.TreeViewColumn("",
+            renderer_delete_click, text=2)
+
+        self.column_delete_click.set_sizing(Gtk.TreeViewColumnSizing.FIXED)
+        self.column_delete_click.set_fixed_width(20)
+        self.column_delete_click.set_expand(False)
+        
+        self.append_column(self.column_delete_click)
 
         self.connect('button-release-event', self.button_release)
         
@@ -87,6 +98,18 @@ class QsoVariablesEditor(Gtk.TreeView):
         self.liststore[path][1] = text
         
     def button_release(self, widget, event):
+        if event.button == 1:
+            # capture left button click
+            
+            # check if the delete (X) button (third column) was clicked. if yes, delete row
+            selection = self.get_selection()
+            model, treeiter = selection.get_selected()
+
+            if treeiter is not None:
+                path, column = self.get_path_at_pos(int(event.x), int(event.y))[:2]
+                if column is self.column_delete_click:
+                    model.remove(treeiter)
+
         if event.button == 3:
             # if right click was pressed
             x = int(event.get_root_coords()[0])
@@ -96,7 +119,7 @@ class QsoVariablesEditor(Gtk.TreeView):
             self.context_menu.popup(None, None, lambda menu, user_data: (x, y, True), widget, 3, time)
             
     def add_new_variable(self, widget):
-        self.liststore.append(["", ""])
+        self.liststore.append(["", "", "✗"])
    
     def delete_selected_variable(self, widget):
         selection = self.get_selection()
@@ -106,7 +129,9 @@ class QsoVariablesEditor(Gtk.TreeView):
             model.remove(treeiter)
             
     # EVENTS
+   
     
+
     # VALUE
     def monitor_keypress(self, widget, event):
         if event.state == Gdk.ModifierType.CONTROL_MASK:
@@ -132,5 +157,5 @@ class QsoVariablesEditor(Gtk.TreeView):
         self.liststore.clear()
         
         for key, val in value.items():
-            self.liststore.append([key, val.value])
+            self.liststore.append([key, val.value, "✗"])
        
