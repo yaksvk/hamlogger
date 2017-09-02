@@ -77,8 +77,9 @@ class MainWindow(Gtk.Window):
         menu_bar_export_menu_sota_chaser = Gtk.MenuItem("SOTA CSV Chaser")
         menu_bar_export_menu_sota_chaser.connect("activate", self.export_menu_sota_chaser)
         
-        menu_bar_export_menu.append(menu_bar_export_menu_ods)
-        menu_bar_export_menu.append(menu_bar_export_menu_adif)
+        # TODO hide these two - we do not have gui functions for these yet
+        #menu_bar_export_menu.append(menu_bar_export_menu_ods)
+        #menu_bar_export_menu.append(menu_bar_export_menu_adif)
         menu_bar_export_menu.append(menu_bar_export_menu_sota)
         menu_bar_export_menu.append(menu_bar_export_menu_sota_chaser)
         menu_bar_export.set_submenu(menu_bar_export_menu)
@@ -89,8 +90,10 @@ class MainWindow(Gtk.Window):
         menu_bar_session_menu = Gtk.Menu()
         menu_bar_session_menu_new = Gtk.MenuItem("New")
         menu_bar_session_menu_new.connect("activate", self.menu_session_new)
-        menu_bar_session_menu_manage = Gtk.MenuItem("Manage")
-        menu_bar_session_menu_manage.connect("activate", self.menu_session_manage)
+
+        # TODO hide session management - not yet available
+        #menu_bar_session_menu_manage = Gtk.MenuItem("Manage")
+        #menu_bar_session_menu_manage.connect("activate", self.menu_session_manage)
         menu_bar_session_menu_reset = Gtk.MenuItem("Reset")
         menu_bar_session_menu_reset.connect("activate", self.menu_session_reset)
         
