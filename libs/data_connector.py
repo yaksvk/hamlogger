@@ -101,6 +101,12 @@ class DataConnector():
                 return self.session.query(Qso).order_by(Qso.id.asc()).all()
             else:
                 return self.session.query(Qso).order_by(Qso.id.desc()).all()
+
+    def get_qsos_by_ids(self, id_list):
+        if not id_list:
+            return []
+
+        return self.session.query(Qso).filter(Qso.id.in_(id_list)).all()
     
     def get_qsos_sota(self, summit=None, date=None):
 

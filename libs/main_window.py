@@ -3,6 +3,7 @@
 
 from gi.repository import Gtk, Gdk
 from edit_qso_dialog import EditQsoDialog
+from edit_qso_multiple_dialog import EditQsoMultipleDialog
 from confirm_dialog import ConfirmDialog
 from qso_variables_editor import QsoVariablesEditor
 from session_manage_dialog import ManageSessionDialog
@@ -293,6 +294,8 @@ class MainWindow(Gtk.Window):
 
 
         # CURRENT LOG CONTEXT MENU
+        # this context menu pops up when one row is selected
+
         self.current_log_context_menu = Gtk.Menu()
         
         # Weblinks
@@ -331,7 +334,16 @@ class MainWindow(Gtk.Window):
         menu_item1.show()
         separator.show()
         menu_item2.show()
+
+        # CURRENT LOG CONTEXT MENU - MULTISELECT
+        # this context menu pops up when multiple rows are selected
         
+        self.current_log_context_menu_multiple = Gtk.Menu()
+        multiple_menu_item1 = Gtk.MenuItem("Edit multiple QSOs")
+        multiple_menu_item1.connect("activate", self.current_log_edit_qsos_multiple)
+        self.current_log_context_menu_multiple.append(multiple_menu_item1);
+        multiple_menu_item1.show()
+
         # FOOTER
         self.statusbar = Gtk.Statusbar()
         main_vbox.pack_start(self.statusbar, False, False, 0)
@@ -564,8 +576,19 @@ class MainWindow(Gtk.Window):
             time = event.time
             
             self.last_active_tree = widget
-            self.current_log_context_menu.popup(None, None, lambda menu, user_data: (x, y, True), widget, 3, time)
-        
+
+            #  check if selection in single or multiple
+            selected_rows = 1
+
+            selection = widget.get_selection()
+	    if selection.get_mode() == Gtk.SelectionMode.MULTIPLE:
+                model, paths = selection.get_selected_rows()
+                selected_rows = len(paths)
+            
+            if selected_rows == 1:
+                self.current_log_context_menu.popup(None, None, lambda menu, user_data: (x, y, True), widget, 3, time)
+            else:
+                self.current_log_context_menu_multiple.popup(None, None, lambda menu, user_data: (x, y, True), widget, 3, time)
     
     def tree_click(self, widget, event):
         if event.type == Gdk.EventType._2BUTTON_PRESS:
@@ -619,8 +642,20 @@ class MainWindow(Gtk.Window):
             self.widgets['entity_note'].get_buffer().set_text('')
             self.country = None
     
-    def current_log_edit_qso(self, widget):
+    def current_log_edit_qsos_multiple(self, widget):
+        # TODO
+        # 1. get all QSOs in selection
+        # 2. get the common variable values and cache them (user will be able to delete those)
+
+        selection = self.last_active_tree.get_selection()
+        model, path_list = selection.get_selected_rows()
+
+        self.editing_qso_ids = [ model[path][0] for path in path_list ]
         
+        edit_dialog = EditQsoMultipleDialog(self)
+        response = edit_dialog.run()
+
+    def current_log_edit_qso(self, widget):
         
         selection = self.last_active_tree.get_selection()
         model, path_list = selection.get_selected_rows()
