@@ -282,12 +282,15 @@ class MainWindow(Gtk.Window):
 
         selection = self.current_log_tree.get_selection()
         selection.connect("changed", self.main_tree_selection_changed)
+	selection.set_mode(Gtk.SelectionMode.MULTIPLE)
 
         sw.add(self.current_log_tree)
 
         self.tree_data_create_columns(self.current_log_tree)
         
+        
         self.current_log_scroll_window = sw
+
 
         # CURRENT LOG CONTEXT MENU
         self.current_log_context_menu = Gtk.Menu()
@@ -580,7 +583,13 @@ class MainWindow(Gtk.Window):
         # when editing a window, the tree refreshes, selection changes and everything goes to hell - probably will be fixed by listering to left click instead of selection
         
         # assume this was to search for previous QSOs
-        model, treeiter = selection.get_selected()
+        model, path_list = selection.get_selected_rows()
+        
+        # only do this when a single row is selected
+        if len(path_list) == 1:
+            treeiter = path_list[0]
+        else:
+            return
 
         if model is not None and treeiter is not None:
             column_callsign = model[treeiter][5]  
@@ -614,10 +623,16 @@ class MainWindow(Gtk.Window):
         
         
         selection = self.last_active_tree.get_selection()
-        model, treeiter = selection.get_selected()
+        model, path_list = selection.get_selected_rows()
+        
+        # only do this when a single row is selected
+        if len(path_list) == 1:
+            path = path_list[0]
+        else:
+            return
             
-        column_id = model[treeiter][0]  
-        path = model.get_path(treeiter)
+        column_id = model[path][0]  
+        #path = model.get_path(treeiter)
         
         self.editing_qso_id = column_id
         
@@ -680,6 +695,7 @@ class MainWindow(Gtk.Window):
             
                         
             self.current_log_tree.scroll_to_cell(path)
+            selection.select_path(path)
             
             
             if edit_dialog.found_qso.callsign_entity.text_note is not None:
@@ -704,7 +720,13 @@ class MainWindow(Gtk.Window):
             return
 
         selection = self.last_active_tree.get_selection()
-        model, treeiter = selection.get_selected()
+        model, path_list = selection.get_selected_rows()
+        
+        # only do this when a single row is selected
+        if len(path_list) == 1:
+            treeiter = path_list[0]
+        else:
+            return
             
         column_id = model[treeiter][0]   
         self.editing_qso_id = column_id # TODO refactor get active Id, we have it too many times here
@@ -830,7 +852,13 @@ class MainWindow(Gtk.Window):
     # Context menu actions
     def open_weblink(self, widget, event, *params):
         selection = self.last_active_tree.get_selection()
-        model, treeiter = selection.get_selected()
+        model, path_list = selection.get_selected_rows()
+        
+        # only do this when a single row is selected
+        if len(path_list) == 1:
+            treeiter = path_list[0]
+        else:
+            return
             
         column_call = model[treeiter][5]  
         base_call = CallsignEntity.get_base_callsign(column_call)
