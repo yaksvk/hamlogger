@@ -643,17 +643,23 @@ class MainWindow(Gtk.Window):
             self.country = None
     
     def current_log_edit_qsos_multiple(self, widget):
-        # TODO
-        # 1. get all QSOs in selection
-        # 2. get the common variable values and cache them (user will be able to delete those)
 
         selection = self.last_active_tree.get_selection()
         model, path_list = selection.get_selected_rows()
-
-        self.editing_qso_ids = [ model[path][0] for path in path_list ]
+        self.editing_qsos = self.db.get_qsos_by_ids(id_list=[ model[path][0] for path in path_list ])
         
         edit_dialog = EditQsoMultipleDialog(self)
         response = edit_dialog.run()
+        
+        if response == Gtk.ResponseType.OK:
+            for qso in self.editing_qsos:
+                self.db.update_qso_attrs(qso, variables=edit_dialog.qso_variables.value)
+        elif response == Gtk.ResponseType.CANCEL:
+            pass
+        else:
+            pass
+
+        edit_dialog.destroy()
 
     def current_log_edit_qso(self, widget):
         

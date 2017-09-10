@@ -73,6 +73,12 @@ class DataConnector():
         
         self.session.add(qso)
         self.commit()
+
+    def update_qso_attrs(self, qso, **kwargs):
+        for i in kwargs.keys():
+            setattr(qso, i, kwargs[i])
+        self.session.add(qso)
+        self.commit()
     
     def delete_qso(self, qso):
         

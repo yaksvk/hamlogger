@@ -113,6 +113,17 @@ class QsoVariable(Base):
         self.name = name
         self.value = value
         
-    
     def __repr__(self):
         return ''.join(('QsoVariable(\'', self.name, '\', \'', self.value, '\')'))
+
+    def __eq__(self, other):
+        if isinstance(other, self.__class__):
+            return (self.name == other.name ) and (self.value == other.value)
+        return NotImplemented
+    
+    def __ne__(self, other):
+        if isinstance(other, self.__class__):
+            return not (self == other)
+        return NotImplemented
+
+
