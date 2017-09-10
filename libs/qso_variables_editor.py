@@ -50,10 +50,10 @@ class QsoVariablesEditor(Gtk.TreeView):
         self.append_column(column_editabletext0)
         
         # obsolete
-        #renderer_editabletext0.connect("edited", self.text_edited0)
         
         column_editabletext1 = Gtk.TreeViewColumn("VARIABLE VALUE",
             renderer_editabletext1, text=1)
+        renderer_editabletext1.connect("edited", self.text_edited)
 
         column_editabletext1.set_expand(True);
         self.append_column(column_editabletext1)
@@ -94,7 +94,7 @@ class QsoVariablesEditor(Gtk.TreeView):
     def combo_changed(self, cellrenderercombo, path, treeiter):    
         self.liststore[path][0] = self.option_store[treeiter][0]
     
-    def text_edited1(self, widget, path, text):
+    def text_edited(self, widget, path, text):
         self.liststore[path][1] = text
         
     def button_release(self, widget, event):
@@ -106,9 +106,11 @@ class QsoVariablesEditor(Gtk.TreeView):
             model, treeiter = selection.get_selected()
 
             if treeiter is not None:
-                path, column = self.get_path_at_pos(int(event.x), int(event.y))[:2]
-                if column is self.column_delete_click:
-                    model.remove(treeiter)
+                res = self.get_path_at_pos(int(event.x), int(event.y))
+                if res:
+                    path, column = res[:2]
+                    if column is self.column_delete_click:
+                        model.remove(treeiter)
 
         if event.button == 3:
             # if right click was pressed
