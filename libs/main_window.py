@@ -2,6 +2,7 @@
 # -*- coding: utf-8 -*-
 
 from gi.repository import Gtk, Gdk
+from rst_entry import RstEntry
 from edit_qso_dialog import EditQsoDialog
 from edit_qso_multiple_dialog import EditQsoMultipleDialog
 from confirm_dialog import ConfirmDialog
@@ -139,8 +140,11 @@ class MainWindow(Gtk.Window):
         
         self.widgets['input_time'] = Gtk.Entry(max_width_chars=5, width_chars=5)
         
-        self.widgets['rst_sent'] = Gtk.Entry(max_width_chars=6, width_chars=6)
-        self.widgets['rst_rcvd'] = Gtk.Entry(max_width_chars=6, width_chars=6)
+        #self.widgets['rst_sent'] = Gtk.Entry(max_width_chars=6, width_chars=6)
+        #self.widgets['rst_rcvd'] = Gtk.Entry(max_width_chars=6, width_chars=6)
+        
+        self.widgets['rst_sent'] = RstEntry(max_width_chars=6, width_chars=6)
+        self.widgets['rst_rcvd'] = RstEntry(max_width_chars=6, width_chars=6)
 
         # CONTEST FIELDS
         self.widgets['contest_sent'] = Gtk.Entry(max_width_chars=6, width_chars=6)
@@ -449,9 +453,10 @@ class MainWindow(Gtk.Window):
                     mode = self.widgets['mode_combo'].get_active_text()
                     # TODO: this should be somewhat configurable, but ok for now
                     if mode in ('CW', 'RTTY'):
-                        widget.set_text('599')
+                        widget.set_mode('RST')
                     else:
-                        widget.set_text('59')
+                        widget.set_mode('RS')
+                    widget.set_default()
 
             # TODO enable auto-jump mode here, so that one tab fills in date and time and focuses on RST 
             
@@ -483,10 +488,11 @@ class MainWindow(Gtk.Window):
         
 
     def window_key_press(self, widget, event):        
+
         if event.state == Gdk.ModifierType.CONTROL_MASK:
             keyval = Gdk.keyval_name(event.keyval)
             
-            print keyval
+            #print keyval
             if keyval == 'z':
                 # CTRL-Z
                 # clear all fields and focus back on callsign
