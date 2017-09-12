@@ -132,6 +132,7 @@ class MainWindow(Gtk.Window):
         for mode in config['MODES']:
             self.widgets['mode_combo'].append_text(mode)
         self.widgets['mode_combo'].set_active(0)
+        self.widgets['mode_combo'].connect("changed", self.mode_changed)   
 
         self.widgets['call_entry'] = Gtk.Entry(max_width_chars=10, width_chars=10)
         self.widgets['call_entry'].connect("changed", self.widget_call_entry_changed)   
@@ -403,6 +404,18 @@ class MainWindow(Gtk.Window):
         self.widgets['links']['hamcall'].set_markup('<b><a href="'+ HAMCALL_ROOT + base_call + '">HAMCALL.net</a></b>')
         self.widgets['links']['hamqth'].set_markup('<b><a href="'+ HAMQTH_ROOT + base_call + '">HamQTH.com</a></b>')
 
+    def mode_changed(self, widget):
+        mode = widget.get_active_text() 
+        rst_widgets = ('rst_sent', 'rst_rcvd')
+        
+        if mode in ('CW', 'RTTY'):
+            mode_rst = 'RST'
+        else:
+            mode_rst = 'RS'
+        
+        for wgt in rst_widgets:
+            self.widgets[wgt].set_mode(mode_rst)
+
     def widget_call_entry_changed(self, widget):
         self.editing_mode = True
 
@@ -448,15 +461,20 @@ class MainWindow(Gtk.Window):
         if keyname == 'Tab':
             
             # complete RST reports 
-            if widget in (self.widgets['rst_sent'], self.widgets['rst_rcvd']):
-                if not widget.get_text():
-                    mode = self.widgets['mode_combo'].get_active_text()
-                    # TODO: this should be somewhat configurable, but ok for now
-                    if mode in ('CW', 'RTTY'):
-                        widget.set_mode('RST')
-                    else:
-                        widget.set_mode('RS')
-                    widget.set_default()
+            #if widget in (self.widgets['rst_sent'], self.widgets['rst_rcvd']):
+            #    if not widget.get_text():
+            #        mode = self.widgets['mode_combo'].get_active_text()
+            #        # TODO: this should be somewhat configurable, but ok for now
+            #        if mode in ('CW', 'RTTY'):
+            #            widget.set_mode('RST')
+            #        else:
+            #            widget.set_mode('RS')
+            #        widget.set_default()
+
+            if widget == self.widgets['input_time'] and not self.widgets['rst_sent'].get_text():
+                self.widgets['rst_sent'].set_default()
+            if widget == self.widgets['rst_sent'] and not self.widgets['rst_rcvd'].get_text():
+                self.widgets['rst_rcvd'].set_default()
 
             # TODO enable auto-jump mode here, so that one tab fills in date and time and focuses on RST 
             
