@@ -2,7 +2,7 @@
 # -*- coding: utf-8 -*-
 
 from gi.repository import Gtk, Gdk
-from rst_entry import RstEntry
+from widgets.rst_entry import RstEntry
 from edit_qso_dialog import EditQsoDialog
 from edit_qso_multiple_dialog import EditQsoMultipleDialog
 from confirm_dialog import ConfirmDialog
