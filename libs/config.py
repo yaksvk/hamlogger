@@ -74,6 +74,7 @@ class PersistentConfig(dict):
                     os.makedirs(os.path.join(os.environ['HOME'], my_dir))
                 
                 # load defaults
+                default_config = os.path.join(self.__source_path, 'libs', default_config)
                 with open(default_config) as conf_file:
                     input_hash = json.load(conf_file)
                     self.update(**input_hash)
