@@ -41,6 +41,8 @@ Locator: %s
         export_line += create_adif_tag('QSO_DATE', item.date_iso.replace('-',''))
         export_line += create_adif_tag('TIME_ON', item.time_iso.replace(':',''))
 
+        # hamlogger doesn't know band yet, so just make it empty
+        export_line += create_adif_tag('BAND', '')
 
         # use custom callsign if applicable (Portable, etc.)
         if 'MY_CALL' in item.variables:
