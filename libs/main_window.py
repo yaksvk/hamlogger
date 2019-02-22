@@ -10,6 +10,7 @@ from qso_variables_editor import QsoVariablesEditor
 from session_manage_dialog import ManageSessionDialog
 from session_new_dialog import NewSessionDialog
 from export_sota_dialog import ExportSotaDialog
+from export_adif_dialog import ExportAdifDialog
 from export_sota_chaser_dialog import ExportSotaChaserDialog
 from models import CallsignEntity
 
@@ -73,7 +74,8 @@ class MainWindow(Gtk.Window):
         menu_bar_export = Gtk.MenuItem("Export")
         menu_bar_export_menu = Gtk.Menu()
         menu_bar_export_menu_ods = Gtk.MenuItem("OpenDocument")
-        menu_bar_export_menu_adif = Gtk.MenuItem("ADIF")
+        menu_bar_export_menu_adif_session = Gtk.MenuItem("ADIF Session")
+        menu_bar_export_menu_adif_session.connect("activate", self.export_menu_adif_session)
         menu_bar_export_menu_sota = Gtk.MenuItem("SOTA CSV Activator")
         menu_bar_export_menu_sota.connect("activate", self.export_menu_sota)
         menu_bar_export_menu_sota_chaser = Gtk.MenuItem("SOTA CSV Chaser")
@@ -81,7 +83,7 @@ class MainWindow(Gtk.Window):
         
         # TODO hide these two - we do not have gui functions for these yet
         #menu_bar_export_menu.append(menu_bar_export_menu_ods)
-        #menu_bar_export_menu.append(menu_bar_export_menu_adif)
+        menu_bar_export_menu.append(menu_bar_export_menu_adif_session)
         menu_bar_export_menu.append(menu_bar_export_menu_sota)
         menu_bar_export_menu.append(menu_bar_export_menu_sota_chaser)
         menu_bar_export.set_submenu(menu_bar_export_menu)
@@ -1001,6 +1003,26 @@ class MainWindow(Gtk.Window):
 
         dialog.destroy()
 
+    def export_menu_adif_session(self, widget):
+        sessions = self.db.get_qso_sessions()
+        dialog = ExportAdifDialog(self, sessions)
+        response = dialog.run()
+        
+        if response == Gtk.ResponseType.OK:
+            if dialog.selection is not None:
+                model, tree_paths = dialog.selection.get_selected_rows()
+                
+                output_file = self.display_file_dialog("adi")
+                if output_file is not None:
+                    qsos = []
+                    for path in reversed(tree_paths):
+                        session = self.db.get_qso_session_by_id(id=model[path][0])
+                        qsos.extend(session.qsos)
+
+                    from tools.export_adif_v2 import create_export_file_from_qsos
+                    create_export_file_from_qsos(qsos, adif_file=output_file, config=self.config)
+
+        dialog.destroy()
 
     def export_menu_sota(self, widget):
         # get sota activations

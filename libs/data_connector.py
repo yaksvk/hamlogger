@@ -152,7 +152,10 @@ class DataConnector():
         return self.session.query(CallsignEntity).order_by(CallsignEntity.callsign).all()
     
     def get_qso_sessions(self):
-        return self.session.query(QsoSession).order_by(QsoSession.id).all()
+        return self.session.query(QsoSession).order_by(desc(QsoSession.id)).all()
+    
+    def get_qso_session_by_id(self, id):
+        return self.session.query(QsoSession).filter(QsoSession.id==id).first()
     
     def get_callsign(self, call):
         return self.session.query(CallsignEntity).filter(CallsignEntity.callsign==call).first()

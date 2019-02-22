@@ -76,6 +76,7 @@ app = HamLogger(config)
 # PROCESS COMMAND LINE ARGUMENTS
 parser = argparse.ArgumentParser(description='%s - a Ham radio logger application by OM1AWS' % config['APPLICATION_NAME'])
 parser.add_argument("-l", "--license", dest="license", action="store_true", help="show licensing information")
+parser.add_argument("-d", "--dump_summits", dest="summits", action="store_true", help="dump list of unique activated summits")
 parser.add_argument("-i", "--import_ods", type=str, help="import log records from an ODS file.", metavar="ODS_FILE")
 parser.add_argument("-x", "--export_ods", type=str, help="export log records to an ODS file.", metavar="ODS_FILE")
 parser.add_argument("-t", "--export_odt", type=str, help="export log records to an ODT file (nice document).", metavar="ODT_FILE")
@@ -83,10 +84,12 @@ parser.add_argument("-s", "--export_sota", type=str, help="export log records to
     "Automatically filters for QSOs with the SUMMIT_SENT meta variable. MY_CALL overrides default callsign.", metavar="CSV_FILE")
 parser.add_argument("-r", "--export_sota_chaser", type=str, help="export log records to a SOTA-compatible chaser CSV file. "
     "Automatically filters for QSOs with the SUMMIT_SENT meta variable. MY_CALL overrides default callsign.", metavar="CSV_FILE")
-parser.add_argument("-a", "--export_adif", type=str, help="export log records to an ADIF v2 file.", metavar="ADIF_FILE")
+parser.add_argument("-a", "--export_adif2", type=str, help="export log records to an ADIF v2 file.", metavar="ADIF_FILE")
+parser.add_argument("--export_adif", type=str, help="export log records to an ADIF v3 file.", metavar="ADIF_FILE")
 parser.add_argument("-c", "--export_cabrillo", type=str, help="export log records in cabrillo format", metavar="CABRILLO_FILE")
 parser.add_argument("-b", "--import_sota", type=str, help="import log records from sotadata website", metavar="CSV_FILE")
 parser.add_argument("-L", "--export_lotw", type=str, help="export log records to an ADIF v2 file. The name is used as prefix.", metavar="ADIF_FILE")
+parser.add_argument("-P", "--pa", dest="vhf", action="store_true", help="vkv pa summary")
 
 # TODO experimental feature
 parser.add_argument("-u", "--upload_sota", dest="upload_sota", action="store_true", help="upload sota log to sotadata")
@@ -97,6 +100,17 @@ args = parser.parse_args()
 if args.license:
     print license
     sys.exit()
+
+if args.summits:
+    from libs.tools import dump_summits
+    dump_summits.execute(db_handle=app.db_handle)
+    sys.exit()
+
+if args.vhf:
+    from libs.tools import vhf
+    vhf.execute(db_handle=app.db_handle)
+    sys.exit()
+
 
 # 2. import log data from an ods file 
 if args.import_ods:
@@ -129,9 +143,9 @@ if args.export_sota_chaser:
     sys.exit()
 
 # 7. export adif 
-if args.export_adif:
+if args.export_adif2:
     from libs.tools import export_adif_v2
-    export_adif_v2.execute(adif_file=args.export_adif, db_handle=app.db_handle, config=app.config)
+    export_adif_v2.execute(adif_file=args.export_adif2, db_handle=app.db_handle, config=app.config)
     sys.exit()
 
 # 8. export cabrillo 

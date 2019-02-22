@@ -13,7 +13,10 @@ import io
 def create_adif_tag(tag_name, value):
     return u''.join((u'<', tag_name, u':', str(len(value)), u'>', value, u' '))
 
-def execute(adif_file, db_handle, config, pretend=False):
+def create_export_file_from_qsos(qsos, adif_file, config):
+    execute(adif_file=adif_file, db_handle=None, pretend=False, config=config, qsos=qsos) 
+
+def execute(adif_file, db_handle, config, pretend=False, qsos=None):
     
     header = u"""
 Date of export: %s
@@ -24,7 +27,12 @@ Locator: %s
 """ % (datetime.datetime.now().isoformat(), config['MY_CALLSIGN'], config['MY_LOCATOR'])
     
     # TODO add some filtering
-    output = db_handle.get_qsos()
+
+    if qsos is not None:
+        output = qsos
+    else:
+        output = db_handle.get_qsos()
+
     lines = []
     
     for item in output:
