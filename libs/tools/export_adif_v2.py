@@ -77,6 +77,17 @@ Locator: %s
         if item.qth_received:
             export_line += create_adif_tag('QTH', item.qth_received)
 
+        # general translation lookup table (transform QSO variables to ADIF tags
+        # where applicable) TODO: this should probbaly be in config
+
+        conversion = {
+            'GRIDSQUARE': 'GRIDSQUARE'
+        }
+
+        for qso_var_from, adif_var_to in conversion.items():
+            if qso_var_from in item.variables:
+                export_line += create_adif_tag(adif_var_to, item.variables.get(qso_var_from).value)
+
         lines.append(export_line)
    
     with io.open(adif_file,'w', encoding='utf8') as out_file:

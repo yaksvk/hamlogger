@@ -2,7 +2,7 @@
 # -*- coding: utf-8 -*-
 
 from gi.repository import Gtk, Gdk
-from models import QsoVariable
+from .models import QsoVariable
 
 class QsoVariablesEditor(Gtk.TreeView):
     
@@ -118,7 +118,8 @@ class QsoVariablesEditor(Gtk.TreeView):
             y = int(event.get_root_coords()[1])
             time = event.time
             
-            self.context_menu.popup(None, None, lambda menu, user_data: (x, y, True), widget, 3, time)
+            #self.context_menu.popup(None, None, lambda menu, user_data: (x, y, True), widget, 3, time)
+            self.context_menu.popup_at_pointer()
             
     def add_new_variable(self, widget):
         self.liststore.append(["", "", "✗"])

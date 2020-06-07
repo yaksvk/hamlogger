@@ -2,20 +2,21 @@
 # -*- coding: utf-8 -*-
 
 from gi.repository import Gtk, Gdk
-from widgets.rst_entry import RstEntry
-from edit_qso_dialog import EditQsoDialog
-from edit_qso_multiple_dialog import EditQsoMultipleDialog
-from confirm_dialog import ConfirmDialog
-from qso_variables_editor import QsoVariablesEditor
-from session_manage_dialog import ManageSessionDialog
-from session_new_dialog import NewSessionDialog
-from export_sota_dialog import ExportSotaDialog
-from export_adif_dialog import ExportAdifDialog
-from export_sota_chaser_dialog import ExportSotaChaserDialog
-from models import CallsignEntity
+from .widgets.rst_entry import RstEntry
+from .edit_qso_dialog import EditQsoDialog
+from .edit_qso_multiple_dialog import EditQsoMultipleDialog
+from .confirm_dialog import ConfirmDialog
+from .qso_variables_editor import QsoVariablesEditor
+from .session_manage_dialog import ManageSessionDialog
+from .session_new_dialog import NewSessionDialog
+from .export_sota_dialog import ExportSotaDialog
+from .export_adif_dialog import ExportAdifDialog
+from .export_sota_chaser_dialog import ExportSotaChaserDialog
+from .models import CallsignEntity
 
 import datetime
 import sys
+from functools import reduce
 
 HAMCALL_ROOT = 'http://www.hamcall.net/call/'
 QRZ_ROOT = 'http://www.qrz.com/db/'
@@ -290,7 +291,7 @@ class MainWindow(Gtk.Window):
 
         selection = self.current_log_tree.get_selection()
         selection.connect("changed", self.main_tree_selection_changed)
-	selection.set_mode(Gtk.SelectionMode.MULTIPLE)
+        selection.set_mode(Gtk.SelectionMode.MULTIPLE)
 
         sw.add(self.current_log_tree)
 
@@ -381,13 +382,13 @@ class MainWindow(Gtk.Window):
             ("", self.save_button, 1, True, True),
         )
         
-        flex_sum = reduce(lambda x,y: x + y, [ i[2] for i in filter(lambda x:(x[3] == True and self.logging_mode_standard == True) or (x[4] == True and self.logging_mode_contest == True), items) ] )
+        flex_sum = reduce(lambda x,y: x + y, [ i[2] for i in [x for x in items if (x[3] == True and self.logging_mode_standard == True) or (x[4] == True and self.logging_mode_contest == True)] ] )
 
         # create a table with a phantom number of columns (calculated flex sum)
         table = Gtk.Table(rows=2, columns=flex_sum, homogeneous=False)
 
         flex_cumulative = 0
-        for item in filter(lambda x: (x[3] == True and self.logging_mode_standard == True) or (x[4] == True and self.logging_mode_contest == True), items):
+        for item in [x for x in items if (x[3] == True and self.logging_mode_standard == True) or (x[4] == True and self.logging_mode_contest == True)]:
             table.attach(Gtk.Label(item[0]), flex_cumulative, flex_cumulative + item[2], 0, 1)
             table.attach(item[1], flex_cumulative, flex_cumulative + item[2], 1, 2)
             flex_cumulative += item[2]
@@ -536,36 +537,36 @@ class MainWindow(Gtk.Window):
 
         for i in self.obligatories:
             if self.widgets[i].get_text() == '':
-                print "Not adding. Obligatory fields empty."
+                print("Not adding. Obligatory fields empty.")
                 return
 
         # save
         callsign = self.widgets['call_entry'].get_text()
         dfields = self.widgets['input_date'].get_text().split('-')
-        dat = datetime.date(*map(int, dfields))
+        dat = datetime.date(*list(map(int, dfields)))
         tfields = self.widgets['input_time'].get_text().split(':')
         utc = datetime.time(int(tfields[0]), int(tfields[1]))
 
         datetime_combined=datetime.datetime.combine(dat, utc)
         
-        found_qso = self.db.get_first_qso(callsign=unicode(callsign),datetime_utc=datetime_combined)
+        found_qso = self.db.get_first_qso(callsign=str(callsign),datetime_utc=datetime_combined)
         if found_qso:
-            print "Not adding. Dupe."
+            print("Not adding. Dupe.")
         else:
             buf = self.widgets['callsign_note'].get_buffer()
             cs_text_note = buf.get_text(*buf.get_bounds(),include_hidden_chars=False)
 
             qso = self.db.create_qso(
-                callsign=callsign.decode('utf-8'),
-                mode=mode.decode('utf-8'),
+                callsign=callsign,
+                mode=mode,
                 datetime_utc=datetime_combined,
-                frequency=freq.decode('utf-8'),
-                rst_sent=self.widgets['rst_sent'].get_text().decode('utf-8'), 
-                rst_received=self.widgets['rst_rcvd'].get_text().decode('utf-8'),
-                name_received=self.widgets['name'].get_text().decode('utf-8'),
-                qth_received=self.widgets['qth'].get_text().decode('utf-8'),
-                text_note=self.widgets['input_note'].get_text().decode('utf-8'),
-                callsign_text_note=cs_text_note.decode('utf-8'),
+                frequency=freq,
+                rst_sent=self.widgets['rst_sent'].get_text(), 
+                rst_received=self.widgets['rst_rcvd'].get_text(),
+                name_received=self.widgets['name'].get_text(),
+                qth_received=self.widgets['qth'].get_text(),
+                text_note=self.widgets['input_note'].get_text(),
+                callsign_text_note=cs_text_note,
                 country_received=self.country,
                 variables=self.qso_variables.value,
                 qso_session=self.active_session
@@ -597,8 +598,10 @@ class MainWindow(Gtk.Window):
     def current_log_keyrelease(self, widget, event):
         if event.button == 3:
             # if right click was pressed
+
             x = int(event.get_root_coords()[0])
             y = int(event.get_root_coords()[1])
+
             time = event.time
             
             self.last_active_tree = widget
@@ -607,14 +610,16 @@ class MainWindow(Gtk.Window):
             selected_rows = 1
 
             selection = widget.get_selection()
-	    if selection.get_mode() == Gtk.SelectionMode.MULTIPLE:
+            if selection.get_mode() == Gtk.SelectionMode.MULTIPLE:
                 model, paths = selection.get_selected_rows()
                 selected_rows = len(paths)
             
             if selected_rows == 1:
-                self.current_log_context_menu.popup(None, None, lambda menu, user_data: (x, y, True), widget, 3, time)
+                #self.current_log_context_menu.popup(None, None, lambda menu, user_data: (x, y, True), widget, 3, time)
+                self.current_log_context_menu.popup_at_pointer()
             else:
-                self.current_log_context_menu_multiple.popup(None, None, lambda menu, user_data: (x, y, True), widget, 3, time)
+                #self.current_log_context_menu_multiple.popup(None, None, lambda menu, user_data: (x, y, True), widget, 3, time)
+                self.current_log_context_menu_multiple.popup_at_pointer()
     
     def tree_click(self, widget, event):
         if event.type == Gdk.EventType._2BUTTON_PRESS:
@@ -663,7 +668,7 @@ class MainWindow(Gtk.Window):
             text = ("Country: %s\nITU zone: %s\nCQ zone: %s\nLat / Long: %s / %s\nUTC offset: %s" %
                 (result['name'], result['itu_zone'], result['cq_zone'], result['lat'], result['long'], result['utc']))
             self.widgets['entity_note'].get_buffer().set_text(text)
-            self.country = result['name'].decode('utf-8')
+            self.country = result['name']
         else:
             self.widgets['entity_note'].get_buffer().set_text('')
             self.country = None
@@ -717,7 +722,7 @@ class MainWindow(Gtk.Window):
             
             callsign = edit_dialog.widgets['call_entry'].get_text()
             dfields = edit_dialog.widgets['input_date'].get_text().split('-')
-            dat = datetime.date(*map(int, dfields))
+            dat = datetime.date(*list(map(int, dfields)))
             tfields = edit_dialog.widgets['input_time'].get_text().split(':')
             utc = datetime.time(int(tfields[0]), int(tfields[1]))
             
@@ -731,17 +736,17 @@ class MainWindow(Gtk.Window):
                 
                 edit_dialog.found_qso,
                 
-                callsign=callsign.decode('utf-8'),
-                mode=mode.decode('utf-8'),
+                callsign=callsign,
+                mode=mode,
                 datetime_utc=datetime_combined,
-                frequency=freq.decode('utf-8'),
-                rst_sent=edit_dialog.widgets['rst_sent'].get_text().decode('utf-8'), 
-                rst_received=edit_dialog.widgets['rst_rcvd'].get_text().decode('utf-8'),
-                name_received=edit_dialog.widgets['name'].get_text().decode('utf-8'),
-                qth_received=edit_dialog.widgets['qth'].get_text().decode('utf-8'),
-                country_received=edit_dialog.widgets['country_received'].get_text().decode('utf-8'),
-                callsign_text_note=cs_text_note.decode('utf-8'),
-                text_note=text_note.decode('utf-8'),
+                frequency=freq,
+                rst_sent=edit_dialog.widgets['rst_sent'].get_text(), 
+                rst_received=edit_dialog.widgets['rst_rcvd'].get_text(),
+                name_received=edit_dialog.widgets['name'].get_text(),
+                qth_received=edit_dialog.widgets['qth'].get_text(),
+                country_received=edit_dialog.widgets['country_received'].get_text(),
+                callsign_text_note=cs_text_note,
+                text_note=text_note,
                 qsl_sent=edit_dialog.widgets['qsl_sent'].get_active(),
                 qsl_received=edit_dialog.widgets['qsl_received'].get_active(),
                 qso_session=qso_session,
@@ -996,7 +1001,7 @@ class MainWindow(Gtk.Window):
                         qso_ids.append(model[path][0])
                     
                     sota_qsos = self.db.get_qsos_sota_chaser(ids=qso_ids)
-                    from tools.export_sota_chaser import create_export_file_from_qsos
+                    from .tools.export_sota_chaser import create_export_file_from_qsos
                     create_export_file_from_qsos(sota_qsos, csv_file=output_file, config=self.config)
 
                         
@@ -1019,7 +1024,7 @@ class MainWindow(Gtk.Window):
                         session = self.db.get_qso_session_by_id(id=model[path][0])
                         qsos.extend(session.qsos)
 
-                    from tools.export_adif_v2 import create_export_file_from_qsos
+                    from .tools.export_adif_v2 import create_export_file_from_qsos
                     create_export_file_from_qsos(qsos, adif_file=output_file, config=self.config)
 
         dialog.destroy()
@@ -1047,7 +1052,7 @@ class MainWindow(Gtk.Window):
                         search_results = self.db.get_qsos_sota(summit=model[path][0], date=model[path][2]) 
                         sota_qsos.extend(search_results)
 
-                    from tools.export_sota import create_export_file_from_qsos
+                    from .tools.export_sota import create_export_file_from_qsos
                     create_export_file_from_qsos(sota_qsos, csv_file=output_file, config=self.config)
             
         dialog.destroy()

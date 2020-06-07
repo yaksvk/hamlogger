@@ -2,7 +2,8 @@
 # -*- coding: utf-8 -*-
 
 from gi.repository import Gtk
-from qso_variables_editor import QsoVariablesEditor
+from .qso_variables_editor import QsoVariablesEditor
+from functools import reduce
 
 class EditQsoDialog(Gtk.Dialog):
 
@@ -53,7 +54,7 @@ class EditQsoDialog(Gtk.Dialog):
         
         try:
             self.widgets['band_combo'].set_active(parent.config['BANDS'].index(self.found_qso.frequency))
-        except Exception, e:
+        except Exception as e:
             pass
             
         
@@ -63,7 +64,7 @@ class EditQsoDialog(Gtk.Dialog):
         
         try:
             self.widgets['mode_combo'].set_active(parent.config['MODES'].index(self.found_qso.mode))
-        except Exception, e:
+        except Exception as e:
             pass
         
         self.widgets['call_entry'] = Gtk.Entry(max_width_chars=10, width_chars=10)

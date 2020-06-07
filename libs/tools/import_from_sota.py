@@ -32,7 +32,7 @@ def execute(csv_file, db_handle, pretend=False):
             # get country
             #result = self.resolver.get_entity_for_call(callsign)
             #if result:
-            #    country = result['name'].decode('utf-8')
+            #    country = result['name']
             
             (day, month, year) = row[1].split('/')
             dat = datetime.date(*map(int, (year, month, day)))

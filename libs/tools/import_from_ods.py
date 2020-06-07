@@ -82,7 +82,7 @@ def execute(ods_file, db_handle, pretend=False):
                         if not pretend and None not in (callsign, dat, utc):    
                             datetime_combined=datetime.datetime.combine(dat, utc)
                             
-                            found_qso = db_handle.get_first_qso(callsign=unicode(callsign),datetime_utc=datetime_combined)
+                            found_qso = db_handle.get_first_qso(callsign=callsign,datetime_utc=datetime_combined)
 
                             if found_qso:
                                 print "Not adding: %04i:  %-10s %-10s %-6s %-6s (already in db)" % (i, mode, dat, utc, band)

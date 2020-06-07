@@ -53,7 +53,7 @@ class ExportAdifDialog(Gtk.Dialog):
         self.refresh_main_tree()
 
         self.selection = self.session_tree.get_selection()
-	self.selection.set_mode(Gtk.SelectionMode.MULTIPLE)
+        self.selection.set_mode(Gtk.SelectionMode.MULTIPLE)
 
     def tree_data_create_model(self):
         store = Gtk.ListStore(int, int, str)

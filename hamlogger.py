@@ -1,5 +1,4 @@
 #!/usr/bin/env python
-# -*- coding: utf-8 -*-
 
 license = """
 Copyright 2014-2015, Jakub Ondrusek, OM1AWS (yak@gmx.co.uk)
@@ -24,6 +23,10 @@ import argparse
 import os
 import sys
 import signal
+import pathlib
+import gi
+
+gi.require_version('Gtk', '3.0')
 from gi.repository import Gtk
 
 # application libs
@@ -37,12 +40,6 @@ class HamLogger(Gtk.Application):
 
     def __init__(self, config, *args, **kwargs):
         super(HamLogger, self).__init__(*args, **kwargs)
-
-        # config post processing ->
-        # change a potentially relative path to absolute path
-        # TODO remove these lines
-        #config['DB_FILE'] = os.path.abspath(config.`DB_FILE)
-        #config['PREFIX_FILE'] = os.path.abspath(config.PREFIX_FILE)
         
         # initialize DXCC prefix resolver
         self.resolver = prefix_resolver.Resolver(config.get_absolute_path(config['PREFIX_FILE']))
@@ -67,7 +64,7 @@ class HamLogger(Gtk.Application):
         window.show_all()
 
 # INIT APPLICATION
-absolute_script_path = os.path.dirname(os.path.realpath(__file__))
+absolute_script_path = pathlib.Path(__file__).parent.resolve()
 config = cfg.PersistentConfig(source_path=absolute_script_path)
 
 app = HamLogger(config)
@@ -88,6 +85,7 @@ parser.add_argument("-a", "--export_adif2", type=str, help="export log records t
 parser.add_argument("--export_adif", type=str, help="export log records to an ADIF v3 file.", metavar="ADIF_FILE")
 parser.add_argument("-c", "--export_cabrillo", type=str, help="export log records in cabrillo format", metavar="CABRILLO_FILE")
 parser.add_argument("-b", "--import_sota", type=str, help="import log records from sotadata website", metavar="CSV_FILE")
+parser.add_argument("-f", "--import_adif", type=str, help="import log records from ADIF", metavar="ADIF_FILE")
 parser.add_argument("-L", "--export_lotw", type=str, help="export log records to an ADIF v2 file. The name is used as prefix.", metavar="ADIF_FILE")
 parser.add_argument("-P", "--pa", dest="vhf", action="store_true", help="vkv pa summary")
 
@@ -98,7 +96,7 @@ args = parser.parse_args()
 
 # 1. print licensing information and exit
 if args.license:
-    print license
+    print(license)
     sys.exit()
 
 if args.summits:
@@ -164,6 +162,12 @@ if args.import_sota:
 if args.export_lotw:
     from libs.tools import export_lotw
     export_lotw.execute(adif_file_prefix=args.export_lotw, db_handle=app.db_handle, config=app.config)
+    sys.exit()
+
+# 11. import adif
+if args.import_adif:
+    from libs.tools import import_from_adif
+    import_from_adif.execute(adif_file=args.import_adif, db_handle=app.db_handle)
     sys.exit()
 
 

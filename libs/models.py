@@ -126,4 +126,7 @@ class QsoVariable(Base):
             return not (self == other)
         return NotImplemented
 
+    def __hash__(self):
+        return hash(self.name)
+
 

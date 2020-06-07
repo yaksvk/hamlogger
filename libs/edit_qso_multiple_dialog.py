@@ -2,8 +2,8 @@
 # -*- coding: utf-8 -*-
 
 from gi.repository import Gtk
-from qso_variables_editor import QsoVariablesEditor
-from models import QsoVariable
+from .qso_variables_editor import QsoVariablesEditor
+from .models import QsoVariable
 
 class EditQsoMultipleDialog(Gtk.Dialog):
 

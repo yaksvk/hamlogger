@@ -1,9 +1,10 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 
-from models import Base, CallsignEntity, QsoType, Qso, QsoVariable, QsoSession
-from models import probe_models_and_create_session
+from .models import Base, CallsignEntity, QsoType, Qso, QsoVariable, QsoSession
+from .models import probe_models_and_create_session
 from sqlalchemy import func, desc
+from pprint import pprint
 
 class DataConnector():
     
@@ -96,12 +97,12 @@ class DataConnector():
                 # first get basic callsign and then get matching qsos
                 callsign_filter = CallsignEntity.get_base_callsign(callsign_filter)
                 if len(callsign_filter) > 1:
-                    return self.session.query(Qso).join(CallsignEntity).filter(CallsignEntity.callsign.startswith(unicode(callsign_filter))).order_by(Qso.id.desc()).all()
+                    return self.session.query(Qso).join(CallsignEntity).filter(CallsignEntity.callsign.startswith(callsign_filter)).order_by(Qso.id.desc()).all()
                 else:
                     return []
             else:
                 # just return a list matching the given callsign
-                return self.session.query(Qso).filter(Qso.callsign.startswith(unicode(callsign_filter))).order_by(Qso.id.desc()).all()
+                return self.session.query(Qso).filter(Qso.callsign.startswith(callsign_filter)).order_by(Qso.id.desc()).all()
         else:
             if asc:
                 return self.session.query(Qso).order_by(Qso.id.asc()).all()
@@ -122,7 +123,7 @@ class DataConnector():
         if summit is not None and date is not None:
             return self.session.query(Qso).join(QsoVariable) \
                 .filter(QsoVariable.name==u'SUMMIT_SENT') \
-                .filter(QsoVariable.value==unicode(summit)) \
+                .filter(QsoVariable.value==summit) \
                 .filter(func.date(Qso.datetime_utc)==date).order_by(Qso.id).all()
         else:                        
             return self.session.query(Qso).join(QsoVariable).filter(QsoVariable.name==u'SUMMIT_SENT').order_by(Qso.id).all()
