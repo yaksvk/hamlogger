@@ -1,5 +1,4 @@
 #!/usr/bin/env python
-# -*- coding: utf-8 -*-
 
 from gi.repository import Gtk, Gdk
 from .widgets.rst_entry import RstEntry

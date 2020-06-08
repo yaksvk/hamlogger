@@ -1,5 +1,4 @@
 #!/usr/bin/env python
-# -*- coding: utf-8 -*-
 
 from .models import Base, CallsignEntity, QsoType, Qso, QsoVariable, QsoSession
 from .models import probe_models_and_create_session

@@ -1,5 +1,4 @@
 #!/usr/bin/env python
-# -*- coding: utf-8 -*-
 
 """
 THIS IS JUST TO PRODUCE A NICE ODT-LOG READY FOR PRINTING

@@ -1,5 +1,4 @@
 #!/usr/bin/env python
-# -*- coding: utf-8 -*-
 
 from gi.repository import Gtk
 from .qso_variables_editor import QsoVariablesEditor

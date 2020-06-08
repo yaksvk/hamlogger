@@ -1,5 +1,4 @@
 #!/usr/bin/env python
-# -*- coding: utf-8 -*-
 
 """
 EXPORT ADIF - LOTW: report used callsign as station callsign (v.2.2.7)
