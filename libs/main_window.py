@@ -256,6 +256,7 @@ class MainWindow(Gtk.Window):
         swp.set_min_content_height(self.config['DUPE_LIST_HEIGHT'])
         main_vbox.pack_start(swp, False, True, 0)
 
+
         self.dupe_log_store = self.tree_data_create_model()
 
         treeView_p = Gtk.TreeView(self.dupe_log_store)
@@ -915,9 +916,10 @@ class MainWindow(Gtk.Window):
             col.set_sort_column_id(i)  
             
             # QSL info - TODO this appears not to work FTM
+            if i == 12:
+                col.expand = True
             if i == 11:
                 col.sizing = Gtk.TreeViewColumnSizing.FIXED
-                col.set_fixed_width(10)
             
             treeView.append_column(col)
     
