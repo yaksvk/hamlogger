@@ -1,6 +1,5 @@
 #!/usr/bin/env python
 
-from sets import Set
 import csv
 import json
 
@@ -13,19 +12,17 @@ def translate(item, fields):
     return output
             
 
-def execute(db_handle, **kwargs):
+def execute(db_handle, summits_db_file, **kwargs):
     qsos = db_handle.get_qsos_sota(**kwargs)
-    summits = Set()
+    summits = set()
 
     for item in sorted(qsos, key=lambda qso: qso.datetime_utc):
         if 'SUMMIT_SENT' in item.variables:
             summits.add(item.variables['SUMMIT_SENT'].value)
 
-    # now that we have a set of summits, load the global summit database 
-    # TODO
     summits_with_details = []
 
-    with open('/home/yak/sources/python/hamlogger/db/summitslist.csv') as csvfile:
+    with open(summits_db_file) as csvfile:
         reader = csv.DictReader(csvfile)
         for row in reader:
             if 'SummitCode' in row:
@@ -34,7 +31,5 @@ def execute(db_handle, **kwargs):
 
     exported_fields = [ 'SummitCode', 'Latitude', 'Longitude' ]
 
-    out = map(lambda x: translate(x, exported_fields), summits_with_details)
-
+    out = list(map(lambda x: translate(x, exported_fields), summits_with_details))
     print(json.dumps(out, indent=4, separators=(',', ': ')))
-    
