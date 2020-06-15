@@ -1,3 +1,4 @@
+#!/usr/bin/env python
 from distutils.core import setup
 
 setup(
@@ -7,7 +8,7 @@ setup(
     author_email="yak@gmx.co.uk",
     packages=["lib"],
     include_package_data=True,
-    url="",
+    url="https://bitbucket.org/yak_sk/hamlogger",
     license="LICENSE",
     description="An amateur radio logging app",
     long_description=open("README").read(),

@@ -1,2 +1,2 @@
-recursive-include icons
-recursive-include db
+recursive-include icons *
+recursive-include db *
