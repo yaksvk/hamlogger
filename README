@@ -41,7 +41,7 @@ subfolder.
 
 TECHNOLOGIES
 
-- Python (2.7)
+- Python (3.8 used for development)
 - SQLAlchemy
 - Gtk3
 - SQLite3
