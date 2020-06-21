@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 
 from gi.repository import Gtk
-from .qso_variables_editor import QsoVariablesEditor
+from .widgets.qso_variables_editor import QsoVariablesEditor
 from functools import reduce
 
 class EditQsoDialog(Gtk.Dialog):

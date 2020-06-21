@@ -1,6 +1,7 @@
 #!/usr/bin/env python
 
 from sqlalchemy.ext.declarative import declarative_base
+from sqlalchemy.ext.associationproxy import association_proxy
 from sqlalchemy.orm.collections import attribute_mapped_collection
 from sqlalchemy import *
 from sqlalchemy.orm import relation, sessionmaker, relationship
@@ -69,7 +70,14 @@ class Qso(Base):
     callsign_entity = relation(CallsignEntity)
     qso_type = relation(QsoType)
     qso_session = relation(QsoSession)
-    variables = relationship("QsoVariable", collection_class=attribute_mapped_collection('name'), cascade="all, delete-orphan", backref="qsos")
+    _variables = relationship("QsoVariable",
+        collection_class=attribute_mapped_collection('name'),
+        cascade="all, delete-orphan",
+        backref="qsos")
+
+    # use variables as a proxy so that it behaves transparently as a hash
+    variables = association_proxy('_variables','value',
+        creator=lambda k, v: QsoVariable(name=k, value=v))
     datetime_utc = Column(DateTime)
     frequency = Column(Unicode(8))
     mode = Column(Unicode(8))

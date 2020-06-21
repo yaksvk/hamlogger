@@ -1,7 +1,6 @@
 #!/usr/bin/env python
 
 from gi.repository import Gtk, Gdk
-from .models import QsoVariable
 
 class QsoVariablesEditor(Gtk.TreeView):
     
@@ -15,15 +14,9 @@ class QsoVariablesEditor(Gtk.TreeView):
         for combo_val in self.combo_values:
             self.option_store.append([combo_val])
         
-        
-        
         super(QsoVariablesEditor, self).__init__(model=self.liststore, *args, **kwargs)
         
         self.connect("key-press-event", self.monitor_keypress)   
-
-        # obsolete
-        #renderer_editabletext0 = Gtk.CellRendererText()
-        #renderer_editabletext0.set_property("editable", True)
         
         renderer_editabletext0 = Gtk.CellRendererCombo()
         renderer_editabletext0.set_property("editable", True)
@@ -36,10 +29,8 @@ class QsoVariablesEditor(Gtk.TreeView):
         # user enters a text into box
         renderer_editabletext0.connect("edited", self.combo_edited)
         
-        
         renderer_editabletext1 = Gtk.CellRendererText()
         renderer_editabletext1.set_property("editable", True)
-        
 
         column_editabletext0 = Gtk.TreeViewColumn("VARIABLE NAME",
             renderer_editabletext0, text=0)
@@ -130,10 +121,6 @@ class QsoVariablesEditor(Gtk.TreeView):
         if treeiter is not None:
             model.remove(treeiter)
             
-    # EVENTS
-   
-    
-
     # VALUE
     def monitor_keypress(self, widget, event):
         if event.state == Gdk.ModifierType.CONTROL_MASK:
@@ -150,7 +137,7 @@ class QsoVariablesEditor(Gtk.TreeView):
     def value(self):
         output = {}
         for i in self.liststore:
-            output[i[0]] = QsoVariable(i[0], i[1])
+            output[i[0]] = i[1]
         
         return output
     
@@ -159,5 +146,5 @@ class QsoVariablesEditor(Gtk.TreeView):
         self.liststore.clear()
         
         for key, val in value.items():
-            self.liststore.append([key, val.value, "✗"])
+            self.liststore.append([key, val, "✗"])
        
