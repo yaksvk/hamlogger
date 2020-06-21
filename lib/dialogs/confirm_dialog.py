@@ -6,7 +6,6 @@ class ConfirmDialog(Gtk.Dialog):
 
     def __init__(self, parent):
         
-        
         Gtk.Dialog.__init__(
             self, 
             "Confirm action", 
@@ -21,10 +20,8 @@ class ConfirmDialog(Gtk.Dialog):
         )
         
         box = self.get_content_area()
-        
         question_label = Gtk.Label()
         question_label.set_markup("Really do this?")
-       
         box.pack_start(question_label, False, True, 0)
         
         self.show_all()

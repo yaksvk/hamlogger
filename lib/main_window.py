@@ -4,7 +4,7 @@ from gi.repository import Gtk, Gdk
 from .widgets.rst_entry import RstEntry
 from .edit_qso_dialog import EditQsoDialog
 from .edit_qso_multiple_dialog import EditQsoMultipleDialog
-from .confirm_dialog import ConfirmDialog
+from .dialogs.confirm_dialog import ConfirmDialog
 from .qso_variables_editor import QsoVariablesEditor
 from .session_manage_dialog import ManageSessionDialog
 from .session_new_dialog import NewSessionDialog
