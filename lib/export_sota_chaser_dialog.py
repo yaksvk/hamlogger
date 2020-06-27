@@ -80,8 +80,8 @@ class ExportSotaChaserDialog(Gtk.Dialog):
 
         for qso in self.chase_qsos:
             #print(''.join(map(lambda x: str(x), activation)))
-            summit_received = qso.variables['SUMMIT_RECEIVED'].value if 'SUMMIT_RECEIVED' in qso.variables else ''
-            summit_sent = qso.variables['SUMMIT_RECEIVED'].value if 'SUMMIT_RECEIVED' in qso.variables else ''
+            summit_received = qso.variables['SUMMIT_RECEIVED'] if 'SUMMIT_RECEIVED' in qso.variables else ''
+            summit_sent = qso.variables['SUMMIT_RECEIVED'] if 'SUMMIT_RECEIVED' in qso.variables else ''
 
             self.sota_activation_store.append(
                   (

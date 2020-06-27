@@ -45,23 +45,23 @@ Locator: %s
 
         # use custom callsign if applicable (Portable, etc.)
         if 'MY_CALL' in item.variables:
-            export_line += create_adif_tag('STATION_CALLSIGN', item.variables['MY_CALL'].value)
+            export_line += create_adif_tag('STATION_CALLSIGN', item.variables['MY_CALL'])
             # if callsign used is different than callsign configured, also use the OPERATOR tag
-            if item.variables['MY_CALL'].value != config['MY_CALLSIGN']:
+            if item.variables['MY_CALL'] != config['MY_CALLSIGN']:
                 export_line += create_adif_tag('OPERATOR', config['MY_CALLSIGN'])
         
         # fast support for WWFF
         if 'WWFF_SENT' in item.variables:
             export_line += create_adif_tag('MY_SIG', 'WWFF')
-            export_line += create_adif_tag('MY_SIG_INFO', item.variables['WWFF_SENT'].value)
+            export_line += create_adif_tag('MY_SIG_INFO', item.variables['WWFF_SENT'])
 
 
         note = u''            
         # put sota variables into note
         if 'SUMMIT_SENT' in item.variables:
-            note += u'SOTA summit sent: ' + item.variables.get('SUMMIT_SENT').value
+            note += u'SOTA summit sent: ' + item.variables.get('SUMMIT_SENT')
         if 'SUMMIT_RECEIVED' in item.variables:
-            note += u'SOTA summit received: ' + item.variables.get('SUMMIT_RECEIVED').value
+            note += u'SOTA summit received: ' + item.variables.get('SUMMIT_RECEIVED')
         if note != u'':
             export_line += create_adif_tag('NOTES', note)
         
@@ -85,7 +85,7 @@ Locator: %s
 
         for qso_var_from, adif_var_to in conversion.items():
             if qso_var_from in item.variables:
-                export_line += create_adif_tag(adif_var_to, item.variables.get(qso_var_from).value)
+                export_line += create_adif_tag(adif_var_to, item.variables.get(qso_var_from))
 
         lines.append(export_line)
    
