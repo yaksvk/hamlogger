@@ -12,19 +12,19 @@ Base = declarative_base()
 # create the necessary models and database session
 def probe_models_and_create_session(db_file):
     engine = create_engine('sqlite:///' + db_file)
-    Base.metadata.create_all(engine)  
+    Base.metadata.create_all(engine)
 
     session = sessionmaker(bind=engine,)()
     return session
 
 # models for tables
 
-class CallsignEntity(Base): 
-    __tablename__ = 'callsigns' 
-    
+class CallsignEntity(Base):
+    __tablename__ = 'callsigns'
+
     id = Column(Integer, primary_key=True)
     callsign = Column(Unicode(64))
-    qsos = relationship("Qso", backref="callsigns")
+    qsos = relationship("Qso", backref="callsigns", viewonly=True)
     text_note = Column(UnicodeText)
 
     @classmethod
@@ -33,12 +33,12 @@ class CallsignEntity(Base):
         clean_sign = re.sub('(/p|/m|/mm|/am|/qrp)?$', '', callsign_text, flags=re.IGNORECASE)
         clean_sign = re.sub('(/p|/m|/mm|/am|/qrp)?$', '', clean_sign, flags=re.IGNORECASE)
         clean_sign = re.sub('^[^/]+/', '', clean_sign, flags=re.IGNORECASE)
-        
+
         return clean_sign
 
     def __repr__(self):
         return ''.join((str(self.id), ':', self.callsign))
-    
+
     @property
     def qso_count(self):
         return len(self.qsos)
@@ -48,7 +48,7 @@ class QsoType(Base):
 
     id = Column(Integer, primary_key=True)
     description = Column(Unicode(64))
-    qsos = relationship("Qso", backref="qso_types")
+    qsos = relationship("Qso", backref="qso_types", viewonly=True)
 
 class QsoSession(Base):
     __tablename__ = 'qso_sessions'
@@ -57,7 +57,7 @@ class QsoSession(Base):
     description = Column(Unicode(64))
     text_note = Column(UnicodeText)
     locator = Column(Unicode(8))
-    qsos = relationship("Qso", backref="qso_sessions")
+    qsos = relationship("Qso", backref="qso_sessions", viewonly=True)
     
 class Qso(Base):
     __tablename__ = 'qsos'
@@ -111,7 +111,7 @@ class QsoVariable(Base):
     __tablename__ = 'qso_variables'
 
     id = Column(Integer, primary_key=True)
-    qso = relation(Qso)
+    qso = relation(Qso, viewonly=True)
     qso_id = Column(Integer, ForeignKey('qsos.id'), nullable=False)
     name = Column(Unicode(64))
     value = Column(Unicode(64))

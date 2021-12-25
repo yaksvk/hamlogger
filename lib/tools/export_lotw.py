@@ -10,6 +10,9 @@ import os.path
 import io
 
 def create_adif_tag(tag_name, value):
+    if value is None:
+        value = ''
+
     return u''.join((u'<', tag_name, u':', str(len(value)), u'>', value, u' '))
 
 def execute(adif_file_prefix, db_handle, config, pretend=False):
@@ -30,17 +33,17 @@ def execute(adif_file_prefix, db_handle, config, pretend=False):
         current_call = None
         # use custom callsign if applicable (Portable, etc.)
         if 'MY_CALL' in item.variables:
-            export_line += create_adif_tag('STATION_CALLSIGN', item.variables['MY_CALL'].value)
-            current_call = item.variables['MY_CALL'].value
+            export_line += create_adif_tag('STATION_CALLSIGN', item.variables['MY_CALL'])
+            current_call = item.variables['MY_CALL']
         else:
             current_call = config['MY_CALLSIGN']
 
         note = u''            
         # put sota variables into note
         if 'SUMMIT_SENT' in item.variables:
-            note += u'SOTA summit sent: ' + item.variables.get('SUMMIT_SENT').value
+            note += u'SOTA summit sent: ' + item.variables.get('SUMMIT_SENT')
         if 'SUMMIT_RECEIVED' in item.variables:
-            note += u'SOTA summit received: ' + item.variables.get('SUMMIT_RECEIVED').value
+            note += u'SOTA summit received: ' + item.variables.get('SUMMIT_RECEIVED')
         if note != u'':
             export_line += create_adif_tag('NOTES', note)
         

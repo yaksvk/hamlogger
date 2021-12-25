@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 
 license = """
-Copyright 2014-2020, Jakub Ondrusek, OM1WS (yak@gmx.co.uk)
+Copyright 2014-2021, Jakub Ondrusek, OM1WS (yak@gmx.co.uk)
 
 This program is free software: you can redistribute it and/or modify
 it under the terms of the GNU General Public License as published by

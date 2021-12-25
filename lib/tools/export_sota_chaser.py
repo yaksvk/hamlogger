@@ -22,14 +22,14 @@ def create_export_file_from_qsos(output, csv_file, config):
             
             # my callsign
             if 'MY_CALL' in item.variables:
-                fields.append(item.variables['MY_CALL'].value)
+                fields.append(item.variables['MY_CALL'])
             else:
                 fields.append(config['MY_CALLSIGN'])
                 
             
             # my summit)
             if 'SUMMIT_SENT' in item.variables:
-                fields.append(item.variables['SUMMIT_SENT'].value)
+                fields.append(item.variables['SUMMIT_SENT'])
             else:
                 fields.append('')
             
@@ -44,7 +44,7 @@ def create_export_file_from_qsos(output, csv_file, config):
             fields.append(item.callsign)
             
             if 'SUMMIT_RECEIVED' in item.variables:
-                fields.append(item.variables['SUMMIT_RECEIVED'].value)
+                fields.append(item.variables['SUMMIT_RECEIVED'])
             else:
                 fields.append('')
             
@@ -56,7 +56,7 @@ def create_export_file_from_qsos(output, csv_file, config):
                 notes.append(item.qth_received)
 
             if 'SUMMIT_SENT' in item.variables and 'SUMMIT_RECEIVED' in item.variables:
-                notes.append('s2s: ' + item.variables['SUMMIT_RECEIVED'].value)
+                notes.append('s2s: ' + item.variables['SUMMIT_RECEIVED'])
             
             note = ', '.join(notes)
             note = '"' + note + '"'

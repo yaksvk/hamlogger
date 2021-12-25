@@ -14,19 +14,19 @@ class HamLogger(Gtk.Application):
 
     def __init__(self, config, *args, **kwargs):
         super(HamLogger, self).__init__(*args, **kwargs)
- 
+
         # initialize DXCC prefix resolver
         self.resolver = prefix_resolver.Resolver(config.get_absolute_path(config['PREFIX_FILE']))
-        
+
         # create a db handle, this will be handled by our intelligent connector
         if not config.get('DB_FILE', ''):
             config['DB_FILE'] = os.path.join(os.environ['HOME'], '.hamlogger', 'log.sqlite')
 
-        self.db_handle = data_connector.DataConnector(config['DB_FILE']) 
+        self.db_handle = data_connector.DataConnector(config['DB_FILE'])
 
         # save the config as my attribute
         self.config = config
-    
+
     def do_activate(self):
 
         # create the main window and send it a reference to the config module

@@ -6,13 +6,13 @@ from sqlalchemy import func, desc
 from pprint import pprint
 
 class DataConnector():
-    
+
     def __init__(self, db_file):
-        
+
         self.session = probe_models_and_create_session(db_file)
-  
+
     def create_qso(self, *args, **kwargs):
-        
+
         if 'callsign_text_note' in kwargs:
             callsign_note = kwargs['callsign_text_note']
             del(kwargs['callsign_text_note'])

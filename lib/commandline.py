@@ -42,6 +42,8 @@ def process(app, license):
         type=str, help="export log records to an ADIF v2 file. The name is used as prefix.", metavar="ADIF_FILE")
     parser.add_argument("-P", "--pa",
         dest="vhf", action="store_true", help="vkv pa summary")
+    parser.add_argument("--summit",
+        type=str, help="specify summit to append as SUMMIT_SENT (use with --import_adif)")
 
     args = parser.parse_args()
 
@@ -60,21 +62,21 @@ def process(app, license):
     # import log data from an ods file 
     if args.import_ods:
         from lib.tools import import_from_ods
-        import_from_ods.execute(ods_file=args.import_ods, db_handle=application.db_handle)
+        import_from_ods.execute(ods_file=args.import_ods, db_handle=app.db_handle)
         sys.exit()
-    
+
     # export log data to an ods file 
     if args.export_ods:
         from lib.tools import export_to_ods
-        export_to_ods.execute(ods_file=args.export_ods, db_handle=application.db_handle)
+        export_to_ods.execute(ods_file=args.export_ods, db_handle=app.db_handle)
         sys.exit()
 
     # export log data to an ods file 
     if args.export_odt:
         from lib.tools import export_to_odt
-        export_to_odt.execute(odt_file=args.export_odt, db_handle=application.db_handle)
+        export_to_odt.execute(odt_file=args.export_odt, db_handle=app.db_handle)
         sys.exit()
-    
+
     # export sota 
     if args.export_sota:
         from lib.tools import export_sota
@@ -92,8 +94,8 @@ def process(app, license):
     # export adif 
     if args.export_adif2:
         from lib.tools import export_adif_v2
-        export_adif_v2.execute(adif_file=args.export_adif2, db_handle=application.db_handle,
-            config=application.config)
+        export_adif_v2.execute(adif_file=args.export_adif2, db_handle=app.db_handle,
+            config=app.config)
         sys.exit()
 
     # export cabrillo 
@@ -112,12 +114,12 @@ def process(app, license):
     # export lotw 
     if args.export_lotw:
         from lib.tools import export_lotw
-        export_lotw.execute(adif_file_prefix=args.export_lotw, db_handle=application.db_handle,
-            config=application.config)
+        export_lotw.execute(adif_file_prefix=args.export_lotw, db_handle=app.db_handle,
+            config=app.config)
         sys.exit()
 
     # import adif
     if args.import_adif:
         from lib.tools import import_from_adif
-        import_from_adif.execute(adif_file=args.import_adif, db_handle=application.db_handle)
+        import_from_adif.execute(adif_file=args.import_adif, db_handle=app.db_handle, args=args)
         sys.exit()
