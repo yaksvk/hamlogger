@@ -12,6 +12,7 @@ from .export_sota_dialog import ExportSotaDialog
 from .export_adif_dialog import ExportAdifDialog
 from .export_sota_chaser_dialog import ExportSotaChaserDialog
 from .models import CallsignEntity
+from .import_adif_dialog import ImportAdifDialog
 
 import datetime
 import sys
@@ -60,6 +61,7 @@ class MainWindow(Gtk.Window):
         main_vbox = Gtk.VBox(False, 8)
         
         # MENU HEADERS
+        # TODO split these to more files and make it more dynamic
         
         menu_bar = Gtk.MenuBar()
         menu_bar_file = Gtk.MenuItem("File")
@@ -71,6 +73,15 @@ class MainWindow(Gtk.Window):
         menu_bar_file.set_submenu(menu_bar_file_menu)
         menu_bar.append(menu_bar_file)
         
+        # import item
+        menu_bar_import = Gtk.MenuItem("Import")
+        menu_bar_import_menu = Gtk.Menu()
+        menu_bar_import_menu_adif = Gtk.MenuItem("ADIF")
+        menu_bar_import_menu_adif.connect("activate", self.import_menu_adif)
+        menu_bar_import_menu.append(menu_bar_import_menu_adif)
+        menu_bar_import.set_submenu(menu_bar_import_menu)
+        menu_bar.append(menu_bar_import)
+
         menu_bar_export = Gtk.MenuItem("Export")
         menu_bar_export_menu = Gtk.Menu()
         menu_bar_export_menu_ods = Gtk.MenuItem("OpenDocument")
@@ -1057,6 +1068,25 @@ class MainWindow(Gtk.Window):
                     create_export_file_from_qsos(sota_qsos, csv_file=output_file, config=self.config)
             
         dialog.destroy()
+    
+    def import_menu_adif(self, widget):
+
+        dialog = Gtk.FileChooserDialog("Select ADIF file", self,
+            Gtk.FileChooserAction.OPEN,
+            (Gtk.STOCK_CANCEL, Gtk.ResponseType.CANCEL,
+             Gtk.STOCK_OPEN, Gtk.ResponseType.OK))
+
+        response = dialog.run()
+        input_file = None
+
+        if response == Gtk.ResponseType.OK:
+            input_file = dialog.get_filename()
+        dialog.destroy()
+
+        if input_file is not None:
+            import_dialog = ImportAdifDialog(self, input_file)
+            response = import_dialog.run()
+            import_dialog.destroy()
 
         
     # STANDARD FILE CHOOSER
