@@ -2,6 +2,7 @@
 
 import re
 import datetime
+from lib.prefix_resolver import Resolver
 
 def process_qsos(header, qsos, custom_variables=None):
 

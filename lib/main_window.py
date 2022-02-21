@@ -22,7 +22,7 @@ HAMCALL_ROOT = 'http://www.hamcall.net/call/'
 QRZ_ROOT = 'http://www.qrz.com/db/'
 HAMQTH_ROOT = 'http://www.hamqth.com/'
 
-class MainWindow(Gtk.Window): 
+class MainWindow(Gtk.Window):
     def __init__(self, config, db, resolver, *args, **kwargs):
         super(MainWindow, self).__init__(*args, **kwargs)
 
@@ -30,22 +30,22 @@ class MainWindow(Gtk.Window):
         self.db = db
         self.resolver = resolver
         self.active_session = None
-        
+
         self.logging_mode_standard = True
         self.logging_mode_contest = False
 
         # manual editing mode (as opposed to clicking-through mode)
         self.editing_mode = False
-        
+
         self.obligatories = ['call_entry', 'input_date', 'input_time', 'rst_sent', 'rst_rcvd']
-        
+
         self.set_size_request(config['WINDOW_WIDTH'], config['WINDOW_HEIGHT'])
         self.set_position(Gtk.WindowPosition.CENTER)
-        
+
         # maximize if configured
         if config['WINDOW_MAXIMIZE']:
             self.maximize()
-        
+
         # PREPARE FOR ALL THE WIDGETS
         self.widgets = {}
         self.locked_widgets = {}

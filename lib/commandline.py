@@ -44,6 +44,8 @@ def process(app, license):
         dest="vhf", action="store_true", help="vkv pa summary")
     parser.add_argument("--summit",
         type=str, help="specify summit to append as SUMMIT_SENT (use with --import_adif)")
+    parser.add_argument("-m", "--modify",action="store_true",
+        dest="modify", help="Modify all records")
 
     args = parser.parse_args()
 
@@ -122,4 +124,10 @@ def process(app, license):
     if args.import_adif:
         from lib.tools import import_from_adif
         import_from_adif.execute(adif_file=args.import_adif, db_handle=app.db_handle, args=args)
+        sys.exit()
+
+    # modify
+    if args.modify:
+        from lib.tools import modify
+        modify.execute(db_handle=app.db_handle, app=app, args=args)
         sys.exit()

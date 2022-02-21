@@ -32,7 +32,7 @@ class ImportAdifDialog(Gtk.Dialog):
         box.pack_start(self.qso_variables, True, True, 0)
 
         self.import_button = Gtk.Button(label="Import")
-        self.import_button.connect("button-press-event", self.run_import)   
+        self.import_button.connect("button-press-event", self.run_import)
         box.pack_start(self.import_button, True, False, 0)
 
         self.show_all()
@@ -41,9 +41,14 @@ class ImportAdifDialog(Gtk.Dialog):
 
         self.header, self.qsos = read_file(self.input_file)
         self.qsos = process_qsos(self.header, self.qsos, custom_variables=self.qso_variables.value)
-            
+
         for q in self.qsos:
             qso_variables = {}
+
+            country = ''
+            country_result = self.parent_app.resolver.get_entity_for_call(q['CALL'])
+            if country_result and 'name' in country_result:
+                country = country_result['name']
 
             if 'qso_variables' in q:
                 qso_variables = q['qso_variables']
@@ -54,9 +59,12 @@ class ImportAdifDialog(Gtk.Dialog):
                 mode=q['MODE'],
                 datetime_utc=q['datetime_combined'],
                 frequency=q['FREQ'],
+                country_received=country,
                 rst_sent=q['RST_SENT'],
                 rst_received=q['RST_RCVD'],
                 text_note=q.get('COMMENT',''),
                 variables=qso_variables
-            )        
-        
+            )
+
+        self.parent_app.tree_data_refresh_main_tree()
+

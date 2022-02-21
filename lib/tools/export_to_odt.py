@@ -18,7 +18,7 @@ def column_name_generator(n):
 
     while i < n:
         yield X
-        
+
         chars = list(X)
         for k, j in enumerate(reversed(chars)):
             if C.index(j) < len(C) - 1:
@@ -36,16 +36,16 @@ def column_name_generator(n):
 
 
 def execute(odt_file, db_handle, pretend=False):
-    
-    print "Processing file: %s" % odt_file
+
+    print("Processing file: %s" % odt_file)
 
     if odt_file is not None:
         if os.path.isfile(odt_file):
-            print "file exists"
+            print("file exists")
             return
-        
+
         export_list = db_handle.get_qsos()
-        
+
         doc = ezodf.newdoc(doctype="odt", filename=odt_file, template=None)
         sessions = db_handle.get_qso_sessions()
         
