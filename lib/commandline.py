@@ -1,6 +1,9 @@
 #!/usr/bin/env python
 import argparse
+import importlib
 import sys
+import glob
+import os
 
 """
 Process command line arguments for the Hamlogger application
@@ -44,8 +47,8 @@ def process(app, license):
         dest="vhf", action="store_true", help="vkv pa summary")
     parser.add_argument("--summit",
         type=str, help="specify summit to append as SUMMIT_SENT (use with --import_adif)")
-    parser.add_argument("-m", "--modify",
-        help="Modify all records")
+    parser.add_argument("--run", nargs='?', const='',
+        help="Execute a custom script from lib.tools.scripts Run without arguments to see options.")
 
     args = parser.parse_args()
 
@@ -127,9 +130,16 @@ def process(app, license):
         sys.exit()
 
     # modify
-    if args.modify:
-        print(f'Trying to import lib.tools.{args.modify}')
-        from importlib import import_module
-        runlib = import_module(f'lib.tools.{args.modify}')
+    if args.run is not None:
+        if args.run == '':
+            print(f'No argument specified. Please something from lib.tools:')
+            for filename in [ os.path.basename(f) for f in glob.glob('lib/tools/scripts/*py')]:
+                if filename[0] == '_':
+                    continue
+                print(filename[:-3])
+            sys.exit()
+
+        print(f'Trying to import lib.tools.{args.run}')
+        runlib = importlib.import_module(f'lib.tools.scripts.{args.run}')
         runlib.execute(db_handle=app.db_handle, app=app, args=args)
         sys.exit()
