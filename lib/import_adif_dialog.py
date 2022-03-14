@@ -7,10 +7,10 @@ from .widgets.qso_variables_editor import QsoVariablesEditor
 
 class ImportAdifDialog(Gtk.Dialog):
     def __init__(self, parent, input_file):
-        
+
         Gtk.Dialog.__init__(
-            self, 
-            "Export Sota CSV", 
+            self,
+            "Export Sota CSV",
             parent,
             Gtk.DialogFlags.MODAL,
         )
@@ -19,7 +19,7 @@ class ImportAdifDialog(Gtk.Dialog):
         self.add_buttons('Close', Gtk.ResponseType.CANCEL)
 
         self.set_default_size(
-            parent.config['SOTA_EXPORT_WIDTH'], 
+            parent.config['SOTA_EXPORT_WIDTH'],
             parent.config['SOTA_EXPORT_HEIGHT']
         )
 
@@ -47,6 +47,7 @@ class ImportAdifDialog(Gtk.Dialog):
 
             country = ''
             country_result = self.parent_app.resolver.get_entity_for_call(q['CALL'])
+
             if country_result and 'name' in country_result:
                 country = country_result['name']
 

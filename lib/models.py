@@ -52,16 +52,16 @@ class QsoType(Base):
 
 class QsoSession(Base):
     __tablename__ = 'qso_sessions'
-    
+
     id = Column(Integer, primary_key=True)
     description = Column(Unicode(64))
     text_note = Column(UnicodeText)
     locator = Column(Unicode(8))
     qsos = relationship("Qso", backref="qso_sessions", viewonly=True)
-    
+
 class Qso(Base):
     __tablename__ = 'qsos'
-    
+
     id = Column(Integer, primary_key=True)
     callsign_id = Column(Integer, ForeignKey('callsigns.id'), nullable=True)
     type_id = Column(Integer, ForeignKey('qso_types.id'), nullable=True)
@@ -93,7 +93,7 @@ class Qso(Base):
 
     def __repr__(self):
         return ''.join((self.callsign, ' ', self.datetime_utc.isoformat()))
-    
+
     @property
     def time_iso(self):
         if self.datetime_utc is not None:
@@ -115,11 +115,11 @@ class QsoVariable(Base):
     qso_id = Column(Integer, ForeignKey('qsos.id'), nullable=False)
     name = Column(Unicode(64))
     value = Column(Unicode(64))
-    
+
     def __init__(self, name, value):
         self.name = name
         self.value = value
-        
+
     def __repr__(self):
         return ''.join(('QsoVariable(\'', self.name, '\', \'', self.value, '\')'))
 
@@ -127,7 +127,7 @@ class QsoVariable(Base):
         if isinstance(other, self.__class__):
             return (self.name == other.name ) and (self.value == other.value)
         return NotImplemented
-    
+
     def __ne__(self, other):
         if isinstance(other, self.__class__):
             return not (self == other)
@@ -135,5 +135,3 @@ class QsoVariable(Base):
 
     def __hash__(self):
         return hash(self.name)
-
-
