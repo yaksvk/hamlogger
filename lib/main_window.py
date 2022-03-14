@@ -1,4 +1,4 @@
-#!/usr/bin/env python
+#!/usr/bin/en vpython
 
 from gi.repository import Gtk, Gdk
 from .widgets.rst_entry import RstEntry
@@ -49,30 +49,27 @@ class MainWindow(Gtk.Window):
         # PREPARE FOR ALL THE WIDGETS
         self.widgets = {}
         self.locked_widgets = {}
-        
-        
+
+
         # CONNECT KEYPRESS EVENTS
         self.connect('key-press-event', self.window_key_press)
-        
-        
-        
-        
+
         # MAIN CONTENT
         main_vbox = Gtk.VBox(False, 8)
-        
+
         # MENU HEADERS
         # TODO split these to more files and make it more dynamic
-        
+
         menu_bar = Gtk.MenuBar()
         menu_bar_file = Gtk.MenuItem("File")
         menu_bar_file_menu = Gtk.Menu()
         menu_bar_file_menu_exit = Gtk.MenuItem("Exit")
         menu_bar_file_menu_exit.connect("activate", self.menu_file_exit)
-        
+
         menu_bar_file_menu.append(menu_bar_file_menu_exit)
         menu_bar_file.set_submenu(menu_bar_file_menu)
         menu_bar.append(menu_bar_file)
-        
+
         # import item
         menu_bar_import = Gtk.MenuItem("Import")
         menu_bar_import_menu = Gtk.Menu()
@@ -91,7 +88,7 @@ class MainWindow(Gtk.Window):
         menu_bar_export_menu_sota.connect("activate", self.export_menu_sota)
         menu_bar_export_menu_sota_chaser = Gtk.MenuItem("SOTA CSV Chaser")
         menu_bar_export_menu_sota_chaser.connect("activate", self.export_menu_sota_chaser)
-        
+
         # TODO hide these two - we do not have gui functions for these yet
         #menu_bar_export_menu.append(menu_bar_export_menu_ods)
         menu_bar_export_menu.append(menu_bar_export_menu_adif_session)
@@ -99,8 +96,8 @@ class MainWindow(Gtk.Window):
         menu_bar_export_menu.append(menu_bar_export_menu_sota_chaser)
         menu_bar_export.set_submenu(menu_bar_export_menu)
         menu_bar.append(menu_bar_export)
-        
-        
+
+
         menu_bar_session = Gtk.MenuItem("Sessions")
         menu_bar_session_menu = Gtk.Menu()
         menu_bar_session_menu_new = Gtk.MenuItem("New")
@@ -111,13 +108,13 @@ class MainWindow(Gtk.Window):
         #menu_bar_session_menu_manage.connect("activate", self.menu_session_manage)
         menu_bar_session_menu_reset = Gtk.MenuItem("Reset")
         menu_bar_session_menu_reset.connect("activate", self.menu_session_reset)
-        
+
         menu_bar_session_menu.append(menu_bar_session_menu_new)
         #menu_bar_session_menu.append(menu_bar_session_menu_manage)
         menu_bar_session_menu.append(menu_bar_session_menu_reset)
         menu_bar_session.set_submenu(menu_bar_session_menu)
         menu_bar.append(menu_bar_session)
-        
+
         menu_bar_mode = Gtk.MenuItem("Mode")
 
         menu_bar_mode_menu = Gtk.Menu()
@@ -134,29 +131,27 @@ class MainWindow(Gtk.Window):
         menu_bar.append(menu_bar_mode)
 
         main_vbox.pack_start(menu_bar, False, True, 0)
-        
-        
+
+
         self.widgets['band_combo'] = Gtk.ComboBoxText()
         for band in config['BANDS']:
             self.widgets['band_combo'].append_text(band)
         self.widgets['band_combo'].set_active(1)
-        
+
         self.widgets['mode_combo'] = Gtk.ComboBoxText()
         for mode in config['MODES']:
             self.widgets['mode_combo'].append_text(mode)
         self.widgets['mode_combo'].set_active(0)
-        self.widgets['mode_combo'].connect("changed", self.mode_changed)   
+        self.widgets['mode_combo'].connect("changed", self.mode_changed)
 
         self.widgets['call_entry'] = Gtk.Entry(max_width_chars=10, width_chars=10)
-        self.widgets['call_entry'].connect("changed", self.widget_call_entry_changed)   
+        self.widgets['call_entry'].connect("changed", self.widget_call_entry_changed)
 
         self.widgets['input_date'] = Gtk.Entry(max_width_chars=10, width_chars=10)
-        
+
         self.widgets['input_time'] = Gtk.Entry(max_width_chars=5, width_chars=5)
-        
-        #self.widgets['rst_sent'] = Gtk.Entry(max_width_chars=6, width_chars=6)
-        #self.widgets['rst_rcvd'] = Gtk.Entry(max_width_chars=6, width_chars=6)
-        
+
+
         self.widgets['rst_sent'] = RstEntry(max_width_chars=6, width_chars=6)
         self.widgets['rst_rcvd'] = RstEntry(max_width_chars=6, width_chars=6)
 
@@ -165,26 +160,26 @@ class MainWindow(Gtk.Window):
         self.widgets['contest_received'] = Gtk.Entry(max_width_chars=6, width_chars=6)
 
         self.widgets['input_note'] = Gtk.Entry(max_width_chars=40, width_chars=40)
-       
+
         self.widgets['name'] = Gtk.Entry(max_width_chars=15, width_chars=15)
         self.widgets['qth'] = Gtk.Entry(max_width_chars=20, width_chars=20)
-        
+
         self.save_button = Gtk.Button(label="Save")
-        self.save_button.connect("button-press-event", self.widget_save_qso)   
+        self.save_button.connect("button-press-event", self.widget_save_qso)
 
         # for some widgets, also add a universal keypress watcher, these will serve for return
         for i in ('call_entry', 'input_date', 'input_time', 'rst_sent', 'rst_rcvd', 'input_note', 'name', 'qth'):
-            self.widgets[i].connect("key-press-event", self.widget_monitor_keypress)   
+            self.widgets[i].connect("key-press-event", self.widget_monitor_keypress)
 
 
         table = self.build_qso_variables_table()
-        
+
         table_label = Gtk.Label()
         table_label.set_markup("<b>EDIT QSO:</b>")
-        
+
         main_vbox.pack_start(table_label, False, True, 0)
         main_vbox.pack_start(table, False, True, 0)
-        
+
         hbox = Gtk.HBox(False, 3)
 
         vbox_h_1 = Gtk.VBox(False, 2)
@@ -193,41 +188,39 @@ class MainWindow(Gtk.Window):
 
 
         # TODO DXCC info block
-        
+
         # weblinks
         link_qrz = Gtk.Label()
         link_hamcall = Gtk.Label()
         link_hamqth = Gtk.Label()
-        
+
         self.widgets['links'] = {
             'qrz': Gtk.Label(),
             'hamcall': Gtk.Label(),
             'hamqth': Gtk.Label()
         }
-        
+
         self.widgets['links']['qrz'].set_markup("<b><a href=\"#\">QRZ.com</a></b>")
         self.widgets['links']['hamcall'].set_markup("<b><a href=\"#\">Hamcall.net</a></b>")
         self.widgets['links']['hamqth'].set_markup("<b><a href=\"#\">HamQTH.com</a></b>")
-        
-        
+
         hbox_links = Gtk.HBox(False, 2)
         hbox_links.pack_start(self.widgets['links']['qrz'], True, True, 0)
         hbox_links.pack_start(self.widgets['links']['hamcall'], True, True, 0)
         hbox_links.pack_start(self.widgets['links']['hamqth'], True, True, 0)
-        
-        
+
         label_h1 = Gtk.Label()
         label_h1.set_markup("<b>DXCC / ITU ENTITY INFO:</b>")
         vbox_h_1.pack_start(label_h1, False, True, 0)
-        
+
         self.widgets['entity_note'] = Gtk.TextView()
         self.widgets['entity_note'].set_editable(False)
         vbox_h_1.pack_start(self.widgets['entity_note'], True, True, 0)
-        
+
         label_h0 = Gtk.Label()
         label_h0.set_markup("<b>WEB LINKS:</b>")
         vbox_h_1.pack_start(label_h0, False, True, 0)
-        
+
         vbox_h_1.pack_start(hbox_links, False, True, 0)
 
         # TODO callsign info gathethed from the internet
@@ -235,9 +228,8 @@ class MainWindow(Gtk.Window):
         label_h2.set_markup("<b>QSO VARIABLES:</b>")
         vbox_h_2.pack_start(label_h2, False, True, 0)
         self.qso_variables = QsoVariablesEditor(self.config)
-        
+
         vbox_h_2.pack_start(self.qso_variables, True, True, 0)
-        
 
         label_h3 = Gtk.Label()
         label_h3.set_markup("<b>CALLSIGN NOTE:</b>")
@@ -250,10 +242,9 @@ class MainWindow(Gtk.Window):
         hbox.pack_start(vbox_h_1, True, True, 0)
         hbox.pack_start(vbox_h_2, True, True, 0)
         hbox.pack_start(vbox_h_3, True, True, 0)
-        
 
         main_vbox.pack_start(hbox, True, True, 0)
-       
+
         # PREVIOUS CONVERSATIONS
 
         label_previous_log = Gtk.Label()
@@ -272,12 +263,12 @@ class MainWindow(Gtk.Window):
         treeView_p = Gtk.TreeView(self.dupe_log_store)
         treeView_p.connect('button-press-event', self.tree_click)
         treeView_p.connect('button-release-event', self.current_log_keyrelease)
-        
+
         swp.add(treeView_p)
-        
+
         self.dupe_log_scroll_window = swp
         self.dupe_log_tree = treeView_p
-        
+
         self.tree_data_create_columns(treeView_p)
 
 
@@ -293,7 +284,7 @@ class MainWindow(Gtk.Window):
         sw.set_policy(Gtk.PolicyType.AUTOMATIC, Gtk.PolicyType.ALWAYS)
         main_vbox.pack_start(sw, True, True, 0)
 
-        self.current_log_store = self.tree_data_create_model() 
+        self.current_log_store = self.tree_data_create_model()
 
         self.current_log_tree = Gtk.TreeView(self.current_log_store)
         self.current_log_tree.set_rules_hint(True)
@@ -307,8 +298,6 @@ class MainWindow(Gtk.Window):
         sw.add(self.current_log_tree)
 
         self.tree_data_create_columns(self.current_log_tree)
-        
-        
         self.current_log_scroll_window = sw
 
 
@@ -316,7 +305,7 @@ class MainWindow(Gtk.Window):
         # this context menu pops up when one row is selected
 
         self.current_log_context_menu = Gtk.Menu()
-        
+
         # Weblinks
         menu_item_weblinks = Gtk.MenuItem("Weblinks")
         menu_item_weblinks_menu = Gtk.Menu()
@@ -326,7 +315,7 @@ class MainWindow(Gtk.Window):
         menu_item_weblinks_menu_hamcall.connect("button-press-event", self.open_weblink, HAMCALL_ROOT)
         menu_item_weblinks_menu_hamqth = Gtk.MenuItem("HamQTH.com")
         menu_item_weblinks_menu_hamqth.connect("button-press-event", self.open_weblink, HAMQTH_ROOT)
-        
+
         menu_item_weblinks_menu.append(menu_item_weblinks_menu_qrz)
         menu_item_weblinks_menu.append(menu_item_weblinks_menu_hamcall)
         menu_item_weblinks_menu.append(menu_item_weblinks_menu_hamqth)
@@ -335,7 +324,7 @@ class MainWindow(Gtk.Window):
         menu_item_weblinks_menu_qrz.show()
         menu_item_weblinks_menu_hamcall.show()
         menu_item_weblinks_menu_hamqth.show()
-        
+
         menu_item1 = Gtk.MenuItem("Edit QSO")
         menu_item1.connect("activate", self.current_log_edit_qso)
         
@@ -999,7 +988,7 @@ class MainWindow(Gtk.Window):
 
         dialog = ExportSotaChaserDialog(self, chaser_qsos)
         response = dialog.run()
-        
+
         if response == Gtk.ResponseType.OK:
             if dialog.selection is not None:
                 model, tree_paths = dialog.selection.get_selected_rows()
@@ -1011,12 +1000,12 @@ class MainWindow(Gtk.Window):
                 if output_file is not None:
                     for path in reversed(tree_paths):
                         qso_ids.append(model[path][0])
-                    
+
                     sota_qsos = self.db.get_qsos_sota_chaser(ids=qso_ids)
                     from .tools.export_sota_chaser import create_export_file_from_qsos
                     create_export_file_from_qsos(sota_qsos, csv_file=output_file, config=self.config)
 
-                        
+
 
         dialog.destroy()
 
@@ -1024,11 +1013,11 @@ class MainWindow(Gtk.Window):
         sessions = self.db.get_qso_sessions()
         dialog = ExportAdifDialog(self, sessions)
         response = dialog.run()
-        
+
         if response == Gtk.ResponseType.OK:
             if dialog.selection is not None:
                 model, tree_paths = dialog.selection.get_selected_rows()
-                
+
                 output_file = self.display_file_dialog("adi")
                 if output_file is not None:
                     qsos = []
@@ -1047,7 +1036,7 @@ class MainWindow(Gtk.Window):
 
         dialog = ExportSotaDialog(self, activations)
         response = dialog.run()
-        
+
         if response == Gtk.ResponseType.OK:
             if dialog.selection is not None:
                 model, tree_paths = dialog.selection.get_selected_rows()
@@ -1055,7 +1044,7 @@ class MainWindow(Gtk.Window):
                 sota_qsos = []
 
                 output_file = self.display_file_dialog("csv")
-                
+
                 if output_file is not None:
                     for path in reversed(tree_paths):
                         # model[path][0]       # summit
@@ -1066,9 +1055,9 @@ class MainWindow(Gtk.Window):
 
                     from .tools.export_sota import create_export_file_from_qsos
                     create_export_file_from_qsos(sota_qsos, csv_file=output_file, config=self.config)
-            
+
         dialog.destroy()
-    
+
     def import_menu_adif(self, widget):
 
         dialog = Gtk.FileChooserDialog("Select ADIF file", self,
