@@ -10,6 +10,7 @@ from .session_manage_dialog import ManageSessionDialog
 from .session_new_dialog import NewSessionDialog
 from .export_sota_dialog import ExportSotaDialog
 from .export_adif_dialog import ExportAdifDialog
+from .export_wwff_dialog import ExportWwffDialog
 from .export_sota_chaser_dialog import ExportSotaChaserDialog
 from .models import CallsignEntity
 from .import_adif_dialog import ImportAdifDialog
@@ -88,12 +89,15 @@ class MainWindow(Gtk.Window):
         menu_bar_export_menu_sota.connect("activate", self.export_menu_sota)
         menu_bar_export_menu_sota_chaser = Gtk.MenuItem("SOTA CSV Chaser")
         menu_bar_export_menu_sota_chaser.connect("activate", self.export_menu_sota_chaser)
+        menu_bar_export_menu_wwff_activator = Gtk.MenuItem("WWFF Activations")
+        menu_bar_export_menu_wwff_activator.connect("activate", self.export_menu_wwff_activator)
 
         # TODO hide these two - we do not have gui functions for these yet
         #menu_bar_export_menu.append(menu_bar_export_menu_ods)
         menu_bar_export_menu.append(menu_bar_export_menu_adif_session)
         menu_bar_export_menu.append(menu_bar_export_menu_sota)
         menu_bar_export_menu.append(menu_bar_export_menu_sota_chaser)
+        menu_bar_export_menu.append(menu_bar_export_menu_wwff_activator)
         menu_bar_export.set_submenu(menu_bar_export_menu)
         menu_bar.append(menu_bar_export)
 
@@ -1050,11 +1054,19 @@ class MainWindow(Gtk.Window):
                         # model[path][0]       # summit
                         # model[path][2] # date
 
-                        search_results = self.db.get_qsos_sota(summit=model[path][0], date=model[path][2]) 
+                        search_results = self.db.get_qsos_sota(summit=model[path][0], date=model[path][2])
                         sota_qsos.extend(search_results)
 
                     from .tools.export_sota import create_export_file_from_qsos
                     create_export_file_from_qsos(sota_qsos, csv_file=output_file, config=self.config)
+
+        dialog.destroy()
+
+    def export_menu_wwff_activator(self, widget):
+        activations = self.db.get_wwff_activations()
+
+        dialog = ExportWwffDialog(self, activations)
+        response = dialog.run()
 
         dialog.destroy()
 
@@ -1077,7 +1089,6 @@ class MainWindow(Gtk.Window):
             response = import_dialog.run()
             import_dialog.destroy()
 
-        
     # STANDARD FILE CHOOSER
     def display_file_dialog(self, extension=None):
         dialog = Gtk.FileChooserDialog("Select target file", self,

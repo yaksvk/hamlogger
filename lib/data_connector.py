@@ -26,7 +26,7 @@ class DataConnector():
         base_callsign_entity = self.session.query(CallsignEntity).filter_by(callsign=base_callsign_text).first()
         if  base_callsign_entity is not None:
             # base callsign found, assign
-            qso.callsign_entity = base_callsign_entity 
+            qso.callsign_entity = base_callsign_entity
             if callsign_note is not None:
                 qso.callsign_entity.text_note = callsign_note
         else:
@@ -35,32 +35,32 @@ class DataConnector():
             if callsign_note is not None:
                 base_callsign_entity.text_note = callsign_note
             self.session.add(base_callsign_entity)
-            qso.callsign_entity = base_callsign_entity 
+            qso.callsign_entity = base_callsign_entity
 
 
         self.session.add(qso)
 
         self.commit()
         return qso
-    
+
     def update_qso(self, qso, *args, **kwargs):
-        
+
         if 'callsign_text_note' in kwargs:
             callsign_note = kwargs['callsign_text_note']
             del(kwargs['callsign_text_note'])
         else:
             callsign_note = None
-        
+
         for i in kwargs.keys():
             setattr(qso, i, kwargs[i])
-            
+
         # TODO - unify settings callsign with create qso
         base_callsign_text = CallsignEntity.get_base_callsign(kwargs['callsign'])
         base_callsign_entity = self.session.query(CallsignEntity).filter_by(callsign=base_callsign_text).first()
-        
+
         if  base_callsign_entity is not None:
             # base callsign found, assign
-            qso.callsign_entity = base_callsign_entity 
+            qso.callsign_entity = base_callsign_entity
             if callsign_note is not None:
                 qso.callsign_entity.text_note = callsign_note
         else:
@@ -69,8 +69,8 @@ class DataConnector():
             if callsign_note is not None:
                 base_callsign_entity.text_note = callsign_note
             self.session.add(base_callsign_entity)
-            qso.callsign_entity = base_callsign_entity 
-        
+            qso.callsign_entity = base_callsign_entity
+
         self.session.add(qso)
         self.commit()
 
@@ -79,13 +79,13 @@ class DataConnector():
             setattr(qso, i, kwargs[i])
         self.session.add(qso)
         self.commit()
-    
+
     def delete_qso(self, qso):
-        
+
         self.session.delete(qso)
         self.session.flush()
         self.session.commit()
-        
+
     def get_orphan_qsos(self, asc=False):
         return self.session.query(Qso).filter_by(qso_session=None).order_by(Qso.id.asc()).all()
 
@@ -113,7 +113,7 @@ class DataConnector():
             return []
 
         return self.session.query(Qso).filter(Qso.id.in_(id_list)).all()
-    
+
     def get_qsos_sota(self, summit=None, date=None):
 
         # TODO this is a quick and easy way to make exception for an activation
@@ -124,13 +124,13 @@ class DataConnector():
                 .filter(QsoVariable.name==u'SUMMIT_SENT') \
                 .filter(QsoVariable.value==summit) \
                 .filter(func.date(Qso.datetime_utc)==date).order_by(Qso.id).all()
-        else:                        
+        else:
             return self.session.query(Qso).join(QsoVariable).filter(QsoVariable.name==u'SUMMIT_SENT').order_by(Qso.id).all()
 
     def get_sota_activations(self):
-        
+
         sota_activations = self.session.query(
-            func.count(Qso.id), 
+            func.count(Qso.id),
             func.date(Qso.datetime_utc),
             QsoSession.description,
             QsoVariable.value
@@ -138,19 +138,33 @@ class DataConnector():
 
         return sota_activations
 
+    def get_wwff_activations(self):
+        wwff_activations = self.session.query(
+            func.count(Qso.id),
+            func.date(Qso.datetime_utc),
+            QsoVariable.value
+        ).join(Qso._variables) \
+            .filter(QsoVariable.name=='WWFF_SENT') \
+            .group_by(QsoVariable.value, func.date(Qso.datetime_utc)) \
+            .order_by(desc(func.date(Qso.datetime_utc))) \
+            .all()
+
+        return wwff_activations
+
+
     def get_qsos_sota_chaser(self, descending=False, ids=None):
 
-        if ids is not None: 
+        if ids is not None:
             return self.session.query(Qso).join(QsoVariable).filter(QsoVariable.name==u'SUMMIT_RECEIVED').filter(Qso.id.in_(ids)).order_by(Qso.id).all()
 
         if desc:
             return self.session.query(Qso).join(QsoVariable).filter(QsoVariable.name==u'SUMMIT_RECEIVED').order_by(desc(Qso.id)).all()
         else:
             return self.session.query(Qso).join(QsoVariable).filter(QsoVariable.name==u'SUMMIT_RECEIVED').order_by(Qso.id).all()
-    
+
     def get_callsigns(self):
         return self.session.query(CallsignEntity).order_by(CallsignEntity.callsign).all()
-    
+
     def get_qso_sessions(self):
         return self.session.query(QsoSession).order_by(desc(QsoSession.id)).all()
     
