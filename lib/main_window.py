@@ -1068,6 +1068,34 @@ class MainWindow(Gtk.Window):
         dialog = ExportWwffDialog(self, activations)
         response = dialog.run()
 
+        if response == Gtk.ResponseType.OK:
+            if dialog.selection is not None:
+                model, tree_paths = dialog.selection.get_selected_rows()
+                wwff_qsos = []
+
+                # for now, it's just the first path, no multiselect
+                # enabled
+                path = tree_paths[0]
+
+                my_call = self.config['MY_CALLSIGN']
+                ref = model[path][0]
+                date = model[path][2]
+
+                search_results = self.db.get_qsos_wwff(wwff=ref, date=date)
+                wwff_qsos.extend(search_results)
+
+                dialog.destroy()
+
+                new_filename = f'{my_call}_{ref}_{date.replace("","")}.adif'
+
+                output_file = self.display_file_dialog("adif", filename=new_filename)
+                from .tools.export_wwff import create_export_file_from_qsos
+                create_export_file_from_qsos(
+                    wwff_qsos,
+                    adif_file=output_file,
+                    config=self.config
+                )
+
         dialog.destroy()
 
     def import_menu_adif(self, widget):
@@ -1090,21 +1118,24 @@ class MainWindow(Gtk.Window):
             import_dialog.destroy()
 
     # STANDARD FILE CHOOSER
-    def display_file_dialog(self, extension=None):
+    def display_file_dialog(self, extension=None, filename=None):
         dialog = Gtk.FileChooserDialog("Select target file", self,
             Gtk.FileChooserAction.SAVE,
             (Gtk.STOCK_CANCEL, Gtk.ResponseType.CANCEL,
              Gtk.STOCK_OPEN, Gtk.ResponseType.OK))
 
+        if filename is not None:
+            dialog.set_current_name(filename)
+
         response = dialog.run()
         return_file = None
-        
+
         if response == Gtk.ResponseType.OK:
             return_file = dialog.get_filename()
         elif response == Gtk.ResponseType.CANCEL:
             pass
         dialog.destroy()
-        
+
         return return_file
-    
+
 

@@ -50,7 +50,7 @@ class ExportWwffDialog(Gtk.Dialog):
         self.refresh_main_tree()
 
         self.selection = self.wwff_activation_tree.get_selection()
-        self.selection.set_mode(Gtk.SelectionMode.MULTIPLE)
+        self.selection.set_mode(Gtk.SelectionMode.SINGLE)
 
     def tree_data_create_model(self):
         store = Gtk.ListStore(str, int, str)

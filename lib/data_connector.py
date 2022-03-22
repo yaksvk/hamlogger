@@ -127,6 +127,16 @@ class DataConnector():
         else:
             return self.session.query(Qso).join(QsoVariable).filter(QsoVariable.name==u'SUMMIT_SENT').order_by(Qso.id).all()
 
+    def get_qsos_wwff(self, wwff=None, date=None):
+
+        if wwff is not None and date is not None:
+            return self.session.query(Qso).join(QsoVariable) \
+                .filter(QsoVariable.name==u'WWFF_SENT') \
+                .filter(QsoVariable.value==wwff) \
+                .filter(func.date(Qso.datetime_utc)==date).order_by(Qso.id).all()
+        else:
+            return self.session.query(Qso).join(QsoVariable).filter(QsoVariable.name==u'WWFF_SENT').order_by(Qso.id).all()
+
     def get_sota_activations(self):
 
         sota_activations = self.session.query(
@@ -167,26 +177,24 @@ class DataConnector():
 
     def get_qso_sessions(self):
         return self.session.query(QsoSession).order_by(desc(QsoSession.id)).all()
-    
+
     def get_qso_session_by_id(self, id):
         return self.session.query(QsoSession).filter(QsoSession.id==id).first()
-    
+
     def get_callsign(self, call):
         return self.session.query(CallsignEntity).filter(CallsignEntity.callsign==call).first()
-    
+
     def create_qso_session(self, *args, **kwargs):
         qso_session = QsoSession(*args, **kwargs)
         self.session.add(qso_session)
         self.commit()
         return qso_session
-    
 
     def get_first_qso(self, *args, **kwargs):
         return self.session.query(Qso).filter_by(**kwargs).first()
-       
+
     def commit(self):
         self.session.commit()
-        
+
     def rollback(self):
         self.session.rollback()
-
