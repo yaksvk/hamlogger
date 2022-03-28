@@ -1087,7 +1087,7 @@ class MainWindow(Gtk.Window):
 
                 # for filename: callsign used takes precedense over callsign configured
                 my_call = wwff_qsos[0].variables.get('MY_CALL', self.config.get('MY_CALLSIGN'))
-                new_filename = f'{my_call.replace("/","-")}_{ref}_{date.replace("","")}.adif'
+                new_filename = f'{my_call.replace("/","-")}_{ref}_{date.replace("-","")}.adif'
 
                 output_file = self.display_file_dialog("adif", filename=new_filename)
                 from .tools.export_wwff import create_export_file_from_qsos
