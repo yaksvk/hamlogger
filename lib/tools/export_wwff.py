@@ -57,7 +57,7 @@ def freq_to_band(freq):
         ('1mm',241000,250000),
     );
 
-    freq = int(freq)
+    freq = float(freq)
     for index, value in enumerate(bands):
         if freq >= value[1] and freq <= value[2]:
             return value[0]
