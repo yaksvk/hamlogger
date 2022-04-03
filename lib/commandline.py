@@ -132,8 +132,9 @@ def process(app, license):
     # modify
     if args.run is not None:
         if args.run == '':
-            print(f'No argument specified. Please something from lib.tools:')
-            for filename in [ os.path.basename(f) for f in glob.glob('lib/tools/scripts/*py')]:
+            print(f'No argument specified. Please choose something from lib.tools:')
+            script_glob = os.path.join(os.path.dirname(os.path.abspath(__file__)), 'tools/scripts/*py')
+            for filename in [ os.path.basename(f) for f in glob.glob(script_glob)]:
                 if filename[0] == '_':
                     continue
                 print(filename[:-3])
