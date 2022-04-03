@@ -1,12 +1,10 @@
-GM / GA / GE DR OM
-
 This is my attempt to produce a working HAM radio logging software in Python.
 This is the first working version and should be considered very very pre alpha.
 It is free software, please download, test, send feedback and let me know if 
 you feel you would like to contribute.
 
 
-WHY?
+## Why?
 
 I am an exclusive GNU/Linux user. This is largely inspired by a program called
 Xlog <http://xlog.nongnu.org/>. It is a great and fast piece of software, it
@@ -15,7 +13,7 @@ perfect piece I have used. So I decided that because of this and largely for
 learning purposes I would write something myself.
 
 
-REQUIREMENTS AND PHILOSOPHY
+## Requirements and philosophy
 
 I needed something simple for general ragchewing. I'm a beginning ham without
 much experience and my requirements may change as I begin exploring digital
@@ -31,23 +29,20 @@ secondary monitor and display the full callsign with a country, maybe a
 spot on the world map and possibly a photo or additional info for public
 ham radio presentations.
 
-
-HOW TO INSTALL AND RUN
+## How to install and run
 
 If you have a working Python installation, just download the project and run
 python hamlogger.py. The database file will be created and kept in the db
 subfolder.
 
+## Technologies
 
-TECHNOLOGIES
-
-- Python (3.8 used for development)
+- Python (3.9 used for development)
 - SQLAlchemy
 - Gtk3
 - SQLite3
 
-
-CURRENT FUNCTIONALITY
+## Current functionality
 
 - recording basic QSO variables (call, rst, band, mode, name, qth, note) and
   editing, deleting qsos
@@ -64,8 +59,13 @@ CURRENT FUNCTIONALITY
 
 - export SOTA CSV file 
 
+### User scripts
 
-KEYBOARD SHORTCUTS
+Users can put any custom scripts to lib/tools/scripts and use the --run command
+line option to run them. There scripts have access to the app object, the db 
+session handle (SQLite) and config.
+
+### Keyboard shortcuts
 
   CTRL-Z   Clear QSO fields and focus on the callsign box. 
            (failed QSO)
@@ -75,65 +75,4 @@ KEYBOARD SHORTCUTS
   
   CTRL-L   Lock focused widget in place (adding QSOs from an older date without
            having to type it again)
-
-
-
-GOALS (TODOS = THIS IS NOT DONE YET, THIS IS WHAT I WANT...EVENTUALLY :))
-
-- fix design glitches
-
-  - use actual sequence numbers instead of database ids for qso order
-  - improve DXCC / ITU prefix lookup, especially USA
-
-- gui
-  
-  - control all functionaity from the GUI
-  - special listing of callsign entities with edit and export capability
-  - improve the behavior of the callsign entity text note - set a fixed
-  - number of lines
-  - show local time for contacted stations
-
-- configurable columns and variables:
-
-  enable user to configure which columns get displayed in the GUI. Also, 
-  introduce configurable variables where the variable name and format can be
-  specified and optionally these can be displayed in the trees and edit 
-  dialogs.
-
-- session variables / tags:
-  
-  introduce a special class of qso variables: session variables to identify a 
-  whole session, tag it and categorize it. then make these available for
-  filtering qsos for exports. (for example: tag a bunch of qsos as "my trip
-  to these SOTA-registered summits" and then export only these qsos, or
-  tag all "qsos from the day I was at my country house using my experimental 
-  antenna", was I working portable that day? Was I abroad working under CEPT
-  conditions?)
-
-- imports:
-
-  - adif 
-  - opendocument spreadsheet (ODS) - (partially implemented)
-
-- exports:
-
-  - opendocument spreadsheet (partially implemented)
-  - csv
-  - adif (v2, v3)
-
-- connectors:
-
-  - direct upload to eQSL.cc, LOTW and SOTA
-  - automatic callsign querying at qrz.com, hamqth.com, hamcall.net
-
-- database:
-  
-  - permit all standard SQLAlchemy engine strings in the config (allow use 
-    of databases other than SQLite)
-
-- i18n support
-  - extract strings to an external file and enable translations
-
-- standard python distribution and installation (distutils)
-
 
