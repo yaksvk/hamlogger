@@ -11,7 +11,7 @@ setup(
     url="https://bitbucket.org/yak_sk/hamlogger",
     license="LICENSE",
     description="An amateur radio logging app",
-    long_description=open("README").read(),
+    long_description=open("README.md").read(),
     install_requires=[
         "sqlalchemy",
     ],
