@@ -1,6 +1,6 @@
 #!/usr/bin/en vpython
 
-from gi.repository import Gtk, Gdk
+from gi.repository import Gtk, Gdk, Pango
 from .widgets.rst_entry import RstEntry
 from .widgets.qso_variables_editor import QsoVariablesEditor
 from .edit_qso_dialog import EditQsoDialog
@@ -46,6 +46,11 @@ class MainWindow(Gtk.Window):
         # maximize if configured
         if config['WINDOW_MAXIMIZE']:
             self.maximize()
+
+        # set global font
+        if 'GLOBAL_FONT' in self.config:
+            font_desc = Pango.FontDescription(self.config['GLOBAL_FONT'])
+            self.modify_font(font_desc)
 
         # PREPARE FOR ALL THE WIDGETS
         self.widgets = {}
@@ -133,6 +138,15 @@ class MainWindow(Gtk.Window):
         menu_bar_mode_menu.append(menu_bar_mode_menu_qsl)
         menu_bar_mode.set_submenu(menu_bar_mode_menu)
         menu_bar.append(menu_bar_mode)
+
+
+        menu_bar_settings = Gtk.MenuItem("Settings")
+        menu_bar_settings_menu = Gtk.Menu()
+        menu_bar_settings_font = Gtk.MenuItem("Application Font")
+        menu_bar_settings_font.connect("activate", self.set_application_font)
+        menu_bar_settings_menu.append(menu_bar_settings_font)
+        menu_bar_settings.set_submenu(menu_bar_settings_menu)
+        menu_bar.append(menu_bar_settings)
 
         main_vbox.pack_start(menu_bar, False, True, 0)
 
@@ -1117,6 +1131,20 @@ class MainWindow(Gtk.Window):
             import_dialog = ImportAdifDialog(self, input_file)
             response = import_dialog.run()
             import_dialog.destroy()
+
+    def set_application_font(self, widget):
+        selector_dialog = Gtk.FontSelectionDialog("Select font name")
+        response = selector_dialog.run()
+
+        if response == Gtk.ResponseType.OK:
+
+            font_name = selector_dialog.get_font_name()
+            font_desc = Pango.FontDescription(font_name)
+            if font_desc:
+                self.override_font(font_desc)
+                self.config['GLOBAL_FONT'] = font_name
+
+        selector_dialog.destroy()
 
     # STANDARD FILE CHOOSER
     def display_file_dialog(self, extension=None, filename=None):
