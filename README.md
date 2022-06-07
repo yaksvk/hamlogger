@@ -1,3 +1,7 @@
+## Simple Python Ham Radio Logger using Gtk3
+
+<p align="center"><img src="icons/hamlogger_screenshot.png"/></p>
+
 This is my attempt to produce a working HAM radio logging software in Python.
 This is the first working version and should be considered very very pre alpha.
 It is free software, please download, test, send feedback and let me know if 
