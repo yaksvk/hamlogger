@@ -32,8 +32,24 @@ ham radio presentations.
 ## How to install and run
 
 If you have a working Python installation, just download the project and run
-python hamlogger.py. The database file will be created and kept in the db
+`python hamlogger.py`. The database file will be created and kept in the db
 subfolder.
+
+When using virtualenv:  
+```
+python3.10 -m virtualenv venv
+source ./venv/bin/activate
+pip install -U pip
+pip install .
+python ./hamlogger
+```
+
+When on MacOS:  
+You need to install some additional libraries.
+```
+brew install cairo
+brew install gtk+3 gobject-introspection
+```
 
 ## Technologies
 
