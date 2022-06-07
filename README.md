@@ -1,3 +1,7 @@
+## Simple Python Ham Radio Logger using Gtk3
+
+<p align="center"><img src="icons/hamlogger_screenshot.png"/></p>
+
 This is my attempt to produce a working HAM radio logging software in Python.
 This is the first working version and should be considered very very pre alpha.
 It is free software, please download, test, send feedback and let me know if 
@@ -32,8 +36,24 @@ ham radio presentations.
 ## How to install and run
 
 If you have a working Python installation, just download the project and run
-python hamlogger.py. The database file will be created and kept in the db
+`python hamlogger.py`. The database file will be created and kept in the db
 subfolder.
+
+When using virtualenv:  
+```
+python3.10 -m virtualenv venv
+source ./venv/bin/activate
+pip install -U pip
+pip install .
+python ./hamlogger
+```
+
+When on MacOS:  
+You need to install some additional libraries.
+```
+brew install cairo
+brew install gtk+3 gobject-introspection
+```
 
 ## Technologies
 
