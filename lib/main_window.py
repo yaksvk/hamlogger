@@ -151,50 +151,6 @@ class MainWindow(Gtk.Window):
         for item in menu_items:
             menu_bar.append(generate_menu_item(item))
 
-        """
-
-
-        menu_bar_session = Gtk.MenuItem("Sessions")
-        menu_bar_session_menu = Gtk.Menu()
-        menu_bar_session_menu_new = Gtk.MenuItem("New")
-        menu_bar_session_menu_new.connect("activate", self.menu_session_new)
-
-        # TODO hide session management - not yet available
-        #menu_bar_session_menu_manage = Gtk.MenuItem("Manage")
-        #menu_bar_session_menu_manage.connect("activate", self.menu_session_manage)
-        menu_bar_session_menu_reset = Gtk.MenuItem("Reset")
-        menu_bar_session_menu_reset.connect("activate", self.menu_session_reset)
-
-        menu_bar_session_menu.append(menu_bar_session_menu_new)
-        #menu_bar_session_menu.append(menu_bar_session_menu_manage)
-        menu_bar_session_menu.append(menu_bar_session_menu_reset)
-        menu_bar_session.set_submenu(menu_bar_session_menu)
-        menu_bar.append(menu_bar_session)
-
-        menu_bar_mode = Gtk.MenuItem("Mode")
-
-        menu_bar_mode_menu = Gtk.Menu()
-        menu_bar_mode_menu_standard = Gtk.MenuItem("Standard")
-        menu_bar_mode_menu_standard.connect("activate", self.menu_mode_switch, "standard")
-        menu_bar_mode_menu_contest = Gtk.MenuItem("Contest")
-        menu_bar_mode_menu_contest.connect("activate", self.menu_mode_switch, "contest")
-        menu_bar_mode_menu_qsl = Gtk.MenuItem("QSL Agenda")
-        menu_bar_mode_menu_qsl.connect("activate", self.menu_mode_switch, "qsl_agenda")
-        menu_bar_mode_menu.append(menu_bar_mode_menu_standard)
-        menu_bar_mode_menu.append(menu_bar_mode_menu_contest)
-        menu_bar_mode_menu.append(menu_bar_mode_menu_qsl)
-        menu_bar_mode.set_submenu(menu_bar_mode_menu)
-        menu_bar.append(menu_bar_mode)
-
-
-        menu_bar_settings = Gtk.MenuItem("Settings")
-        menu_bar_settings_menu = Gtk.Menu()
-        menu_bar_settings_font = Gtk.MenuItem("Application Font")
-        menu_bar_settings_font.connect("activate", self.set_application_font)
-        menu_bar_settings_menu.append(menu_bar_settings_font)
-        menu_bar_settings.set_submenu(menu_bar_settings_menu)
-        menu_bar.append(menu_bar_settings)
-        """
         main_vbox.pack_start(menu_bar, False, True, 0)
 
 
