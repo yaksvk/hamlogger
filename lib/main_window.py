@@ -64,47 +64,94 @@ class MainWindow(Gtk.Window):
         main_vbox = Gtk.VBox(False, 8)
 
         # MENU HEADERS
-        # TODO split these to more files and make it more dynamic
+        # TODO split these to more files and make it more dynamic, also move functions so we don't have a 
+        # thousand-line-long main_window source.
+
+        menu_items = [
+            {
+                'label': 'File',
+                'items': [
+                    {
+                        'label': 'Exit',
+                        'action': self.menu_file_exit
+                    },
+                ]
+            },
+            {
+                'label': 'Import',
+                'items': [
+                    {
+                        'label': 'ADIF',
+                        'action': self.import_menu_adif
+                    },
+                ]
+            },
+            {
+                'label': 'Export',
+                'items': [
+                    {
+                        'label': 'ADIF Session',
+                        'action': self.export_menu_adif_session
+                    },
+                    {
+                        'label': 'SOTA CSV Activator',
+                        'action': self.export_menu_sota
+                    },
+                    {
+                        'label': 'SOTA CSV Chaser',
+                        'action': self.export_menu_sota_chaser
+                    },
+                    {
+                        'label': 'WWFF ADIF Activator',
+                        'action': self.export_menu_wwff_activator
+                    },
+                ]
+            },
+            {
+                'label': 'Sessions',
+                'items': [
+                    {
+                        'label': 'New',
+                        'action': self.menu_session_new
+                    },
+                    {
+                        'label': 'Reset',
+                        'action': self.menu_session_reset
+                    },
+                ]
+            },
+            {
+                'label': 'Settings',
+                'items': [
+                    {
+                        'label': 'Application Font',
+                        'action': self.set_application_font
+                    },
+                ]
+            },
+        ]
+
 
         menu_bar = Gtk.MenuBar()
-        menu_bar_file = Gtk.MenuItem("File")
-        menu_bar_file_menu = Gtk.Menu()
-        menu_bar_file_menu_exit = Gtk.MenuItem("Exit")
-        menu_bar_file_menu_exit.connect("activate", self.menu_file_exit)
 
-        menu_bar_file_menu.append(menu_bar_file_menu_exit)
-        menu_bar_file.set_submenu(menu_bar_file_menu)
-        menu_bar.append(menu_bar_file)
+        def generate_menu_item(item_data):
+            item = Gtk.MenuItem(item_data['label'])
 
-        # import item
-        menu_bar_import = Gtk.MenuItem("Import")
-        menu_bar_import_menu = Gtk.Menu()
-        menu_bar_import_menu_adif = Gtk.MenuItem("ADIF")
-        menu_bar_import_menu_adif.connect("activate", self.import_menu_adif)
-        menu_bar_import_menu.append(menu_bar_import_menu_adif)
-        menu_bar_import.set_submenu(menu_bar_import_menu)
-        menu_bar.append(menu_bar_import)
+            if 'action' in item_data:
+                item.connect("activate", item_data['action'])
 
-        menu_bar_export = Gtk.MenuItem("Export")
-        menu_bar_export_menu = Gtk.Menu()
-        menu_bar_export_menu_ods = Gtk.MenuItem("OpenDocument")
-        menu_bar_export_menu_adif_session = Gtk.MenuItem("ADIF Session")
-        menu_bar_export_menu_adif_session.connect("activate", self.export_menu_adif_session)
-        menu_bar_export_menu_sota = Gtk.MenuItem("SOTA CSV Activator")
-        menu_bar_export_menu_sota.connect("activate", self.export_menu_sota)
-        menu_bar_export_menu_sota_chaser = Gtk.MenuItem("SOTA CSV Chaser")
-        menu_bar_export_menu_sota_chaser.connect("activate", self.export_menu_sota_chaser)
-        menu_bar_export_menu_wwff_activator = Gtk.MenuItem("WWFF Activations")
-        menu_bar_export_menu_wwff_activator.connect("activate", self.export_menu_wwff_activator)
+            if 'items' in item_data:
+                sub_menu = Gtk.Menu()
+                for sub_item_data in item_data['items']:
+                    sub_menu.append(generate_menu_item(sub_item_data))
 
-        # TODO hide these two - we do not have gui functions for these yet
-        #menu_bar_export_menu.append(menu_bar_export_menu_ods)
-        menu_bar_export_menu.append(menu_bar_export_menu_adif_session)
-        menu_bar_export_menu.append(menu_bar_export_menu_sota)
-        menu_bar_export_menu.append(menu_bar_export_menu_sota_chaser)
-        menu_bar_export_menu.append(menu_bar_export_menu_wwff_activator)
-        menu_bar_export.set_submenu(menu_bar_export_menu)
-        menu_bar.append(menu_bar_export)
+                item.set_submenu(sub_menu)
+            return item
+
+        for item in menu_items:
+            menu_bar.append(generate_menu_item(item))
+
+        """
 
 
         menu_bar_session = Gtk.MenuItem("Sessions")
@@ -147,7 +194,7 @@ class MainWindow(Gtk.Window):
         menu_bar_settings_menu.append(menu_bar_settings_font)
         menu_bar_settings.set_submenu(menu_bar_settings_menu)
         menu_bar.append(menu_bar_settings)
-
+        """
         main_vbox.pack_start(menu_bar, False, True, 0)
 
 
