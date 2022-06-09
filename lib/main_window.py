@@ -255,7 +255,7 @@ class MainWindow(Gtk.Window):
 
         menu_item1 = Gtk.MenuItem("Edit QSO")
         menu_item1.connect("activate", self.current_log_edit_qso)
-        
+
         separator = Gtk.SeparatorMenuItem()
 
         menu_item2 = Gtk.MenuItem("Delete QSO")
@@ -265,7 +265,7 @@ class MainWindow(Gtk.Window):
         self.current_log_context_menu.append(menu_item1)
         self.current_log_context_menu.append(separator)
         self.current_log_context_menu.append(menu_item2)
-       
+
         menu_item_weblinks.show()
         menu_item1.show()
         separator.show()
@@ -273,7 +273,7 @@ class MainWindow(Gtk.Window):
 
         # CURRENT LOG CONTEXT MENU - MULTISELECT
         # this context menu pops up when multiple rows are selected
-        
+
         self.current_log_context_menu_multiple = Gtk.Menu()
         multiple_menu_item1 = Gtk.MenuItem("Edit multiple QSOs")
         multiple_menu_item1.connect("activate", self.current_log_edit_qsos_multiple)
@@ -283,7 +283,7 @@ class MainWindow(Gtk.Window):
         # FOOTER
         self.statusbar = Gtk.Statusbar()
         main_vbox.pack_start(self.statusbar, False, False, 0)
-            
+
         # FINISH OFF
         self.add(main_vbox)
 
@@ -297,7 +297,7 @@ class MainWindow(Gtk.Window):
         items = (
             ("FREQ", self.widgets['band_combo'],1, True, True),
             ("MODE", self.widgets['mode_combo'],1, True, True),
-            ("CALL", self.widgets['call_entry'],2, True, True),  
+            ("CALL", self.widgets['call_entry'],2, True, True),
             ("DATE", self.widgets['input_date'],1, True, True),
             ("UTC", self.widgets['input_time'],1, True, True),
             ("RST SENT", self.widgets['rst_sent'],1, True, True),
@@ -309,7 +309,7 @@ class MainWindow(Gtk.Window):
             ("NOTE", self.widgets['input_note'],4, True, True),
             ("", self.save_button, 1, True, True),
         )
-        
+
         flex_sum = reduce(lambda x,y: x + y, [ i[2] for i in [x for x in items if (x[3] == True and self.logging_mode_standard == True) or (x[4] == True and self.logging_mode_contest == True)] ] )
 
         # create a table with a phantom number of columns (calculated flex sum)
@@ -320,9 +320,9 @@ class MainWindow(Gtk.Window):
             table.attach(Gtk.Label(item[0]), flex_cumulative, flex_cumulative + item[2], 0, 1)
             table.attach(item[1], flex_cumulative, flex_cumulative + item[2], 1, 2)
             flex_cumulative += item[2]
-        
+
         return table
-    
+
     # EVENT HANDLING FUNCTIONS FOR THE WIDGETS
 
     def something():
@@ -330,20 +330,20 @@ class MainWindow(Gtk.Window):
 
     def update_links(self, callsign):
         base_call = CallsignEntity.get_base_callsign(callsign)
-        
+
         self.widgets['links']['qrz'].set_markup('<b><a href="' + QRZ_ROOT + base_call + '">QRZ.com</a></b>')
         self.widgets['links']['hamcall'].set_markup('<b><a href="'+ HAMCALL_ROOT + base_call + '">HAMCALL.net</a></b>')
         self.widgets['links']['hamqth'].set_markup('<b><a href="'+ HAMQTH_ROOT + base_call + '">HamQTH.com</a></b>')
 
     def mode_changed(self, widget):
-        mode = widget.get_active_text() 
+        mode = widget.get_active_text()
         rst_widgets = ('rst_sent', 'rst_rcvd')
-        
+
         if mode in ('CW', 'RTTY'):
             mode_rst = 'RST'
         else:
             mode_rst = 'RS'
-        
+
         for wgt in rst_widgets:
             self.widgets[wgt].set_mode(mode_rst)
 
@@ -359,16 +359,16 @@ class MainWindow(Gtk.Window):
             self.update_links(new_text)
         else:
             self.dupe_log_store.clear()
-    
+
     def widget_monitor_keypress(self, widget, event):
         keyname = Gdk.keyval_name(event.keyval)
-        
+
         # guard for lock of this widget
         if event.state == Gdk.ModifierType.CONTROL_MASK and keyname == 'l':
-            
+
             # CTRL-L
             # toggle lock on this widget
-            
+
             # find this widget in the widget list 
             for key, val in self.widgets.items():
                 if widget is val:
@@ -381,16 +381,16 @@ class MainWindow(Gtk.Window):
                         self.locked_widgets[key] = True
                         widget.override_background_color(Gtk.StateFlags.NORMAL, Gdk.RGBA(1.0, 1.0, 0.8, 1.0))
                         widget.override_color(Gtk.StateFlags.NORMAL, Gdk.RGBA(0.0, 0.0, 0.0, 1.0))
-            
-        
+
+
         # guard for return
         if keyname == 'Return':
             self.widget_save_qso(widget, event)
             return
-        
+
         # guard for TAB
         if keyname == 'Tab':
-            
+
             # complete RST reports 
             #if widget in (self.widgets['rst_sent'], self.widgets['rst_rcvd']):
             #    if not widget.get_text():
@@ -408,13 +408,13 @@ class MainWindow(Gtk.Window):
                 self.widgets['rst_rcvd'].set_default()
 
             # TODO enable auto-jump mode here, so that one tab fills in date and time and focuses on RST 
-            
+
             # complete date (when focused on CALL and call not empty or when focused on date and date not empty)
             if (widget == self.widgets['call_entry'] and self.widgets['call_entry'].get_text()) or widget == self.widgets['input_date']:
                 if not self.widgets['input_date'].get_text():
                     utc = datetime.datetime.utcnow().timetuple()
                     self.widgets['input_date'].set_text("%04i-%02i-%02i" % (utc.tm_year , utc.tm_mon, utc.tm_mday))
-            
+
             # complete time when focused on date or time
             if (widget == self.widgets['input_date'] and self.widgets['input_date'].get_text()) or widget == self.widgets['input_time']:
                 if not self.widgets['input_time'].get_text():
@@ -424,28 +424,28 @@ class MainWindow(Gtk.Window):
     def input_time_inc(self, increment):
         # get current datetime
         iso_datetime = self.widgets['input_date'].get_text() + ' ' + self.widgets['input_time'].get_text()
-        
+
         if iso_datetime != ' ':
             current = datetime.datetime.strptime(iso_datetime, '%Y-%m-%d %H:%M')
             delta = datetime.timedelta(minutes=increment)
             current = current + delta
-            
+
             utc = current.timetuple()
             self.widgets['input_date'].set_text("%04i-%02i-%02i" % (utc.tm_year , utc.tm_mon, utc.tm_mday))
             self.widgets['input_time'].set_text("%02i:%02i" % (utc.tm_hour, utc.tm_min))
-                
-        
 
-    def window_key_press(self, widget, event):        
+
+
+    def window_key_press(self, widget, event):
 
         if event.state == Gdk.ModifierType.CONTROL_MASK:
             keyval = Gdk.keyval_name(event.keyval)
-            
+
             #print keyval
             if keyval == 'z':
                 # CTRL-Z
                 # clear all fields and focus back on callsign
-                
+
                 self.clear_fields_and_reset_focus()
             elif keyval == 'a':
                 # CTRL-A
@@ -455,9 +455,9 @@ class MainWindow(Gtk.Window):
                 # CTRL-X
                 # decrement minutes
                 self.input_time_inc(-1)
-               
 
-    def widget_save_qso(self, widget, event):        
+
+    def widget_save_qso(self, widget, event):
         # check if at least CALL, DATE, TIME and RST SENT and RECEIVED are present and save
 
         freq = self.widgets['band_combo'].get_active_text()
@@ -476,7 +476,7 @@ class MainWindow(Gtk.Window):
         utc = datetime.time(int(tfields[0]), int(tfields[1]))
 
         datetime_combined=datetime.datetime.combine(dat, utc)
-        
+
         found_qso = self.db.get_first_qso(callsign=str(callsign),datetime_utc=datetime_combined)
         if found_qso:
             print("Not adding. Dupe.")
@@ -489,7 +489,7 @@ class MainWindow(Gtk.Window):
                 mode=mode,
                 datetime_utc=datetime_combined,
                 frequency=freq,
-                rst_sent=self.widgets['rst_sent'].get_text(), 
+                rst_sent=self.widgets['rst_sent'].get_text(),
                 rst_received=self.widgets['rst_rcvd'].get_text(),
                 name_received=self.widgets['name'].get_text(),
                 qth_received=self.widgets['qth'].get_text(),
@@ -499,10 +499,11 @@ class MainWindow(Gtk.Window):
                 variables=self.qso_variables.value,
                 qso_session=self.active_session
             )
-            
+
         self.clear_fields_and_reset_focus()
         self.tree_data_refresh_main_tree()
         self.dupe_log_store.clear()
+
 
     def clear_fields_and_reset_focus(self):
         # clean fields and grab focus
@@ -514,14 +515,12 @@ class MainWindow(Gtk.Window):
         for i in other_widgets:
             if i not in self.locked_widgets:
                 self.widgets[i].set_text('')
-        
+
         self.widgets['callsign_note'].get_buffer().set_text('')
 
         # grab focus in the callsign box again
         self.widgets['call_entry'].grab_focus()
-        
-        
-      
+
 
     def current_log_keyrelease(self, widget, event):
         if event.button == 3:
@@ -531,7 +530,7 @@ class MainWindow(Gtk.Window):
             y = int(event.get_root_coords()[1])
 
             time = event.time
-            
+
             self.last_active_tree = widget
 
             #  check if selection in single or multiple
@@ -541,18 +540,20 @@ class MainWindow(Gtk.Window):
             if selection.get_mode() == Gtk.SelectionMode.MULTIPLE:
                 model, paths = selection.get_selected_rows()
                 selected_rows = len(paths)
-            
+
             if selected_rows == 1:
                 #self.current_log_context_menu.popup(None, None, lambda menu, user_data: (x, y, True), widget, 3, time)
                 self.current_log_context_menu.popup_at_pointer()
             else:
                 #self.current_log_context_menu_multiple.popup(None, None, lambda menu, user_data: (x, y, True), widget, 3, time)
                 self.current_log_context_menu_multiple.popup_at_pointer()
-    
+
+
     def tree_click(self, widget, event):
         if event.type == Gdk.EventType._2BUTTON_PRESS:
             self.last_active_tree = widget
             self.current_log_edit_qso(widget)
+
 
     def main_tree_selection_changed(self, selection):
         # TODO
@@ -563,10 +564,10 @@ class MainWindow(Gtk.Window):
         # - also change previous conversations when entry is already filled in - but not by user, keep a global memory whether
         #   the entry was changed by typing or by selection DONE
         # when editing a window, the tree refreshes, selection changes and everything goes to hell - probably will be fixed by listering to left click instead of selection
-        
+
         # assume this was to search for previous QSOs
         model, path_list = selection.get_selected_rows()
-        
+
         # only do this when a single row is selected
         if len(path_list) == 1:
             treeiter = path_list[0]
@@ -574,8 +575,8 @@ class MainWindow(Gtk.Window):
             return
 
         if model is not None and treeiter is not None:
-            column_callsign = model[treeiter][5]  
-            
+            column_callsign = model[treeiter][5]
+
             # if the callsign editing entry is empty, fill in callsign and refresh previous qso
             if not self.widgets['call_entry'].get_text() or not self.editing_mode:
                 self.widgets['call_entry'].set_text(column_callsign)
@@ -586,11 +587,11 @@ class MainWindow(Gtk.Window):
 
                 self.editing_mode = False
 
-    
+
     def update_entity_info(self, callsign):
         # TODO also, if many subsequent searches are made, i.e. OM, OM1, OM1AWS, do not re-do the search, unless
         # we're deleting some chars
-        
+
         result = self.resolver.get_entity_for_call(callsign)
         if result is not None:
             text = ("Country: %s\nITU zone: %s\nCQ zone: %s\nLat / Long: %s / %s\nUTC offset: %s" %
@@ -600,16 +601,17 @@ class MainWindow(Gtk.Window):
         else:
             self.widgets['entity_note'].get_buffer().set_text('')
             self.country = None
-    
+
+
     def current_log_edit_qsos_multiple(self, widget):
 
         selection = self.last_active_tree.get_selection()
         model, path_list = selection.get_selected_rows()
         self.editing_qsos = self.db.get_qsos_by_ids(id_list=[ model[path][0] for path in path_list ])
-        
+
         edit_dialog = EditQsoMultipleDialog(self)
         response = edit_dialog.run()
-        
+
         if response == Gtk.ResponseType.OK:
             for qso in self.editing_qsos:
                 self.db.update_qso_attrs(qso, variables=edit_dialog.qso_variables.value)
@@ -621,54 +623,54 @@ class MainWindow(Gtk.Window):
         edit_dialog.destroy()
 
     def current_log_edit_qso(self, widget):
-        
+
         selection = self.last_active_tree.get_selection()
         model, path_list = selection.get_selected_rows()
-        
+
         # only do this when a single row is selected
         if len(path_list) == 1:
             path = path_list[0]
         else:
             return
-            
-        column_id = model[path][0]  
+
+        column_id = model[path][0]
         #path = model.get_path(treeiter)
-        
+
         self.editing_qso_id = column_id
-        
+
         edit_dialog = EditQsoDialog(self)
         response = edit_dialog.run()
-        
+
         if response == Gtk.ResponseType.OK:
 
             freq = edit_dialog.widgets['band_combo'].get_active_text()
             mode = edit_dialog.widgets['mode_combo'].get_active_text()
-            
+
             qso_session = None
             if edit_dialog.widgets['qso_session_combo'].get_active() != -1:
                 qso_session = edit_dialog.qso_sessions[edit_dialog.widgets['qso_session_combo'].get_active()]
-            
+
             callsign = edit_dialog.widgets['call_entry'].get_text()
             dfields = edit_dialog.widgets['input_date'].get_text().split('-')
             dat = datetime.date(*list(map(int, dfields)))
             tfields = edit_dialog.widgets['input_time'].get_text().split(':')
             utc = datetime.time(int(tfields[0]), int(tfields[1]))
-            
+
             datetime_combined=datetime.datetime.combine(dat, utc)
             buf = edit_dialog.widgets['callsign_note'].get_buffer()
             cs_text_note = buf.get_text(*buf.get_bounds(),include_hidden_chars=False)
-            
+
             text_note = edit_dialog.widgets['input_note'].get_text()
-            
+
             self.db.update_qso(
-                
+
                 edit_dialog.found_qso,
-                
+
                 callsign=callsign,
                 mode=mode,
                 datetime_utc=datetime_combined,
                 frequency=freq,
-                rst_sent=edit_dialog.widgets['rst_sent'].get_text(), 
+                rst_sent=edit_dialog.widgets['rst_sent'].get_text(),
                 rst_received=edit_dialog.widgets['rst_rcvd'].get_text(),
                 name_received=edit_dialog.widgets['name'].get_text(),
                 qth_received=edit_dialog.widgets['qth'].get_text(),
@@ -680,70 +682,70 @@ class MainWindow(Gtk.Window):
                 qso_session=qso_session,
                 variables=edit_dialog.qso_variables.value,
             )
-            
-            
+
+
             current_tree = self.current_log_tree.get_vadjustment().get_value()
-            
-              
+
+
             # dupe_tree = self.dupe_log_tree.get_vadjustment().get_value()
-            
+
             self.tree_data_refresh_main_tree()
             self.tree_data_refresh_dupe_tree()
-            
+
             # self.current_log_tree.get_vadjustment().set_value(current_tree)
             # self.current_log_scroll_window.get_vadjustment().set_value(current_win)
-            
-                        
+
+
             self.current_log_tree.scroll_to_cell(path)
             selection.select_path(path)
-            
-            
+
+
             if edit_dialog.found_qso.callsign_entity.text_note is not None:
                 self.widgets['callsign_note'].get_buffer().set_text(edit_dialog.found_qso.callsign_entity.text_note)
             else:
                 self.widgets['callsign_note'].get_buffer().set_text('')
-                
+
             self.widgets['call_entry'].grab_focus()
-        
+
         elif response == Gtk.ResponseType.CANCEL:
             pass
         else:
             pass
 
         edit_dialog.destroy()
-        
-        
+
+
     def current_log_delete_qso(self, widget):
-        
+
         # for some reason, for now, we only support current log tree delete:
         if self.current_log_tree is not self.last_active_tree:
             return
 
         selection = self.last_active_tree.get_selection()
         model, path_list = selection.get_selected_rows()
-        
+
         # only do this when a single row is selected
         if len(path_list) == 1:
             treeiter = path_list[0]
         else:
             return
-            
-        column_id = model[treeiter][0]   
+
+        column_id = model[treeiter][0]
         self.editing_qso_id = column_id # TODO refactor get active Id, we have it too many times here
         found_qso = self.db.get_first_qso(id=self.editing_qso_id)
-        
+
         # open a yes-no dialog to confirm action
         confirm_dialog = ConfirmDialog(self)
         response = confirm_dialog.run()
-        
+
         if response == Gtk.ResponseType.OK:
             self.db.delete_qso(found_qso)
-            
+
             self.tree_data_refresh_main_tree()
             self.tree_data_refresh_dupe_tree()
-        
+
         confirm_dialog.destroy()
-        
+
     # TREE LOADING / REFRESHING FUNCTIONS
 
     def tree_data_create_model(self):
@@ -752,7 +754,7 @@ class MainWindow(Gtk.Window):
         return store
 
     def tree_data_refresh_main_tree(self):
-        
+
         # self.current_log_store.clear()
         # Clearing the log by using .clear() is very slow. a faster  approch that works is to create a new ListStore, throw away
         # the old liststore and point the tree to it - set_model
@@ -762,25 +764,25 @@ class MainWindow(Gtk.Window):
 
         qsos = self.db.get_qsos()
         for qso in qsos:
-            
+
             check = ''
             if qso.qsl_sent:
                 check = '✔'
             elif qso.qsl_received:
                 check = '✗'
-                
+
             self.current_log_store.append(
                   (
-                      qso.id, 
-                      qso.datetime_utc.date().isoformat(), 
-                      qso.datetime_utc.time().isoformat()[:5], 
+                      qso.id,
+                      qso.datetime_utc.date().isoformat(),
+                      qso.datetime_utc.time().isoformat()[:5],
                       qso.frequency,
-                      qso.mode, 
+                      qso.mode,
                       qso.callsign,
-                      qso.rst_sent, 
+                      qso.rst_sent,
                       qso.rst_received,
-                      qso.name_received, 
-                      qso.qth_received, 
+                      qso.name_received,
+                      qso.qth_received,
                       qso.country_received,
                       check,
                       qso.text_note
@@ -791,7 +793,7 @@ class MainWindow(Gtk.Window):
 
         self.dupe_log_store = self.tree_data_create_model()
         self.dupe_log_tree.set_model(self.dupe_log_store)
-        
+
         qsos = self.db.get_qsos(callsign_filter=self.widgets['call_entry'].get_text())
 
         for qso in qsos:
@@ -800,22 +802,22 @@ class MainWindow(Gtk.Window):
                 check = '✔'
             elif qso.qsl_received:
                 check = '✗'
-                
+
             self.dupe_log_store.append(
                 (
-                    qso.id, 
-                    qso.datetime_utc.date().isoformat(), 
-                    qso.datetime_utc.time().isoformat()[:5], 
-                    qso.frequency, 
-                    qso.mode, 
-                    qso.callsign, 
+                    qso.id,
+                    qso.datetime_utc.date().isoformat(),
+                    qso.datetime_utc.time().isoformat()[:5],
+                    qso.frequency,
+                    qso.mode,
+                    qso.callsign,
                     qso.rst_sent,
                     qso.rst_received,
                     qso.name_received,
                     qso.qth_received,
                     qso.country_received,
                     check,
-                    qso.text_note 
+                    qso.text_note
                 )
             )
 
@@ -827,41 +829,41 @@ class MainWindow(Gtk.Window):
                 self.widgets['callsign_note'].get_buffer().set_text(self.active_callsign_entity.text_note)
             else:
                 self.widgets['callsign_note'].get_buffer().set_text('')
-            
+
         else:
             # clear field
             self.active_callsign_entity = None
             self.widgets['callsign_note'].get_buffer().set_text('')
 
     def tree_data_create_columns(self, treeView):
-   
+
         columns = ['ID','DATE', 'UTC', 'FREQ', 'MODE', 'CALL', 'RST_SENT', 'RST_RCVD', 'NAME', 'QTH', 'COUNTRY', 'Q', 'NOTE']
 
         for i, column in enumerate(columns):
             rendererText = Gtk.CellRendererText()
             col = Gtk.TreeViewColumn(column, rendererText, text=i)
-            col.set_sort_column_id(i)  
-            
+            col.set_sort_column_id(i)
+
             # QSL info - TODO this appears not to work FTM
             if i == 12:
                 col.expand = True
             if i == 11:
                 col.sizing = Gtk.TreeViewColumnSizing.FIXED
-            
+
             treeView.append_column(col)
-    
+
     # Context menu actions
     def open_weblink(self, widget, event, *params):
         selection = self.last_active_tree.get_selection()
         model, path_list = selection.get_selected_rows()
-        
+
         # only do this when a single row is selected
         if len(path_list) == 1:
             treeiter = path_list[0]
         else:
             return
-            
-        column_call = model[treeiter][5]  
+
+        column_call = model[treeiter][5]
         base_call = CallsignEntity.get_base_callsign(column_call)
-        
+
         Gtk.show_uri(None, params[0] + base_call, Gdk.CURRENT_TIME)
