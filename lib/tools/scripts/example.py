@@ -12,7 +12,7 @@ Example of what can be done with scripts.
 Run this as hamlogger.py --run example
 """
 
-def execute(db_handle, app, **kwargs):
+def execute(db_handle, app, args):
 
     # Example1: Fix missing country info for QSOs with empty country_received.
     # Use the built-in country prefix resolver to determine country.

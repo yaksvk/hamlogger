@@ -50,7 +50,7 @@ def process(app, license):
     parser.add_argument("--run", nargs='?', const='',
         help="Execute a custom script from lib.tools.scripts Run without arguments to see options.")
 
-    args = parser.parse_args()
+    args, custom_args = parser.parse_known_args()
 
     # print licensing information and exit
     if args.license:
@@ -142,5 +142,5 @@ def process(app, license):
 
         print(f'Trying to import lib.tools.{args.run}')
         runlib = importlib.import_module(f'lib.tools.scripts.{args.run}')
-        runlib.execute(db_handle=app.db_handle, app=app, args=args)
+        runlib.execute(db_handle=app.db_handle, app=app, args=custom_args)
         sys.exit()
