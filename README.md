@@ -81,9 +81,34 @@ brew install gtk+3 gobject-introspection
 
 ### User scripts
 
+HamLogger was written mainly to give the user more power over the application and
+make whatever exports very easy to write on your own.
+
 Users can put any custom scripts to lib/tools/scripts and use the --run command
 line option to run them. There scripts have access to the app object, the db 
 session handle (SQLite) and config.
+
+Example:
+
+```
+hamlogger.py --run my_script [arg1 arg2 ... ]
+```
+
+You create a file lib/tools/scripts/my_script.py:
+```python
+#!/usr/bin/env python
+
+def execute(db_handle, app, args):
+    # db_handle: the application's DataConnector (data_connector.py) with 
+    #     all the helper functions. db_handle.session is the original SQLAlchemy
+    #     session object.
+    #
+    # app: application object 
+    #
+    # args: a list containing the rest of your arguments
+    #    [ arg1, arg2, ... ]
+
+```
 
 ### Keyboard shortcuts
 
