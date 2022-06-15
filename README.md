@@ -110,6 +110,24 @@ def execute(db_handle, app, args):
 
 ```
 
+### Data Model
+A *QsoSession* is a means of organizing *Qso*s to groups. a *QsoSession* can be a single 
+ADIF import or you running a contest. 
+
+A *Qso* is the basic record with all the necessary variables such as *frequency*, *datetime_utc*,
+*mode*,*callsign* and others. Any other custom variables are saved in *QsoVariables* to allow for 
+maximum flexibility.
+
+*CallsignEntity* is a esstentially a person. OE/OM1WS/P, OM1WS are the same person and you might
+want to treat it that way.
+
+```mermaid
+erDiagram
+    Qso |o--o{ QsoSession : may_be_a_part_of
+    Qso }o--|| QsoVariable : may_contain
+    Qso ||--|{ CallsignEntity : belongs_to
+```
+
 ### Keyboard shortcuts
 
   CTRL-Z   Clear QSO fields and focus on the callsign box. 
