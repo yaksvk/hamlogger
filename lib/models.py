@@ -30,8 +30,8 @@ class CallsignEntity(Base):
     @classmethod
     def get_base_callsign(myclass, callsign_text):
         """get base callsign for complicated types like mobile, portable or CEPT calls"""
-        clean_sign = re.sub('(/p|/m|/mm|/am|/qrp)?$', '', callsign_text, flags=re.IGNORECASE)
-        clean_sign = re.sub('(/p|/m|/mm|/am|/qrp)?$', '', clean_sign, flags=re.IGNORECASE)
+        clean_sign = re.sub('(/p|/m|/mm|/am|/qrp|/\d)?$', '', callsign_text, flags=re.IGNORECASE)
+        clean_sign = re.sub('(/p|/m|/mm|/am|/qrp|/\d)?$', '', clean_sign, flags=re.IGNORECASE)
         clean_sign = re.sub('^[^/]+/', '', clean_sign, flags=re.IGNORECASE)
 
         return clean_sign
