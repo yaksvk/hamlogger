@@ -19,6 +19,7 @@ def probe_models_and_create_session(db_file):
 
 # models for tables
 
+
 class CallsignEntity(Base):
     __tablename__ = 'callsigns'
 
@@ -43,12 +44,14 @@ class CallsignEntity(Base):
     def qso_count(self):
         return len(self.qsos)
 
+
 class QsoType(Base):
     __tablename__ = 'qso_types'
 
     id = Column(Integer, primary_key=True)
     description = Column(Unicode(64))
     qsos = relationship("Qso", backref="qso_types", viewonly=True)
+
 
 class QsoSession(Base):
     __tablename__ = 'qso_sessions'
@@ -58,6 +61,7 @@ class QsoSession(Base):
     text_note = Column(UnicodeText)
     locator = Column(Unicode(8))
     qsos = relationship("Qso", backref="qso_sessions", viewonly=True)
+
 
 class Qso(Base):
     __tablename__ = 'qsos'
@@ -106,6 +110,7 @@ class Qso(Base):
             return self.datetime_utc.date().isoformat()
         else:
             return None
+
 
 class QsoVariable(Base):
     __tablename__ = 'qso_variables'
