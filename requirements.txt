@@ -1,3 +1,5 @@
 sqlalchemy
 ezodf
-PyGObject
+pygobject
+pycairo
+pgi
