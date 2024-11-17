@@ -4,13 +4,14 @@ from gi.repository import Gtk
 from .tools.adif_reader import read_file
 from .tools.qso_preprocessor import process_qsos
 from .widgets.qso_variables_editor import QsoVariablesEditor
+import os
 
 class ImportAdifDialog(Gtk.Dialog):
     def __init__(self, parent, input_file):
 
         Gtk.Dialog.__init__(
             self,
-            "Export Sota CSV",
+            "Import ADIF",
             parent,
             Gtk.DialogFlags.MODAL,
         )
@@ -24,6 +25,7 @@ class ImportAdifDialog(Gtk.Dialog):
         )
 
         self.input_file = input_file
+        self.set_title(self.get_title() + ' from: <' + os.path.basename(input_file) + '>')
 
         # build main content area
         box = self.get_content_area()
@@ -82,18 +84,32 @@ class ImportAdifDialog(Gtk.Dialog):
                 qso_variables = q['qso_variables']
                 del q['qso_variables']
 
+            # mapped variables (do not use all ADIF fields)
+            mapping = {
+                'callsign': 'CALL',
+                'mode': 'MODE',
+                'datetime_utc': 'datetime_combined',
+                'name_received': 'NAME',
+                'qth_received': 'QTH',
+                'frequency': 'FREQ',
+                'rst_sent': 'RST_SENT',
+                'rst_received': 'RST_RCVD',
+                'text_note': 'COMMENT',
+            }
+
+            kwargs = {native_var: q[adif_var] for native_var, adif_var in mapping.items() if adif_var in q}
+            if 'text_note' not in kwargs or kwargs['text_note'] is None:
+                kwargs['text_note'] = ''
+
+            kwargs['country_received'] = country
+            kwargs['variables'] = qso_variables
+            kwargs['qso_session'] = qso_session
+
+
+
+
             self.parent_app.db.create_qso(
-                callsign=q['CALL'],
-                mode=q['MODE'],
-                datetime_utc=q['datetime_combined'],
-                frequency=q['FREQ'],
-                country_received=country,
-                rst_sent=q['RST_SENT'],
-                rst_received=q['RST_RCVD'],
-                text_note=q.get('COMMENT',''),
-                variables=qso_variables,
-                qso_session = qso_session
+                **kwargs
             )
 
         self.parent_app.tree_data_refresh_main_tree()
-
